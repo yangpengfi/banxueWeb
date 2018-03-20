@@ -135,7 +135,10 @@
                     </li>
                 </ul>
                 <div class="pecent">
-                    
+                    <!-- <IEcharts :option="pie" style="width:150px;height:100px;"></IEcharts>
+                    <IEcharts :option="pie2" style="width:150px;height:100px;"></IEcharts> -->
+                    <div id="pie0ne" :style="{width: '180px', height: '180px'}"></div>
+                    <div id="pieTwo" :style="{width: '180px', height: '180px'}"></div>
                 </div>                   
           </div>
         </div>
@@ -170,15 +173,13 @@
                 <span class="blue-num">1481</span>
                 所学校开通了智慧校园服务
             </div>
-            <p>仅需1分钟即可开始免费体验智慧校园产品服务</p>
-            <img src="../../assets/imgs/index/wisdomSchoolbg.png" alt="开通介绍图">
-            <div>
-                <button class="open-btn">开通智慧校园</button>
-            </div>            
+            <p>仅需1分钟即可开始免费体验智慧校园产品服务</p> 
+            <button class="open-btn">开通智慧校园</button>
       </div>     
   </div>
 </template>
 <script>
+// import IEcharts from 'vue-echarts-v3';
 import ClassList from '@/components/common/ClassList'; 
 import SpaceList from '@/components/common/SpaceList.vue';
 import SpaceDynamic from '@/components/common/SpaceDynamic.vue';
@@ -192,7 +193,7 @@ export default {
     data () {
         return {
             value2: 0,
-            recomClasses:[]
+            recomClasses:[]            
         }
     },
     methods:{
@@ -205,7 +206,96 @@ export default {
           .catch((err)=>{
             alert(err);
           })
-        }
+        },
+        drawPieOne(){
+            let pieOne = this.$echarts.init(document.getElementById('pie0ne'));
+            pieOne.setOption({
+                tooltip: {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b}: {c} ({d}%)"
+                },               
+                series: [
+                    {
+                        name:'空间数量',
+                        type:'pie',
+                        radius: ['35%', '55%'],
+                        avoidLabelOverlap: false,
+                        label: {
+                            normal: {
+                                formatter: '75%',
+                                position: 'center',
+                                textStyle: {
+                                    fontSize: '14',
+                                    fontWeight: 'bold'
+                                }
+                            },
+                            emphasis: {
+                                show: true,
+                                textStyle: {
+                                    fontSize: '12',
+                                    fontWeight: 'bold'
+                                }
+                            }
+                        },
+                        labelLine: {
+                            normal: {
+                                show: false
+                            }
+                        },
+                        data:[
+                            {value:8888, name:'占有量',itemStyle:{normal:{color:'#31C46E'}}},
+                            {value:2222, name:'剩余量',itemStyle:{normal:{color:'#31C499'}}}                            
+                        ]
+                    }
+                ]
+            });
+        },
+        drawPieTwo(){
+            let pieTwo = this.$echarts.init(document.getElementById('pieTwo'));
+            pieTwo.setOption({
+               tooltip: {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b}: {c} ({d}%)"
+                },                
+                series: [
+                    {
+                        name:'空间数量',
+                        type:'pie',
+                        radius: ['35%', '55%'],
+                        avoidLabelOverlap: false,
+                        label: {
+                            normal: {                                
+                                formatter: '100%',
+                                position: 'center',
+                                textStyle: {
+                                    fontSize: '14',
+                                    fontWeight: 'bold'
+                                }
+                            },
+                            emphasis: {
+                                show: true,
+                                textStyle: {
+                                    fontSize: '12',
+                                    fontWeight: 'bold'
+                                }
+                            }
+                        },
+                        labelLine: {
+                            normal: {
+                                show: false
+                            }
+                        },
+                        data:[
+                            {value:8888, name:'占有量',itemStyle:{normal:{color:'#31C46E'}}}                                                     
+                        ]
+                    }
+                ]
+            });
+        },
+    },
+    mounted(){
+        this.drawPieOne();
+        this.drawPieTwo();
     },
     created:function(){     
       this. getRecomClassesList();
@@ -363,7 +453,7 @@ export default {
         display: flex;
         justify-content: space-between;
         margin-top: 20px;
-        margin-bottom: 20px;
+        margin-bottom: 26px;
     }
     #space .section-tab{
         margin-left: 80px;
@@ -389,28 +479,33 @@ export default {
     .one-total li{
         float: left;
         width: 30%;
+        padding: 20px 0;
         margin-right: 10px;
-        text-align: center;
-        font-size: 18px;
-        border-right:1px solid#EFEFEF;
+        text-align: center;        
+        border-right:1px solid#EFEFEF;        
+	    font-size: 20px;	
+	    color: #666;
     }
     .one-total li:last-child{        
         border-right:none;
     }
     .one-num{        
-        color: #4EA7F5;        
+        color: #1cb0ea;        
 	    font-size: 20px;	
     }
     #classes{
         margin-top: 50px;
     }    
     #open-box{
-        padding: 40px 0;
+        position: relative;
+        height:830px;
         text-align: center;
         background-color: #ECF9FF;
+        background: url('../../assets/imgs/index/wisdomSchoolbg.png') no-repeat center center;
     }
     .open-title{
         font-size: 40px;
+        padding-top: 66px;
     }
     .small-size{
         font-size: 35px;
@@ -425,14 +520,19 @@ export default {
         margin-bottom: 20px;
     }
     .open-btn{
-        width: 300px;
+        display: inline-block;
+        width: 280px;
         height: 60px;
-        margin-top: 10px;
-        background-color: #0882E3;
+        margin-top: 530px;        
         border:none;
         color:#fff;
         font-size: 20px;
         border-radius: 10px;
+	    background-color: #47a2ff;
+    }   
+    .pecent>div{
+        float: left; 
+        width: 50%;
     }
 </style>
 

@@ -29,7 +29,7 @@
           <div class="section-box">
               <span class="section-title">特色微课</span>
               <span class="nums">（2634）</span>
-              <a href="#" class="right more">更多<Icon type="ios-arrow-thin-right" size="16px" color="#ccc"></Icon></a>
+              <span class="right more">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
           </div>
           <div class="class-content">
               <p><img src="../../assets/imgs/resource/special.png" alt="特色微课宣传图片"></p>
@@ -40,7 +40,7 @@
           <div class="section-box">
               <span class="section-title">优课专区</span>
               <span class="nums">（2634）</span>
-              <a href="#" class="right more">更多<Icon type="ios-arrow-thin-right" size="16px" color="#ccc"></Icon></a>
+              <span class="right more">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
           </div>
           <div class="class-content">
               <p><img src="../../assets/imgs/resource/hight.png" alt="优课专区宣传图片"></p>
