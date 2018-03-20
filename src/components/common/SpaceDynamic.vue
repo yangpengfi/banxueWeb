@@ -37,11 +37,12 @@
 .mr10{margin-left: 10px}
 .mr15{margin-left: 15px}
 #spaceDynamic{
-	width: 300px;
+    width: 300px;    
 }
 .dynamic-content{
 	border:1px solid rgb(233,233,233);
-	padding:0 20px;
+    padding:0 20px;
+    background-color: #fff;
 }
 .dynamic-content li{
 	padding: 20px 0 19px;

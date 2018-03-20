@@ -44,7 +44,8 @@
 .space-content{
 	border:1px solid rgb(233,233,233);
 	padding:40px 20px;
-	overflow: hidden;
+    overflow: hidden;
+     background-color: #fff;
 }
 .space-content li{
 	width: 270px;

@@ -1,31 +1,33 @@
-<template>       
-  <div id="header">    
-    <div class="left">
-        <div class="logo">
-          <img src="../../assets/imgs/index/u124.png" alt="这是logo图片">
-        </div>        
-        <div class="title">
-          <div>伴学网教育云平台</div>
-          <p>专注中小学个性化教育</p>
-        </div>
-        <div class="address">
-          <span href="#">运营千城计划</span>
-          <p>
-            <img src="../../assets/imgs/index/u120.png" alt="地图定位图片">
-            <a href="#">深圳</a>
-          </p>
-        </div>
-    </div>        
-    <ul class="left nav">
-      <li v-for="(relation,index) in relations" v-on:click="relationClick(relation)">
-        <router-link :to='relation.path' :class="{active:relation.id==nowId}">{{relation.text}}</router-link>
-      </li>
-    </ul>
-    <div class="right">
-      <button @click = "login">登录</button>
-      <button>伴学网</button>      
+<template>  
+  <div id="header-container">
+    <div id="header" class="w-1200">    
+      <div class="left">
+          <div class="logo">
+            <img src="../../assets/imgs/index/u124.png" alt="这是logo图片">
+          </div>        
+          <div class="title">
+            <div>伴学网教育云平台</div>
+            <p>专注中小学个性化教育</p>
+          </div>
+          <div class="address">
+            <span href="#">运营千城计划</span>
+            <p>
+              <img src="../../assets/imgs/index/u120.png" alt="地图定位图片">
+              <a href="#">深圳</a>
+            </p>
+          </div>
+      </div>        
+      <ul class="left nav">
+        <li v-for="(relation,index) in relations" v-on:click="relationClick(relation)">
+          <router-link :to='relation.path' :class="{active:relation.id==nowId}">{{relation.text}}</router-link>
+        </li>
+      </ul>
+      <div class="right">
+        <button @click = "login">登录</button>
+        <button>伴学网</button>      
+      </div>
     </div>
-  </div>
+  </div> 
 </template>
 
 <script>
@@ -61,12 +63,15 @@ export default {
 }
 </script>
 <style scoped>
-#header{
-  width:1200px;
+#header-container{
+  width: 100%;
+  background-color: #fff;
+}
+#header{  
   height:120px;
   margin: auto;  
   overflow: hidden;
-  margin-top: 34px;
+  padding-top: 34px; 
 }
 #header>div.left{
   overflow: hidden;  
@@ -133,10 +138,10 @@ export default {
   border-bottom:2px solid #1cb0ea;
   color:#1cb0ea;
 }
-.nav li:hover a{
+/* .nav li:hover a{
   border-bottom:2px solid #1cb0ea;
   color:#1cb0ea;
-}
+} */
 #header>.right{
   margin-top: 25px;
 }

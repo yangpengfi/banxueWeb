@@ -4,23 +4,64 @@
         <Carousel autoplay v-model="value2" loop>
             <CarouselItem>
                 <div class="demo-carousel">
-                    <img src="../../assets/imgs/index/u137.jpg">
+                    <img src="../../assets/imgs/index/indexBanner01.jpg">
                 </div>
             </CarouselItem>
             <CarouselItem>
                 <div class="demo-carousel">
-                    <img src="../../assets/imgs/index/u139.jpg">
+                    <img src="../../assets/imgs/index/indexBanner02.jpg">
                 </div>
             </CarouselItem>        
         </Carousel>
       </div>
-      <ul id="role" class="w-1200">
-          <li>管理者</li>
-          <li>教师</li>
-          <li>学生</li>
-          <li>家长</li>
-      </ul>
-      <div id="result" class="w-1200">
+      <div class="w-1200" id="role-container">
+        <ul id="role">
+            <li class="manager">
+                <h1>管理者</h1>
+                <img src="../../assets/imgs/index/managerIcon.png" alt="管理者logo">
+                <div>
+                    <span class="color-line"></span>
+                    <p>我想知道如何提升管理效率和管理水平</p>
+                    <span class="drop-arrow"></span>
+                </div>
+            </li>
+            <li class="teacher">
+                <h1>教师</h1>
+                <img src="../../assets/imgs/index/teacherIcon.png" alt="教师logo">
+                <div>
+                    <span class="color-line"></span>
+                    <p>我想知道如何提升工作效率和教育水平</p>
+                    <span class="drop-arrow"></span>
+                </div>
+            </li>
+            <li class="student">
+                <h1>学生</h1>
+                <img src="../../assets/imgs/index/studentsIcon.png" alt="学生logo">
+                <div>
+                    <span class="color-line"></span>
+                    <p>我想知道如何提升学习效率和成绩</p>
+                    <span class="drop-arrow"></span>
+                </div>             
+            </li>
+            <li class="parent">
+                <h1>家长</h1>
+                <img src="../../assets/imgs/index/homemasterIcon.png" alt="家长logo">
+                <div>
+                    <span class="color-line"></span>
+                    <p>我想知道如何了解孩子的学习情况</p>
+                    <span class="drop-arrow"></span>
+                </div>
+            </li>
+        </ul>
+        <ul id="role-tab" class="w-1200">
+            <li><img src="../../assets/imgs/index/managerSelect01.png"></li>  
+            <li><img src="../../assets/imgs/index/managerSelect02.png"></li>  
+            <li><img src="../../assets/imgs/index/managerSelect03.png"></li>  
+            <li><img src="../../assets/imgs/index/managerSelect04.png"></li>           
+        </ul>
+      </div>
+      <div id="result-container">
+        <div id="result" class="w-1200">
           <div class="result">
                 <div class="section-box">
                     <span class="section-title">成果.咨询</span>
@@ -78,43 +119,34 @@
                 </p>
                 <ul class="one-total">
                     <li>
-                        <img src="" alt="">
+                        <img src="../../assets/imgs/index/teacherRole.png" alt="老师icon">
                         <p>老师</p>
                         <p class="one-num">565758</p>
                     </li>
                     <li>
-                        <img src="" alt="">
+                        <img src="../../assets/imgs/index/studentRole.png" alt="学生icon">
                         <p>学生</p>
                         <p class="one-num">4577949</p>
                     </li>
                     <li>
-                        <img src="" alt="">
+                        <img src="../../assets/imgs/index/masterparentRole.png" alt="家长icon">
                         <p>家长</p>
                         <p class="one-num">8975185</p>
                     </li>
                 </ul>
                 <div class="pecent">
                     
-                </div>
-                    <Circle :percent="80">
-                        <span class="demo-Circle-inner" style="font-size:24px">80%</span>
-                    </Circle>
-                    <Circle :percent="100" stroke-color="#5cb85c">
-                        <Icon type="ios-checkmark-empty" size="60" style="color:#5cb85c"></Icon>
-                    </Circle>
-                    <Circle :percent="35" stroke-color="#ff5500">
-                        <span class="demo-Circle-inner">
-                            <Icon type="ios-close-empty" size="50" style="color:#ff5500"></Icon>
-                        </span>
-                    </Circle>
+                </div>                   
           </div>
+        </div>
       </div>
+      
       <div id="classes" class="w-1200">
             <div class="section-box">
                 <span class="section-title">热门课程</span>
-                <a href="#" class="right more">更多<Icon type="ios-arrow-thin-right" size="16px" color="#ccc"></Icon></a>
+                <span class="right more">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
             </div>
-            <ClassList></ClassList>           
+            <ClassList :classList="recomClasses"></ClassList>          
       </div>
       <div id="space" class="w-1200">
         <div id="spaceList">
@@ -129,7 +161,7 @@
             </div>
             <SpaceList></SpaceList> 
         </div>
-        <SpaceDynamic></SpaceDynamic> 
+        <SpaceDynamic></SpaceDynamic>    
       </div>
       <div id="open-box">
             <div class="open-title">
@@ -139,22 +171,11 @@
                 所学校开通了智慧校园服务
             </div>
             <p>仅需1分钟即可开始免费体验智慧校园产品服务</p>
-            <img src="../../assets/imgs/index/u145.png" alt="开通介绍图">
+            <img src="../../assets/imgs/index/wisdomSchoolbg.png" alt="开通介绍图">
             <div>
                 <button class="open-btn">开通智慧校园</button>
             </div>            
-      </div>
-      <div id="about-us">
-          <div>
-              <div>
-                <span>帮助中心</span>
-                <p>
-                    <img src="" alt="">
-                </p>
-              </div>
-              
-          </div>
-      </div>
+      </div>     
   </div>
 </template>
 <script>
@@ -170,8 +191,24 @@ export default {
     },
     data () {
         return {
-            value2: 0
+            value2: 0,
+            recomClasses:[]
         }
+    },
+    methods:{
+        getRecomClassesList(){
+          this.$http.get('http://recommendClasses.cn')
+          .then((res)=>{
+            console.log(res.data.classesList); 
+            this.recomClasses=res.data.classesList;
+          })
+          .catch((err)=>{
+            alert(err);
+          })
+        }
+    },
+    created:function(){     
+      this. getRecomClassesList();
     }
 }
 </script>
@@ -179,35 +216,84 @@ export default {
     #banner img{
         vertical-align: bottom;
         width: 100%;
-    }    
-    #role{
+    }   
+    #role-container{
+        padding: 0 17px 40px;
+        background-color: #fff;
+    } 
+    #role{ 
         overflow: hidden;
-        margin-top: 15px;
-        margin-bottom: 15px;
+        padding-top: 20px;        
+    }    
+    #role>li{
+        position: relative;
+        float: left;
+        width: 25%;        
+        height: 266px;  
+        padding: 0 20px;     
+        text-align: center;        
+        cursor: pointer;
+        border:1px solid transparent;
     }
-    #role li:first-child{
+    #role>li>h1{ 
+        margin-top: 20px;
+        margin-bottom: 25px;       
+        font-size: 20px;	
+        color: #333;
+        font-family: MicrosoftYaHei;
+    }
+    #role>li>div{
+        padding: 0 60px;
+        margin-top: 18px;
+        border-top: 1px solid #E7E7E7;
+    }
+    #role>li>div p{
+        margin-top: 18px;
+        font-size: 14px;   
+        height:32px;     ;
+        line-height: 32px;        
+        color: #666;
+        font-family: MicrosoftYaHei;
+    }
+    #role>li.manager:hover{
+        border-color: #54CCC8;
+    }    
+    #role>li.teacher:hover{
+        border-color: #61BF2D;
+    }
+    #role>li.student:hover{
+        border-color: #FFBD5F;
+    }
+    #role>li.parent:hover{
+        border-color: #FF9190;
+    }
+    #role-tab{
+        overflow: hidden; 
+    }
+    #role-tab li{
+        float: left;
+        margin-left: 30px;
+    }
+    #role-tab li:first-child{
         margin-left: 0;
     }
-    #role li{
+    #role-tab li{
         float: left;
-        width: 24%;
-        margin-left: 10px;
-        height: 200px;
-        line-height: 200px;
-        background-color: #3d95d5;
-        text-align: center;
-        color: #fff;
-        font-size: 30px;
         cursor: pointer;
+    }
+    #result-container{
+        background-color: #fff;
+        width: 100%;
     }
     #result{
         overflow: hidden;
         margin-bottom: 15px;
         margin-top: 50px;
+        background-color: #fff;
     }
     .result{
         float: left;
-        width: 65%;        
+        width: 70%;         
     }    
     .monitor{
         float: right;
@@ -215,6 +301,9 @@ export default {
     }
     .result-content{
         overflow: hidden;
+        border-right:1px solid #E9E9E9;
+        border-top: 1px solid #E9E9E9; 
+        padding: 20px 20px 50px 0;  
     }
     .result-content>img{
         float: left;
@@ -280,15 +369,19 @@ export default {
         margin-left: 80px;
     }
     .space-total{
+        border-top: 1px solid #E9E9E9; 
+        padding: 20px 35px 0;  
         text-align: center;
     }
-    .space-total span{
-        font-size: 18px;
-        margin-right: 10px;
+    .space-total span{        
+        margin-right: 10px;       
+        font-size: 16px;        
+        color: #666;
     }
-    .space-total b{
-        font-size: 40px;
-        color: #4EA7F5;
+    .space-total b{       
+        font-family: MicrosoftYaHei;
+        font-size: 30px;        
+        color: #1cb0ea;
     }
     .one-total{
         overflow: hidden;
@@ -299,20 +392,17 @@ export default {
         margin-right: 10px;
         text-align: center;
         font-size: 18px;
+        border-right:1px solid#EFEFEF;
     }
-    .one-num{
-        font-size: 25px;
-        color: #4EA7F5;
+    .one-total li:last-child{        
+        border-right:none;
+    }
+    .one-num{        
+        color: #4EA7F5;        
+	    font-size: 20px;	
     }
     #classes{
         margin-top: 50px;
-    }
-    .classes-title{
-        overflow: hidden;
-        margin: 20px;        
-    }
-    .classes-title a{
-        font-size: 14px;      
     }    
     #open-box{
         padding: 40px 0;

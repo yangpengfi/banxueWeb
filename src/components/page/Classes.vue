@@ -51,26 +51,26 @@
             </div>
           </div>          
         </div>       
-        <div id="new-classes" class="w-1200">
-          <div class="classes-title">
-            <span>最新课程</span>
-            <a href="#">更多</a>
+        <div id="new-classes" class="w-1200">          
+          <div class="section-box">
+            <span class="section-title">最新课程</span>
+            <span class="right more">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
           </div>
-          <ClassList></ClassList>           
+          <ClassList :classList="newClasses"></ClassList>           
         </div>
         <div id="recommend-classes" class="w-1200">
-          <div class="classes-title">
-            <span>推荐课程</span>
-            <a href="#">更多</a>
+          <div class="section-box">
+            <span class="section-title">推荐课程</span>
+            <span class="right more">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
           </div>
-          <ClassList></ClassList> 
+          <ClassList :classList="recomClasses"></ClassList> 
         </div>
         <div id="hot-classes" class="w-1200">
-          <div class="classes-title">
-            <span>热门课程</span>
-            <a href="#">更多</a>
+          <div class="section-box">
+            <span class="section-title">热门课程</span>
+            <span class="right more">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
           </div>
-          <ClassList></ClassList> 
+          <ClassList :classList="hotClasses"></ClassList> 
         </div>
     </div>
 </template>
@@ -83,8 +83,48 @@ export default {
     },
     data () {
         return {
-            value2: 0
+            value2: 0,
+            newClasses:[],
+            recomClasses:[],
+            hotClasses:[]
         }
+    },
+    methods:{
+        getNewClassesList(){
+          this.$http.get('http://newClasses.cn')
+          .then((res)=>{
+            console.log(res.data.classesList); 
+            this.newClasses=res.data.classesList;
+          })
+          .catch((err)=>{
+            alert(err);
+          })
+        },
+        getRecomClassesList(){
+          this.$http.get('http://recommendClasses.cn')
+          .then((res)=>{
+            console.log(res.data.classesList); 
+            this.recomClasses=res.data.classesList;
+          })
+          .catch((err)=>{
+            alert(err);
+          })
+        },
+        getHotClassesList(){
+          this.$http.get('http://hotClasses.cn')
+          .then((res)=>{
+            console.log(res.data.classesList); 
+            this.hotClasses=res.data.classesList;
+          })
+          .catch((err)=>{
+            alert(err);
+          })
+        }           
+    },
+    created:function(){
+      this. getNewClassesList();
+      this. getRecomClassesList();
+      this. getHotClassesList();
     }
 }
 </script>
@@ -167,24 +207,6 @@ export default {
 }
 #new-classes{
   margin-top: 80px;
-}
-.classes-title{
-  overflow: hidden;
-  padding: 15px 0;
-}
-.classes-title span{
-  float: left;  
-  padding-left: 20px;
-	font-size: 20px;	
-	letter-spacing: 1px;
-  color: #3f4449;
-  border-left:2px solid #47a2ff;
-}
-.classes-title a{
-  margin-top: 10px;
-  float: right;  
-	font-size: 14px;	
-	color: #999;
 }
 #hot-classes{
   margin-bottom: 60px;

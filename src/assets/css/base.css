@@ -94,6 +94,12 @@ a:hover,a:active {
 .w-300{
     width:330px;
 }
+.w-590{
+    width:590px;
+}
+.w-430{
+    width:430px;
+}
 /*标题公共样式*/
 .section-box{
     height: 60px;
@@ -123,7 +129,8 @@ a:hover,a:active {
     font-size: 14px;
     line-height: 28px;
     color: #999;
-    padding: 10px;
+    padding: 10px 30px 10px 10px;
+    cursor: pointer;
 }
 .more i{
     margin-left:10px;

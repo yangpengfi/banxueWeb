@@ -1,100 +1,34 @@
 <template>
     <div>
         <ul class="classes-content">
-            <li>
+            <li v-for="item in classList">
                 <div class="classes-img">
-                    <img src="../../assets/imgs/index/u161.png" alt="课程图片">
+                    <img :src="item.img" alt="课程图片">
                     <p></p>
                 </div>                
                 <div class="class-price">
-                    <p>备战高考 理科一轮复习课程</p>
+                    <p>{{item.title}}</p>
                     <span>￥</span>
-                    <b>29.00</b>
+                    <b>{{item.price}}.00</b>
                 </div>                
-            </li>
-            <li>
-                <div class="classes-img">
-                    <img src="../../assets/imgs/index/u163.png" alt="课程图片">
-                    <p></p>
-                </div>                
-                <div class="class-price">
-                    <p>备战高考 理科一轮复习课程</p>
-                    <span>￥</span>
-                    <b>29.00</b>
-                </div>                
-            </li>
-            <li>
-                <div class="classes-img">
-                    <img src="../../assets/imgs/index/u165.png" alt="课程图片">
-                    <p></p>
-                </div>                
-                <div class="class-price">
-                    <p>备战高考 理科一轮复习课程</p>
-                    <span>￥</span>
-                    <b>29.00</b>
-                </div>                
-            </li>
-            <li>
-                <div class="classes-img">
-                    <img src="../../assets/imgs/index/u167.png" alt="课程图片">
-                    <p></p>
-                </div>                
-                <div class="class-price">
-                    <p>备战高考 理科一轮复习课程</p>
-                    <span>￥</span>
-                    <b>29.00</b>
-                </div>                
-            </li>
-            <li>
-                <div class="classes-img">
-                    <img src="../../assets/imgs/index/u169.png" alt="课程图片">
-                    <p></p>
-                </div>                
-                <div class="class-price">
-                    <p>备战高考 理科一轮复习课程</p>
-                    <span>￥</span>
-                    <b>29.00</b>
-                </div>                
-            </li>
-            <li>
-                <div class="classes-img">
-                    <img src="../../assets/imgs/index/u171.png" alt="课程图片">
-                    <p></p>
-                </div>                
-                <div class="class-price">
-                    <p>备战高考 理科一轮复习课程</p>
-                    <span>￥</span>
-                    <b>29.00</b>
-                </div>                
-            </li>  
-            <li>
-                <div class="classes-img">
-                    <img src="../../assets/imgs/index/u161.png" alt="课程图片">
-                    <p></p>
-                </div>                
-                <div class="class-price">
-                    <p>备战高考 理科一轮复习课程</p>
-                    <span>￥</span>
-                    <b>29.00</b>
-                </div>                
-            </li>
-            <li>
-                <div class="classes-img">
-                    <img src="../../assets/imgs/index/u163.png" alt="课程图片">
-                    <p></p>
-                </div>                
-                <div class="class-price">
-                    <p>备战高考 理科一轮复习课程</p>
-                    <span>￥</span>
-                    <b>29.00</b>
-                </div>                
-            </li>            
+            </li>           
         </ul>
     </div>
 </template>
 <script>
 export default {
-    name:'ClassList'
+    name:'ClassList',
+    data(){
+        return {
+
+        }
+    },
+    props:{
+        classList:{
+            type:Array,
+            required:true
+        }
+    }  
 }
 </script>
 <style scoped>
@@ -153,10 +87,7 @@ export default {
     .class-price b{           
         font-size:20px;        
         color: #ff4242;
-    }
-    .classes-content li:hover{
-
-    }
+    }    
 </style>
 
 

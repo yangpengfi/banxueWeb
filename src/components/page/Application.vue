@@ -70,6 +70,7 @@ export default {
 .content{
   border:1px solid rgb(233,233,233);
   overflow: hidden;
+  background-color: #fff;
 }
 .content li{
   float: left;
