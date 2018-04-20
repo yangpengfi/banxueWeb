@@ -38,7 +38,7 @@ export default {
       relations:[
             {text:'首页',path:'/',id:'index'},   
             {text:'资源',path:'/resource',id:'resource'},   
-            {text:'课程',path:'/classes',id:'classes'},   
+            {text:'课程',path:'/Classes',id:'classes'},   
             {text:'空间',path:'/space',id:'space'},   
             {text:'应用',path:'/application',id:'application'} 
       ],
@@ -47,7 +47,11 @@ export default {
   },
   methods:{
     login(){
-      this.$router.push('/Login');
+      this.$router.replace({
+         name:"Login",
+         query: {redirect: this.$router.currentRoute.fullPath}
+        })
+      // this.$router.push('/Login');
     },
     relationClick(item){  
       this.nowId=item.id; 
@@ -128,7 +132,7 @@ export default {
 .nav li a{ 
   display: inline-block; 
   width: 80px;
-  padding: 24px 0;
+  padding: 24px 0 15px;
   font-size: 16px;
   cursor: pointer;
   color:#333;

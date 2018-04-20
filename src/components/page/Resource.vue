@@ -8,15 +8,20 @@
                 <span>同步资源</span>
               </p>
               <ul class="resource-content">
-                <li v-for="item in resources">
+                <li v-for="item in resources" v-if="item.id>0" @mouseenter="getVersionList(item.id)">
                   <div>
-                    <span>{{ item }}</span>
+                    <span>{{ item.name }}</span>
                     <Icon type="chevron-right" class="right"></Icon>
                   </div>                  
                   <ul class="sub-resource">
                     <li v-for="item in resouceList">
-                      <b>{{ item.class }}</b>                      
-                      <a href="#" v-for="version in item.versions">{{ version }}</a>                     
+                      <b>{{ item.periodName }}</b>
+                      <p>                    
+                      <a href="javascript:void(0);" 
+                      v-for="(version,index) in item.versions" 
+                      @click="toAreaResource(version)" v-if="index<6">{{version.name}}</a>
+                      <a href="javascript:void(0);" v-if="item.versions.length>6" class="active">更多</a> 
+                      </p>                      
                     </li>                   
                   </ul>
                 </li>
@@ -28,22 +33,22 @@
       	<div class="w-590 left">
           <div class="section-box">
               <span class="section-title">特色微课</span>
-              <span class="nums">（2634）</span>
-              <span class="right more">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
+              <span class="nums">（{{specialTotalCount}}）</span>
+              <span class="right more" @click="goSpecialClass">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
           </div>
           <div class="class-content">
-              <p><img src="../../assets/imgs/resource/special.png" alt="特色微课宣传图片"></p>
+              <p><img src="../../assets/imgs/resource/courseimgA.jpg" alt="特色微课宣传图片"></p>
               <resClasses :resClasses="specialClasses"></resClasses>
           </div>
         </div>
         <div class="w-590 right">
           <div class="section-box">
               <span class="section-title">优课专区</span>
-              <span class="nums">（2634）</span>
-              <span class="right more">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
+              <span class="nums">（{{hightTotalCount}}）</span>
+              <span class="right more" @click="goHightQualityClass">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
           </div>
           <div class="class-content">
-              <p><img src="../../assets/imgs/resource/hight.png" alt="优课专区宣传图片"></p>
+              <p><img src="../../assets/imgs/resource/courseimgB.png" alt="优课专区宣传图片"></p>
               <resClasses :resClasses="hightClasses"></resClasses>
           </div>
         </div>
@@ -56,8 +61,8 @@
               </div> 
               <ul>
                 <li v-for="item in famousLecture">
-                  <img :src="item.img" alt="课程图标">
-                  <span>{{item.title}}</span>                  
+                  <img :src="fileType(item.fileSuffix,1)" alt="课程图标">
+                  <span>{{item.recourceLocalName}}</span>                  
                 </li>
               </ul>
           </div>
@@ -79,12 +84,13 @@
           </div>       
         </div>
         <div class="w-300 right" id="space-state">          
-          <SpaceDynamic></SpaceDynamic> 
+          <SpaceDynamic :infos="latestNews"></SpaceDynamic> 
         </div>
       </div>
   </div>
 </template>
 <script>
+import global_ from '@/components/Global'; 
 import ResClasses from '@/components/common/ResClasses';
 import ResourceList from '@/components/common/ResourceList';
 import SpaceDynamic from '@/components/common/SpaceDynamic.vue';
@@ -97,85 +103,177 @@ export default {
     },
     data(){
       return {
-        resources:['语文','数学','英语','历史','政治','地理','生物','化学','物理'],
-        resouceList:[         
-            {
-              class:'高中',
-              versions:['人教版','沪教版','冀教版','湘教版','粤教版','豫教版']
-            },
-            {
-              class:'初中',
-              versions:['人教版','沪教版','冀教版','湘教版','粤教版','豫教版']
-            },
-            {
-              class:'小学',
-              versions:['人教版','沪教版','冀教版','湘教版','粤教版','豫教版']
-            }
-        ],
+        resources:global_.subjectList,
+        resouceList:[],
         specialClasses:[],
+        specialTotalCount:0,
         hightClasses:[],
+        hightTotalCount:0,
         famousLecture:[],
         newResource:[],
-        hotResource:[]
+        hotResource:[],
+        latestNews:[],
+        colorList:global_.colorList,
+        randColor:global_.getRandColor(),
+        fileType:global_.setFileType
       }
     },
     methods:{
-        getSpecialClassesList(){
-          this.$http.get('http://specialClasses.cn')
+        getVersionList(sId){//版本列表
+          this.$http.post('/web/coursebook/getVersionsGroupByPeriod.do',this.$qs.stringify({
+            subjectId:sId
+          }))
           .then((res)=>{
-            console.log(res.data.classesList); 
-            this.specialClasses=res.data.classesList;
+            // console.log(res.data); 
+            if(res.data.status==0){
+              this.resouceList=res.data.data;
+            }else{
+              
+            }
           })
           .catch((err)=>{
             alert(err);
           })
         },
-        getHightClassesList(){
-          this.$http.get('http://highClasses.cn')
+        getSpecialClassesList(){//微课
+          this.$http.post('/web/coursebook/listResourceLocal.do',this.$qs.stringify({
+            pageSize:4,
+            verifyStatus:2,
+            resourceTypeId:0
+          }))
           .then((res)=>{
-            console.log(res.data.classesList); 
-            this.hightClasses=res.data.classesList;
+            // console.log(res.data); 
+            if(res.data.status==0){
+              this.specialClasses=res.data.data.list;
+              this.specialTotalCount=res.data.data.totalCount;
+              this.setBgcolor(this.specialClasses);
+            }else{
+              this.$Message.info(res.data.message);
+            }
           })
           .catch((err)=>{
             alert(err);
           })
         },
-        getFamousLecture(){
-          this.$http.get('http://famousLecture.cn')
+        getHightClassesList(){//优课
+          this.$http.post('/web/coursebook/listResourceLocal.do',this.$qs.stringify({
+            pageSize:4,
+            verifyStatus:2,
+            resourceTypeId:0
+          }))
           .then((res)=>{
-            console.log(res.data.classesList); 
-            this.famousLecture=res.data.classesList;
+            // console.log(res.data.classesList); 
+            if(res.data.status==0){
+              this.hightClasses=res.data.data.list;
+              this.hightTotalCount=res.data.data.totalCount;
+              this.setBgcolor(this.hightClasses);
+            }else{
+              this.$Message.info(res.data.message);
+            }
           })
           .catch((err)=>{
             alert(err);
           })
         },
-        getNewResourceList(){
-          this.$http.get('http://newResource.cn')
+        getFamousLecture(){//名师推荐
+          this.$http.post('/web/coursebook/listTeacherHostResource.do',this.$qs.stringify({
+            pageSize:8,
+          }))
           .then((res)=>{
-            console.log(res.data.classesList); 
-            this.newResource=res.data.classesList;
+            // console.log(res.data.classesList);
+            if(res.data.status==0){
+              this.famousLecture=res.data.data.list;
+            }else{
+              this.$Message.info(res.data.message);
+            } 
           })
           .catch((err)=>{
             alert(err);
           })
         },
-        getHotResourceList(){
-          this.$http.get('http://hotResource.cn')
+        getLatestNews(){//名师推荐
+          this.$http.post('/web/coursebook/listTeacherLastResource.do',this.$qs.stringify({
+            pageSize:10
+          }))
           .then((res)=>{
-            console.log(res.data.classesList); 
-            this.hotResource=res.data.classesList;
+            // console.log(res.data.classesList);
+            if(res.data.status==0){
+              this.latestNews=res.data.data.list;
+            }else{
+              this.$Message.info(res.data.message);
+            } 
           })
           .catch((err)=>{
             alert(err);
           })
-        }      
+        },
+        getNewResourceList(){//最新资源
+          this.$http.post('/web/coursebook/listTeacherHostResource.do',this.$qs.stringify({
+            pageSize:8,
+            verifyStatus:2,
+            resourceTypeId:0
+          }))
+          .then((res)=>{
+            // console.log(res.data.classesList); 
+            if(res.data.status==0){
+              this.newResource=res.data.data.list;
+            }else{
+              this.$Message.info(res.data.message);
+            } 
+          })
+          .catch((err)=>{
+            alert(err);
+          })
+        },
+        getHotResourceList(){//最热资源
+          this.$http.post('/web/coursebook/listRegionHostResource.do',this.$qs.stringify({
+            pageSize:10,
+          }))
+          .then((res)=>{
+            // console.log(res.data.classesList); 
+            if(res.data.status==0){
+              this.hotResource=res.data.data.list;
+            }else{
+              this.$Message.info(res.data.message);
+            } 
+          })
+          .catch((err)=>{
+            alert(err);
+          })
+        },
+        toAreaResource(item){
+          this.$storage.setSession('baseData',item)
+          this.$router.push({
+							path:'/FilterResource/AreaResource?id=AreaResource'
+          });		
+        },
+        goSpecialClass(){
+          this.$router.push({
+              path:'/FilterResource/SpecialClass?id=SpecialClass'
+          }); 
+        },
+        goHightQualityClass(){
+          this.$router.push({
+              path:'/FilterResource/HightQualityClass?id=HightQualityClass'
+          }); 
+        },
+        setBgcolor(item){
+          for(let i=0,len=item.length;i<len;i++){
+            var sId=parseInt(item[i].subjectId);
+            if(sId<10){
+              item[i].bgColor=this.colorList[sId-1]
+            }else{
+              item[i].bgColor=this.randColor;
+            }
+          }
+        } 
                       
     },
     created:function(){
       this.getSpecialClassesList();
       this.getHightClassesList();
       this.getFamousLecture();
+      this.getLatestNews();
       this.getNewResourceList();
       this.getHotResourceList();
     }
@@ -230,7 +328,7 @@ export default {
   width: 600px;	
   background-color: #fff;
   display: none;
-  padding-top: 40px;  
+  padding: 20px 0 10px 40px;  
 }
 .resource-content .right{
   margin-top: 13px;
@@ -245,18 +343,33 @@ export default {
   display: none;
 }
 .sub-resource li{
-  padding-left: 40px;
-  margin-bottom: 30px;
+  line-height: 2;
+  margin-bottom: 10px;
 }
 .sub-resource li b{ 
   margin-right: 28px; 
 	font-size: 16px;	
 	color: #333;
 }
+.sub-resource li p{
+  display: inline-block;
+  vertical-align: top;
+  width: 495px;
+}
 .sub-resource li a{ 
+  padding-bottom:3px;
   margin-right: 30px;	
 	font-size: 14px;	
 	color: #666;
+  display: inline-block;
+}
+.sub-resource li a:hover{
+  color: #1cb0ea;
+  text-decoration: underline;
+}
+.sub-resource li a.active{
+  color: #1cb0ea;
+  font-weight: bold;
 }
 #classes{
   overflow: hidden;
@@ -294,6 +407,7 @@ export default {
   cursor: pointer;
 }
 #famous-lecture ul li img{
+  width: 32px;
   vertical-align: middle;
   margin-right: 16px;
 }

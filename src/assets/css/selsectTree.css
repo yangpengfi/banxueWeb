@@ -1,0 +1,151 @@
+.text-center{
+  text-align: center;
+}
+#load-resource{
+    min-height: 900px;
+    overflow-y:auto;
+}
+.leftHead{
+  margin-top: 20px;
+    width: 220px;
+    padding: 10px 20px;
+    background-color: #1caaf1;
+    text-align: center;
+    position: relative;
+}
+.leftTitle{
+    font-size: 16px;
+    color: #fff;
+    display: inline-block;
+    line-height: 24px;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+}
+.leftHead>i{
+    color:#fff;
+    font-size: 16px;
+    position: absolute;
+    top:28px;
+    right: 10px;
+}
+.selDown{
+    text-align: left;
+    position: absolute;
+    left:0;
+    width: 220px;
+    padding: 15px;
+    box-sizing: border-box;
+    border: 1px solid #e9e9e9;
+    background-color: #f8f8f8;
+    overflow: hidden;
+    z-index: 10;
+}
+.top74{
+  top:74px;
+}
+.top47{
+  top:47px;
+}
+.selDown>p{
+    line-height: 40px;
+}
+.selDown>p select{
+    width: 125px;
+    height: 30px;
+    border: 1px solid #e9e9e9;
+    border-radius: 4px;
+    padding-left: 7px;
+    color: #666;
+}
+.bxw-btn-info-xs{
+    display: inline-block;
+    padding:0 25px;
+    margin-top: 15px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 4px;
+    color:#fff;
+    cursor: pointer;
+    text-decoration: none;
+    background-color: #1daaf3;
+}
+.mybox-leave-active,.mybox-enter-active{
+    transition:  all .5s; 
+}
+.mybox-leave-active,.mybox-enter{
+  padding: 0 15px;
+    height:0px !important;
+}
+.mybox-leave,.mybox-enter-active{
+  padding: 15px;
+    height: 242px;
+}
+
+.section{
+    width: 100%;
+    height: 550px;    
+    overflow-y:auto;
+}
+.section li{
+    margin: 10px;  
+}
+.joint>li{
+    margin-right: 0;  
+}
+.bar-line>li{
+    margin-right: 0;  
+}
+.section li .ivu-icon-ios-plus-outline{
+   cursor: pointer;
+}
+.section li p{
+    float: right;
+    cursor: pointer;
+    display: none;
+    margin-top: 3px;
+}
+.section li p.active{
+    display: block;
+}
+.section li span{
+    cursor: pointer;
+}
+.section li span.active{
+    color: #47a2ff;
+}
+.section li .ivu-icon-ios-cloud-upload-outline{
+    color: #47a2ff;    
+}
+.fold{
+    display: inline-block;
+    width: 18px;
+    height: 20px;
+}
+.joint,.bar-line{
+    display: none;
+}
+.joint.active,.bar-line.active{
+    display: block;
+}
+.uploader-example .uploader-btn{
+    margin: 10px 0;
+    display: none;
+}
+.uploader-example .uploader-btn.active{
+    display: block;
+    color: #fff;    
+    background-color: #f90;
+    border-color: #f90;
+}
+.uploader-example .uploader-btn.active:hover{
+    background-color: #ffad33;
+    border-color: #ffad33;
+}
+.uploader-example .uploader-list {
+    max-height: 440px;
+    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+}

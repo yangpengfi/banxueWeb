@@ -1,14 +1,14 @@
 <template>
   <div id="spaceDynamic">
   	<div class="section-box">
-        <span class="section-title">空间动态</span>
+        <span class="section-title">最新动态</span>
     </div> 
     <ul class="dynamic-content">
     	<li v-for="item in infos" class="clear">
-            <img src="../../assets/imgs/space/u01.png" alt="人员照片">
+            <img :src="item.uploadUserLogo" alt="人员照片">
             <div>
-                <p><b>{{item.name}}</b><span class="right"><Icon type="ios-time-outline"></Icon>{{item.time}}</span></p>
-                <p>{{item.point}}</p>
+                <p><b>{{item.uploadUserName}}</b><span class="right"><Icon type="ios-time-outline"></Icon> {{new Date(item.createTime).getMinutes()}}分钟</span></p>
+                <p>上传了 <span>{{item.recourceLocalName}}</span></p>
             </div>
         </li>
     </ul>
@@ -21,15 +21,14 @@
 	name:'SpaceList',
   	data () {
   	  return {
-  	    infos:[
-            {name:'高琴云',point:'发表话题 你有没有开展过设计类的欣赏课实践？',school:'石狮中学',time:'35分钟',imgUrl:'t17.png'},
-            {name:'高琴云',point:'上传了4张照片到相册 《花儿》',school:'石狮中学',time:'25分钟',imgUrl:'t17.png'},
-            {name:'高琴云',point:'上传了1张照片到相册 《风景》',school:'石狮中学',time:'20分钟',imgUrl:'t17.png'},
-            {name:'高琴云',point:'发表了学习成果 学霸de学习感悟28',school:'石狮中学',time:'15分钟',imgUrl:'t17.png'},
-            {name:'高琴云',point:'上传了1张照片到相册 《风景》',school:'石狮中学',time:'刚刚',imgUrl:'t17.png'}
-      ]
   	  }
-  	}
+  	},
+    props:{
+        infos:{
+            type:Array,
+            required:true
+        }
+    } 
   }
 </script>
 
@@ -53,6 +52,7 @@
     float: left;
     width: 40px;
     margin-top: 10px;
+    border-radius: 50%;
 }
 .dynamic-content li>div{
     float: left;
@@ -72,10 +72,13 @@
 	color: #999;
 }
 .dynamic-content li>div p:nth-child(2){
-	/*margin-top: 20px;*/
 	width:195px;
 	overflow: hidden;
-    text-overflow:ellipsis;
-    white-space: nowrap;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+}
+.dynamic-content li>div p:nth-child(2) span{
+  font-size: 14px;
+  color:#1cb0ea;
 }
 </style>

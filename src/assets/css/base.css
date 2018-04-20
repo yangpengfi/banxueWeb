@@ -135,3 +135,412 @@ a:hover,a:active {
 .more i{
     margin-left:10px;
 }
+
+/* 我的资源公共样式 */
+#right-resource{
+    float: left;
+    width: 940px;
+    min-height: 500px;
+    border: 1px solid #e9e9e9;
+    margin-left: 20px;
+    padding: 30px 60px 40px 60px;
+    background: #FFFFFF;
+}
+#right-resource .right-title{    
+    border-bottom: 1px solid #f3f3f3;
+    height: 50px;		
+}
+#right-resource .right-title>p{
+    float: left;
+    padding-top: 10px;
+}
+#right-resource .right-title>div{
+    float:right;
+    position: relative;
+}	
+#right-resource .right-title a{
+    display: inline-block;
+    width: 80px;
+    text-align: center;		
+    font-size: 16px;		
+    color: #999;
+    margin-right: 10px;
+    padding-bottom: 14px;
+    border-bottom:1px solid transparent;
+}
+#right-resource .right-title a.active{
+    border-color: #50a7ff;
+    color: #666;
+}
+#right-resource .operator{
+    padding-top: 18px;
+    padding-bottom: 15px;
+}	
+#right-resource .batch-modify{
+    padding: 10px;
+    border: 1px solid #e9e9e9;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+#right-resource .batch-modify>span{
+    margin-left: 20px;
+    color: #50a7ff;
+    cursor: pointer;
+}
+#right-resource .right-title>div button{
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 80px;
+    height: 40px;
+    background-color: #47a2ff;
+    border:1px solid #47a2ff;
+    border-radius: 0px 5px 5px 0px;
+    color: #fff;
+}
+#right-resource .right-title>div input.search{
+    min-width: 300px;
+    height: 40px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    border: solid 1px #f3f3f3;
+    padding-left: 15px;   
+}
+#right-resource .right-title>div .txt{
+    margin-right: 10px;
+}
+#right-resource .right-title>div .txt input{
+    min-width: 180px;
+}
+#right-resource .operator button{
+    width: 88px;
+    height: 32px;
+    border:none;
+    background-color: #fff;
+    color: #666;
+    font-size: 14px;
+    cursor: pointer;
+}
+#right-resource .operator button:first-child{		
+    background-color: #47a2ff;
+    border-radius: 3px;
+    color: #fff;
+}
+#right-resource .resourceCont{		
+    margin: auto;
+    border: 1px solid #f3f3f3;
+    margin-top: 20px;		
+}
+#right-resource .resourceCont li{
+    overflow: hidden;
+    width: 100%;
+    padding: 32px 20px 32px 25px;
+    height: 120px;
+    border-bottom: 1px solid #F5F5F5;
+}
+#right-resource .resourceCont li:last-child{
+    border-bottom: none;
+}
+#right-resource .resourceCont li>div>p{
+    float: left;  
+    margin-top: 20px;
+    margin-right: 10px;  
+}
+#right-resource .resourceCont li>div>img{   
+    float: left; 
+    width: 58px;
+    height: 58px;
+}
+#right-resource .doc-content{		
+    margin-left: 100px;
+    position: relative;
+}
+#right-resource .set{
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 14px;
+    color:#1caaf1;
+    display: none;
+}
+#right-resource .set span{
+    padding-left: 15px;
+    cursor: pointer;
+}
+#right-resource .resourceCont li:hover{
+    background-color: #f8f8f8;
+}
+#right-resource .resourceCont li:hover .set{
+    display: block;
+}
+#right-resource .doc-title{		
+    font-size: 16px;		
+    color: #333;
+    margin-bottom: 10px;
+}
+#right-resource .doc-title button{		
+    width: 64px;
+    height: 24px;
+    border: solid 1px #47a2ff;
+    color: #47a2ff;
+    background-color: #fff;
+    font-size: 14px;
+    margin-left: 17px;
+}
+#right-resource .sub-title{		
+    font-size: 14px;		
+    color: #666;
+}
+#right-resource .sub-title span{		
+    margin-right: 5px;
+}
+#right-resource .sub-title .upTime{
+    float: right;
+    font-size: 14px;
+    color: #999;
+    margin-right: 0;
+}
+#right-resource .ivu-page{
+    text-align: center;
+    margin-top: 30px;
+}
+#right-resource .edit{
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 99;
+    width: 120px;
+    text-align: center;
+}
+#right-resource .edit-title{
+   cursor: pointer;
+}
+#right-resource .edit-title span{
+    margin-right: 10px;
+    color: #1caaf1;
+    font-size: 14px;
+}
+#right-resource .edit-content{
+    position: absolute;
+    top: 20px;
+    right: 0;
+    z-index: 999;
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #f3f3f3;
+    padding: 0 10px;
+    box-shadow: 0px 3px 5px 0px rgba(51,58,70,.1);
+    display: none;
+}
+#right-resource .edit:hover .edit-content{
+    display: block;
+}
+#right-resource .edit-content span{
+    display: block;
+    width: 100%;
+    height: 32px;
+    line-height: 32px;
+    cursor: pointer;
+    border-bottom: 1px solid #f3f3f3;
+}
+#right-resource .edit-content span:last-child{
+    border: none;
+}
+
+/* 创建微课程步骤公共样式 */
+.mainContainer{		
+    width: 1200px;
+    margin: auto;
+    margin-top: 40px;
+    margin-bottom: 60px;
+    overflow: hidden;
+    background-color: #fff;
+}
+.mainContainer>.right{
+    width: 100%;
+    min-height: 562px;
+    padding: 40px 60px;		
+    border: 1px solid #e9e9e9;
+    margin: auto;
+    float: left;		
+}
+.mainContainer>.right .title{
+    font-size: 20px;
+    color: #666666;
+    border-bottom: 1px solid #e9e9e9; 
+}
+.mainContainer>.right .title a{
+    display: inline-block;
+    text-decoration: none;
+    font-size: 20px;
+    color: #666666;
+    padding-bottom: 20px;
+}
+.mainContainer .content{
+    padding-top: 20px;
+	position: relative;
+}
+.content .stepUl{
+    overflow: hidden;		
+    width: 700px;		
+    margin: auto;
+    margin-bottom: 30px;
+}
+.content .stepUl li{
+    width: 160px;
+    height: 40px;
+    background: #50a7ff;
+    line-height: 40px;
+    float: left;
+}
+.content .stepUl li.unfinished{
+    background: #cbcbcb;
+}
+.content .stepUl li a{
+    display: inline-block;
+    color: #FFFFFF;
+    font-size: 16px;
+    text-decoration: none;
+    background: url('../../assets/imgs/space/step.png') no-repeat 30px top;
+}
+.content .stepUl li a img{
+    margin-left: 20px;
+}
+.content .stepUl li a span:first-child{
+    padding-left: 15px;
+}
+.content .stepUl li a span:last-child{
+    padding-left: 25px;
+}
+.lefts{
+    margin-left: 20px;
+}
+
+/* 我的通讯录公用模块 */
+#link-common{
+    float: left;
+    width: 940px;
+    border: 1px solid #e9e9e9;
+    margin-left: 20px;
+    padding: 40px 100px 30px 100px;
+    background: #FFFFFF;
+}
+#link-common .rightCont{
+    width: 100%;
+    overflow: hidden;
+}
+#link-common .rightCont ul li{		
+    float: left;
+    width: 25%;		
+    color: #666;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+#link-common .rightCont ul li img{
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;	
+    vertical-align: middle;	
+}
+#link-common .rightCont ul li p{
+    margin: 20px 0;	
+    text-align: center;
+}		
+#link-common .rightCont ul li .out{
+    width: 120px;
+    height: 40px;
+    border: 1px solid #dfdfdf;
+    background: #FFFFFF; 		
+    border-radius: 5px;  
+    cursor: pointer;      
+}
+
+/* 学习成果公共样式 */
+#article-content{
+    float: left;
+    width: 940px;
+    padding: 30px 60px;
+    margin-left: 20px;
+    background-color: #fff;
+    border: 1px solid #e9e9e9;
+}
+#article-content .article-btn{
+    margin-bottom: 15px;
+}
+#article-content .article-btn button{
+    width: 120px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 5px;
+    border:1px solid #7cbdff;
+    background-color: #7cbdff;
+    color: #fff;
+    margin-right: 20px;		
+    cursor: pointer;
+}
+#article-content .article-btn button:hover{
+    background-color: #50a7ff;
+    border-color:#50a7ff;
+}
+#article-content .article-btn button.active{
+    background-color: #50a7ff;
+    border-color:#50a7ff;
+}
+#article-content .batch-modify{
+    padding: 10px;
+    border: 1px solid #e9e9e9;
+}
+#article-content .batch-modify>span{
+    margin-left: 20px;
+    color: #50a7ff;
+    cursor: pointer;
+}
+#article-content .content-list{		
+    margin-top: 20px;		
+}
+#article-content .content-list li{				
+    height: 50px;
+    line-height: 50px;
+    border-bottom: 1px solid #e9e9e9;	
+    position: relative;	
+}
+#article-content .content-list li>.right{				
+    margin-right: 50px;
+}
+#article-content .edit{
+    position: absolute;
+    right: 0;
+    top:0;
+}		
+#article-content .edit-content{
+    position: absolute;
+    right: 0;
+    top: 40px;	
+    z-index: 999;	
+    width: 120px;	
+    padding: 0 10px;	
+    background-color: #fff;
+    border: 1px solid #e9e9e9;
+    box-shadow: 0px 5px 7px 0px rgba(51,59,67,.1);
+    text-align: center;	
+    color: #50a7ff;	
+    display: none;
+}
+#article-content .edit-content span{
+    display: block;
+    height: 36px;
+    line-height: 36px;
+    cursor: pointer;
+    border-bottom:1px solid #e9e9e9;		
+}
+#article-content .edit-content span:last-child{
+    border:none;		
+}
+#article-content .edit:hover .edit-content{
+    display: block;
+}
+#article-content  .nums{
+    margin: 20px;
+}

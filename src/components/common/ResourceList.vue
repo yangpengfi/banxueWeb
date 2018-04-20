@@ -3,23 +3,24 @@
       <ul class="classes-box">
           <li v-for="item in resourceList">
               <div class="left">
-                  <img :src="item.img" alt="学科标识">
-                  <span>{{item.title}}</span>
+                  <img :src="fileType(item.fileSuffix,1)" alt="学科标识">
+                  <span>{{item.recourceLocalName}}</span>
               </div>
-              <div class="right">
-                  <span>{{item.date}}</span>
+              <!-- <div class="right">
+                  <span>{{item.createTime}}</span>
                   <span>{{item.num}}</span>
-              </div>
+              </div> -->
           </li>
       </ul>
   </div>
 </template>
 <script>
+import global_ from '@/components/Global'; 
 export default {
     name:'ResourceList',
     data(){
         return {
-
+          fileType:global_.setFileType
         }
     },
     props:{
@@ -49,7 +50,8 @@ export default {
         padding-left: 16px;   
     }
     .classes-box li img{
-        vertical-align: middle;   
+      width: 32px;
+      vertical-align: middle;   
     }    
     .classes-box .right span{
         color: #999;

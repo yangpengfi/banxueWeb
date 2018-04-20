@@ -4,7 +4,9 @@ import Vue from 'vue'
 import axios from 'axios'
 import App from './App'
 import router from './router'
-import data from './mock'
+// import data from './mock'
+import uploader from 'vue-simple-uploader'
+Vue.use(uploader);
 
 import iView from 'iview'
 import 'iview/dist/styles/iview.css';
@@ -15,8 +17,20 @@ import './assets/css/base.css' /*引入公共样式*/
 import echarts from 'echarts'
 Vue.prototype.$echarts = echarts 
 
-Vue.config.productionTip = false;
+axios.defaults.baseURL = 'http://192.168.8.251/banxue/';
 Vue.prototype.$http = axios;
+
+
+import md5 from 'js-md5'
+Vue.prototype.$md5 = md5;
+
+import qs from "qs"
+Vue.prototype.$qs = qs;
+
+import storage from '@/utils/storage.js'
+Vue.prototype.$storage = storage;
+
+Vue.config.productionTip = false
 
 Vue.use(iView)
 

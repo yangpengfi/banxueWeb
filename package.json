@@ -15,9 +15,12 @@
     "axios": "^0.18.0",
     "echarts": "^4.0.4",
     "iview": "^2.11.0",
+    "js-md5": "^0.7.3",
+    "qs": "^6.5.1",
     "vue": "^2.5.2",
     "vue-echarts-v3": "^1.0.19",
-    "vue-router": "^3.0.1"
+    "vue-router": "^3.0.1",
+    "vue-simple-uploader": "^0.4.2"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

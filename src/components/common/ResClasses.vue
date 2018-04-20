@@ -3,12 +3,13 @@
       <ul class="classes-box">
           <li v-for="item in resClasses">
               <div class="left">
-                  <img :src="item.img" alt="学科标识">
-                  <span>{{item.title}}</span>
+                  <!-- <img :src="item.img" alt="学科标识"> -->
+                  <span class="subjectImg" :style="{backgroundColor:item.bgColor}">{{item.subjectName.substr(0,1)}}</span>
+                  <span>{{item.recourceLocalName}}</span>
               </div>
               <div class="right">
-                  <span>{{item.num}}</span>
-                  <Icon type="ios-cloud-download-outline" size=24></Icon>
+                  <span>{{item.browseNum}}</span>
+                  <!-- <Icon type="ios-cloud-download-outline" size=24></Icon> -->
               </div>
           </li>
       </ul>
@@ -19,7 +20,7 @@ export default {
     name:'ResClasses',
     data(){
         return {
-
+          
         }
     },
     props:{
@@ -27,8 +28,7 @@ export default {
             type:Array,
             required:true
         }
-    }  
-
+    } 
 }
 </script>
 <style scoped>
@@ -49,6 +49,17 @@ export default {
     }
     .classes-box li img{
         vertical-align: middle;   
+    }
+    .subjectImg{
+      display: inline-block;
+      width: 32px;
+      height: 30px;
+      color: #fff;
+      line-height: 30px;
+      text-align: center;
+      border-radius: 3px;
+      /*background-color: red;*/
+      padding: 0!important;
     }
     .classes-box li i{
         cursor: pointer; 

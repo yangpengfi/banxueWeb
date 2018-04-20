@@ -8,47 +8,20 @@
                 <span>课程分类</span>
               </p>
               <ul class="classify-content">
-                <li>
-                  <p>高中</p>
+                <li v-for="item in per2gradeList">
+                  <p>{{item.name}}</p>
                   <div>
-                    <a href="#">高一</a>
-                    <a href="#">高二</a>
-                    <a href="#">高三</a>
-                  </div>
-                </li>
-                <li>
-                  <p>初中</p>
-                  <div>
-                    <a href="#">初一</a>
-                    <a href="#">初二</a>
-                    <a href="#">初三</a>
-                  </div>
-                </li>
-                <li>
-                  <p>小学</p>
-                  <div>
-                    <a href="#">一年级</a>
-                    <a href="#">二年级</a>
-                    <a href="#">三年级</a>
-                    <a href="#">四年级</a>
-                    <a href="#">五年级</a>
-                    <a href="#">六年级</a>
-                  </div>
-                </li>
-                <li>
-                  <p>专题</p>
-                  <div>
-                    <a href="#">小升初</a>
-                    <a href="#">中考</a>
-                    <a href="#">高考</a>
+                    <a href="#" 
+                    v-for="sub in item.gradeList" 
+                    @click="gotoSub(item.id,sub.id)">{{sub.name}}</a>
                   </div>
                 </li>
               </ul>              
             </div>
-            <div id="search">
+            <!-- <div id="search">
               <input placeholder="请输入课程名称"/> 
               <div>查询</div>
-            </div>
+            </div> -->
           </div>          
         </div>       
         <div id="new-classes" class="w-1200">          
@@ -76,6 +49,7 @@
 </template>
 <script>
 import ClassList from '@/components/common/ClassList'; 
+import global_ from '@/components/Global'; 
 export default {
     name:'Classes',
     components:{
@@ -84,37 +58,50 @@ export default {
     data () {
         return {
             value2: 0,
+            per2gradeList:global_.per2gradeList,
             newClasses:[],
             recomClasses:[],
             hotClasses:[]
         }
     },
     methods:{
+        gotoSub(pId,gId){
+            this.$router.push('/ClassSub?pId='+pId+'&gId='+gId);
+        },
         getNewClassesList(){
-          this.$http.get('http://newClasses.cn')
+          this.$http.post('/web/course/listCourse.do',this.$qs.stringify({
+            timeOrder:2,
+            pageSize:8
+          }))
           .then((res)=>{
-            console.log(res.data.classesList); 
-            this.newClasses=res.data.classesList;
+            // console.log(res.data.data.list); 
+            this.newClasses=res.data.data.list;
           })
           .catch((err)=>{
             alert(err);
           })
         },
         getRecomClassesList(){
-          this.$http.get('http://recommendClasses.cn')
+          this.$http.post('/web/course/listCourse.do',this.$qs.stringify({
+            needRecommend:1,
+            pageSize:8
+          }))
           .then((res)=>{
-            console.log(res.data.classesList); 
-            this.recomClasses=res.data.classesList;
+            // console.log(res.data.data.list); 
+            this.recomClasses=res.data.data.list;
           })
           .catch((err)=>{
             alert(err);
           })
         },
         getHotClassesList(){
-          this.$http.get('http://hotClasses.cn')
+          this.$http.post('/web/course/listCourse.do',this.$qs.stringify({
+            needHotest:1,
+            pageSize:8
+          }))
           .then((res)=>{
-            console.log(res.data.classesList); 
-            this.hotClasses=res.data.classesList;
+            // console.log(res.data.data.list); 
+            this.hotClasses=res.data.data.list;
           })
           .catch((err)=>{
             alert(err);

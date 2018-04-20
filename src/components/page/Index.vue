@@ -16,48 +16,18 @@
       </div>
       <div class="w-1200" id="role-container">
         <ul id="role">
-            <li class="manager">
-                <h1>管理者</h1>
-                <img src="../../assets/imgs/index/managerIcon.png" alt="管理者logo">
+            <li v-for="(item,index) in roleList" v-on:mouseenter="changeRole(item)" :style="{borderColor: item.id == nowId ? nowColor : 'transparent'}">
+                <h1>{{item.role}}</h1>
+                <img :src="item.icon" alt="角色icon">
                 <div>
-                    <span class="color-line"></span>
-                    <p>我想知道如何提升管理效率和管理水平</p>
-                    <span class="drop-arrow"></span>
+                    <span class="color-line" :style="{borderColor: item.id == nowId ? nowColor : 'transparent'}"></span>
+                    <p>{{item.title}}</p>                    
                 </div>
-            </li>
-            <li class="teacher">
-                <h1>教师</h1>
-                <img src="../../assets/imgs/index/teacherIcon.png" alt="教师logo">
-                <div>
-                    <span class="color-line"></span>
-                    <p>我想知道如何提升工作效率和教育水平</p>
-                    <span class="drop-arrow"></span>
-                </div>
-            </li>
-            <li class="student">
-                <h1>学生</h1>
-                <img src="../../assets/imgs/index/studentsIcon.png" alt="学生logo">
-                <div>
-                    <span class="color-line"></span>
-                    <p>我想知道如何提升学习效率和成绩</p>
-                    <span class="drop-arrow"></span>
-                </div>             
-            </li>
-            <li class="parent">
-                <h1>家长</h1>
-                <img src="../../assets/imgs/index/homemasterIcon.png" alt="家长logo">
-                <div>
-                    <span class="color-line"></span>
-                    <p>我想知道如何了解孩子的学习情况</p>
-                    <span class="drop-arrow"></span>
-                </div>
-            </li>
-        </ul>
+                <span class="drop-arrow" :class="{active:item.id == nowId}" :style="{backgroundPosition: item.id == nowId ? nowPosition+'px' : ''}"></span>               
+            </li>            
+        </ul>         
         <ul id="role-tab" class="w-1200">
-            <li><img src="../../assets/imgs/index/managerSelect01.png"></li>  
-            <li><img src="../../assets/imgs/index/managerSelect02.png"></li>  
-            <li><img src="../../assets/imgs/index/managerSelect03.png"></li>  
-            <li><img src="../../assets/imgs/index/managerSelect04.png"></li>           
+            <li v-for="item of subImgList"><img :src="item"></li>              
         </ul>
       </div>
       <div id="result-container">
@@ -108,42 +78,15 @@
                 <div class="section-box">
                     <span class="section-title">应用监控</span>
                     <p>
-                        <span class="active">空间</span>
-                        <span>资源</span>
-                        <span>教学</span>
+                        <span @click="changeTab('SpaceTab')" :class="{active:currentTab=='SpaceTab'}">空间</span>
+                        <span @click="changeTab('ResourceTab')" :class="{active:currentTab=='ResourceTab'}">资源</span>
+                        <span @click="changeTab('TeachTab')" :class="{active:currentTab=='TeachTab'}">教学</span>
                     </p>
-                </div>   
-                <p class="space-total"> 
-                    <span>已开通的空间 </span> <br>
-                    <b>14131912</b> 
-                </p>
-                <ul class="one-total">
-                    <li>
-                        <img src="../../assets/imgs/index/teacherRole.png" alt="老师icon">
-                        <p>老师</p>
-                        <p class="one-num">565758</p>
-                    </li>
-                    <li>
-                        <img src="../../assets/imgs/index/studentRole.png" alt="学生icon">
-                        <p>学生</p>
-                        <p class="one-num">4577949</p>
-                    </li>
-                    <li>
-                        <img src="../../assets/imgs/index/masterparentRole.png" alt="家长icon">
-                        <p>家长</p>
-                        <p class="one-num">8975185</p>
-                    </li>
-                </ul>
-                <div class="pecent">
-                    <!-- <IEcharts :option="pie" style="width:150px;height:100px;"></IEcharts>
-                    <IEcharts :option="pie2" style="width:150px;height:100px;"></IEcharts> -->
-                    <div id="pie0ne" :style="{width: '180px', height: '180px'}"></div>
-                    <div id="pieTwo" :style="{width: '180px', height: '180px'}"></div>
-                </div>                   
+                </div> 
+                <component :is="currentTab" keep-alive></component>                                 
           </div>
         </div>
-      </div>
-      
+      </div>      
       <div id="classes" class="w-1200">
             <div class="section-box">
                 <span class="section-title">热门课程</span>
@@ -164,7 +107,7 @@
             </div>
             <SpaceList></SpaceList> 
         </div>
-        <SpaceDynamic></SpaceDynamic>    
+        <SpaceDynamic :infos="latestNews"></SpaceDynamic>    
       </div>
       <div id="open-box">
             <div class="open-title">
@@ -174,34 +117,60 @@
                 所学校开通了智慧校园服务
             </div>
             <p>仅需1分钟即可开始免费体验智慧校园产品服务</p> 
-            <button class="open-btn">开通智慧校园</button>
+            <router-link to="/OpenSchool" class="open-btn">开通智慧校园</router-link>
       </div>     
   </div>
 </template>
 <script>
-// import IEcharts from 'vue-echarts-v3';
 import ClassList from '@/components/common/ClassList'; 
 import SpaceList from '@/components/common/SpaceList.vue';
 import SpaceDynamic from '@/components/common/SpaceDynamic.vue';
+import SpaceTab from '@/components/module/SpaceTab.vue';
+import ResourceTab from '@/components/module/ResourceTab.vue';
+import TeachTab from '@/components/module/TeachTab.vue';
 export default {
     name:'Index',
     components:{
         ClassList,
         SpaceList,
-        SpaceDynamic
+        SpaceDynamic,
+        SpaceTab,
+        ResourceTab,
+        TeachTab
     },
     data () {
         return {
             value2: 0,
-            recomClasses:[]            
+            recomClasses:[],            
+            roleList:[
+                {role:'管理者',icon:'./static/imgs/index/managerIcon.png',title:'我想知道如何提升工作效率和教育水平',id:"manager",color:'#54CCC8',position:'-2'},
+                {role:'教师',icon:'./static/imgs/index/teacherIcon.png',title:'我想知道如何提升工作效率和教育水平',id:"teacher",color:'#61bf2e',position:'-22'},
+                {role:'学生',icon:'./static/imgs/index/studentsIcon.png',title:'我想知道如何提升学习效率和成绩',id:"student",color:'#ffbd5f',position:'-42'},
+                {role:'家长',icon:'./static/imgs/index/homemasterIcon.png',title:'我想知道如何了解孩子的学习情况',id:"parent",color:'#ff9191',position:'-62'}
+            ],            
+            imgList:{
+                manager:['./static/imgs/index/managerSelect01.png','./static/imgs/index/managerSelect02.png','./static/imgs/index/managerSelect03.png','./static/imgs/index/managerSelect04.png'],
+                teacher:['./static/imgs/index/teacherSelect01.png','./static/imgs/index/teacherSelect02.png','./static/imgs/index/teacherSelect03.png','./static/imgs/index/teacherSelect04.png'],
+                student:['./static/imgs/index/studentsSelect01.png','./static/imgs/index/studentsSelect02.png','./static/imgs/index/studentsSelect03.png','./static/imgs/index/studentsSelect04.png'],
+                parent:['./static/imgs/index/studentsSelect01.png','./static/imgs/index/studentsSelect02.png','./static/imgs/index/studentsSelect03.png','./static/imgs/index/studentsSelect04.png']
+            },
+            subImgList:['./static/imgs/index/managerSelect01.png','./static/imgs/index/managerSelect02.png','./static/imgs/index/managerSelect03.png','./static/imgs/index/managerSelect04.png'],
+            nowId:'manager',
+            nowColor:'#54CCC8',
+            nowPosition:'-2',
+            currentTab:'SpaceTab' ,
+            latestNews:[]    
         }
     },
     methods:{
         getRecomClassesList(){
-          this.$http.get('http://recommendClasses.cn')
+          this.$http.post('/web/course/listCourse',this.$qs.stringify({
+            needHotest:1,
+            pageSize:8
+          }))
           .then((res)=>{
-            console.log(res.data.classesList); 
-            this.recomClasses=res.data.classesList;
+            // console.log(res.data.data.list); 
+            this.recomClasses=res.data.data.list;
           })
           .catch((err)=>{
             alert(err);
@@ -292,13 +261,22 @@ export default {
                 ]
             });
         },
+        changeRole(item){
+            this.nowId=item.id; 
+            this.nowColor=item.color; 
+            this.subImgList=this.imgList[item.id];
+            this.nowPosition = item.position;
+        },
+        changeTab(tab){
+            this.currentTab = tab;
+        }
     },
     mounted(){
         this.drawPieOne();
         this.drawPieTwo();
     },
     created:function(){     
-      this. getRecomClassesList();
+        this. getRecomClassesList();
     }
 }
 </script>
@@ -309,14 +287,14 @@ export default {
     }   
     #role-container{
         padding: 0 17px 40px;
-        background-color: #fff;
+        background-color: #fff;        
     } 
     #role{ 
-        overflow: hidden;
-        padding-top: 20px;        
+        padding-top: 20px;  
+        border-bottom: 1px solid #E9E9E9; 
     }    
     #role>li{
-        position: relative;
+        position: relative;        
         float: left;
         width: 25%;        
         height: 266px;  
@@ -324,7 +302,8 @@ export default {
         text-align: center;        
         cursor: pointer;
         border:1px solid transparent;
-    }
+        margin-bottom: 20px;
+    }    
     #role>li>h1{ 
         margin-top: 20px;
         margin-bottom: 25px;       
@@ -335,7 +314,8 @@ export default {
     #role>li>div{
         padding: 0 60px;
         margin-top: 18px;
-        border-top: 1px solid #E7E7E7;
+        border-top: 1px solid #dfdfdf;
+        position: relative;
     }
     #role>li>div p{
         margin-top: 18px;
@@ -345,24 +325,34 @@ export default {
         color: #666;
         font-family: MicrosoftYaHei;
     }
-    #role>li.manager:hover{
-        border-color: #54CCC8;
+    .color-line{
+        position: absolute;
+        left: 0;
+        top: -1px;
+        width: 66px;
+        border-bottom: 1px solid transparent;
+        color: #000;
     }    
-    #role>li.teacher:hover{
-        border-color: #61BF2D;
-    }
-    #role>li.student:hover{
-        border-color: #FFBD5F;
-    }
-    #role>li.parent:hover{
-        border-color: #FF9190;
-    }
+    .drop-arrow{
+        position: absolute;
+        bottom: -13px;        
+        left: 135px;
+        z-index:999;
+        width: 16px;
+        height: 18px;        
+        background: url('../../assets/imgs/index/arrow.png') no-repeat -2px top;
+        background-color: #fff;   
+        display:none;  
+    }  
+    .drop-arrow.active{        
+        display:block;  
+    }    
     #role-tab{
-        overflow: hidden; 
+        overflow: hidden;        
     }
     #role-tab li{
         float: left;
-        margin-left: 30px;
+        margin-left: 33px;
     }
     #role-tab li:first-child{
         margin-left: 0;
@@ -441,7 +431,8 @@ export default {
     .monitor .section-box p span{ 
         font-size: 16px;
         color: #666;
-        padding: 4px 15px;               
+        padding: 4px 15px;    
+        cursor: pointer;           
     }
     .monitor .section-box p span.active{ 
         color: #fff;
@@ -458,41 +449,7 @@ export default {
     #space .section-tab{
         margin-left: 80px;
     }
-    .space-total{
-        border-top: 1px solid #E9E9E9; 
-        padding: 20px 35px 0;  
-        text-align: center;
-    }
-    .space-total span{        
-        margin-right: 10px;       
-        font-size: 16px;        
-        color: #666;
-    }
-    .space-total b{       
-        font-family: MicrosoftYaHei;
-        font-size: 30px;        
-        color: #1cb0ea;
-    }
-    .one-total{
-        overflow: hidden;
-    }
-    .one-total li{
-        float: left;
-        width: 30%;
-        padding: 20px 0;
-        margin-right: 10px;
-        text-align: center;        
-        border-right:1px solid#EFEFEF;        
-	    font-size: 20px;	
-	    color: #666;
-    }
-    .one-total li:last-child{        
-        border-right:none;
-    }
-    .one-num{        
-        color: #1cb0ea;        
-	    font-size: 20px;	
-    }
+    
     #classes{
         margin-top: 50px;
     }    
@@ -523,6 +480,7 @@ export default {
         display: inline-block;
         width: 280px;
         height: 60px;
+        line-height: 60px;
         margin-top: 530px;        
         border:none;
         color:#fff;
@@ -530,10 +488,7 @@ export default {
         border-radius: 10px;
 	    background-color: #47a2ff;
     }   
-    .pecent>div{
-        float: left; 
-        width: 50%;
-    }
+    
 </style>
 
 
