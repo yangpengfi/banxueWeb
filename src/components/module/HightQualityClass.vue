@@ -69,10 +69,10 @@
           <ul class="right-list">            
              <li v-for="item of resourceList">
               <div class="file-img">
-                <img :src="fileType(item.fileSuffix,0)" alt="文档图片">
+                <img :src="fileType(item.fileSuffix,0)" alt="文档图片" @click="toDetailResource(item)">
               </div>
               <div class="file-content">
-                <h5 :title="item.recourceLocalName">{{item.recourceLocalName}}</h5>
+                <h5 :title="item.recourceLocalName" @click="toDetailResource(item)">{{item.recourceLocalName}}</h5>
                 <p>
                   <span>大小：{{formatSize(item.fileSize)}}</span>
                   <span>浏览：{{item.view}}</span>
@@ -83,7 +83,7 @@
                 <p>贡献时间：{{formatTime(item.createTime)}}</p>
               </div>
               <div>
-                 <Rate v-model="star"></Rate>
+                 <Rate allow-half v-model="item.score"></Rate>
               </div>
             </li>                
           </ul>
@@ -109,6 +109,8 @@ export default {
             periodName:"初中",
             subjectId:2,
             subjectName:"数学",
+            resourceTypeId:6,
+            resourceKindId:2, 
             withDisabledNode:1
           },
           nodeTree:[],
@@ -149,6 +151,12 @@ export default {
         deep:true
     },
     methods:{
+        login(){
+          this.$router.replace({
+             name:"Login",
+             query: {redirect: this.$router.currentRoute.fullPath}
+            })
+        },
         filterPer:function () {
             this.filter.subjectId=0;
             this.filter.versionId=0;
@@ -329,11 +337,23 @@ export default {
             });
         },  
         pageChange(page){
-            // this.filter.pageIndex=page;
-            // this.getResourceList(this.filter)
-            let data={pageIndex:page}
-            this.getResourceList(data)
-        } 
+            this.filter.pageIndex=page;
+            this.getResourceList(this.filter)
+            // let data={pageIndex:page}
+            // this.getResourceList(data)
+        } ,
+        toDetailResource(item){
+            if(!this.token){
+              this.login();
+              return;
+            }
+            this.$router.push({
+              path:'/DetailResource',
+              query:{
+                resourceLocalId:item.resourceLocalId          
+              }
+            });   
+        },
     },
     created() {
         this.per2sub=this.filter.periodName+this.filter.subjectName;

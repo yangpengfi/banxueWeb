@@ -3,8 +3,8 @@
       <ul class="classes-box">
           <li v-for="item in resourceList">
               <div class="left">
-                  <img :src="fileType(item.fileSuffix,1)" alt="学科标识">
-                  <span>{{item.recourceLocalName}}</span>
+                  <img :src="fileType(item.fileSuffix,1)" alt="学科标识" @click="toDetailResource(item)">
+                  <span @click="toDetailResource(item)">{{item.recourceLocalName}}</span>
               </div>
               <!-- <div class="right">
                   <span>{{item.createTime}}</span>
@@ -20,6 +20,7 @@ export default {
     name:'ResourceList',
     data(){
         return {
+          token:this.$storage.getStorage("token"),
           fileType:global_.setFileType
         }
     },
@@ -28,6 +29,26 @@ export default {
             type:Array,
             required:true
         }
+    },
+    methods:{
+        login(){
+          this.$router.replace({
+             name:"Login",
+             query: {redirect: this.$router.currentRoute.fullPath}
+            })
+        },
+        toDetailResource(item){
+            if(!this.token){
+              this.login();
+              return;
+            }
+            this.$router.push({
+              path:'/DetailResource',
+              query:{
+                resourceLocalId:item.resourceLocalId          
+              }
+            });   
+        },
     }  
 
 }

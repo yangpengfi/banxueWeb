@@ -9,12 +9,51 @@
 		<p class="authority">设置谁可以访问我的空间</p>
 			
 		<p class="authorityInput">
-			<input type="radio" name="authority" value="0" checked="checked"/><label>所有人可见</label>
-			<input type="radio" name="authority" value="1" /><label>通讯录可见</label>
-			<input type="radio" name="authority" value="2" /><label>仅自己可见</label>
+			<input type="radio" name="authority" value="1" 
+			@click="update(1)" checked="checked" v-model="openStatus"/><label>所有人可见</label>
+			<input type="radio" name="authority" value="3" 
+			@click="update(3)"  v-model="openStatus"/><label>通讯录可见</label>
+			<input type="radio" name="authority" value="2" 
+			@click="update(2)"  v-model="openStatus"/><label>仅自己可见</label>
 		</p>
 	</div>
 </template>
+<script>
+export default {
+	name:'Authority',
+	data(){
+		return {
+			openStatus:1	
+		}
+	},
+	methods:{
+		update(status){
+			this.$http.post('/web/space/a/updateOpenStatus.do',this.$qs.stringify({
+              openStatus:status,
+              token:this.$storage.getStorage("token")
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status != 0){
+                this.$Message.error('请求资源失败，请重试');
+              }else{ 
+                // this.$Message.info(result.message);         
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+		}
+	},
+	created(){
+		this.update(1);
+	}
+}
+</script>
 <style scoped>
 	.right-container{
         float: left;

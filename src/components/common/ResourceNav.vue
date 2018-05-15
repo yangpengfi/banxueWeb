@@ -15,30 +15,45 @@ export default {
     name:'ResourceNav',
     data(){
         return{
-                resourceFilter:[               
-                    {text:'学科资源',path:'/FilterResource/SubjectResource?id=SubjectResource',id:'SubjectResource'},   
-                    {text:'区域资源',path:'/FilterResource/AreaResource?id=AreaResource',id:'AreaResource'},   
-                    {text:'校本资源',path:'/FilterResource/SchoolResource?id=SchoolResource',id:'SchoolResource'},   
-                    {text:'特色微课',path:'/FilterResource/SpecialClass?id=SpecialClass',id:'SpecialClass'},   
-                    {text:'优课专区',path:'/FilterResource/HightQualityClass?id=HightQualityClass',id:'HightQualityClass'}
-                ],
-                filterId:'AreaResource',
-                search:''
+            token:this.$storage.getStorage("token"),
+            resourceFilter:[               
+                {text:'学科资源',path:'/FilterResource/SubjectResource?id=SubjectResource',id:'SubjectResource'},   
+                {text:'区域资源',path:'/FilterResource/AreaResource?id=AreaResource',id:'AreaResource'},   
+                {text:'校本资源',path:'/FilterResource/SchoolResource?id=SchoolResource',id:'SchoolResource'},   
+                {text:'特色微课',path:'/FilterResource/SpecialClass?id=SpecialClass',id:'SpecialClass'},   
+                {text:'优课专区',path:'/FilterResource/HightQualityClass?id=HightQualityClass',id:'HightQualityClass'}
+            ],
+            filterId:'AreaResource',
+            search:''
         }
     },
     methods:{
+        login(){
+          this.$router.replace({
+             name:"Login",
+             query: {redirect: this.$router.currentRoute.fullPath}
+            })
+        },
         ChangeResourceType(item){  
-            this.filterId=item.id; 
+            this.filterId=item.id;
+            if(this.filterId=='SchoolResource'){
+                if(!this.token){
+                    this.login();
+                    return;
+                }
+            } 
         },
         intoSearch(){
             this.$router.push({
-				path:'/SearchResource'
+				path:'/SearchResource',
+                query:{
+                    name:this.search
+                }
 			});		
         }
     },
     created(){
-        this.filterId=this.$router.history.current.query.id;
-        // console.log(this.$router.history.current.query.id)
+        this.filterId=this.$router.history.current.query.id||'AreaResource';
     }
 }
 </script>

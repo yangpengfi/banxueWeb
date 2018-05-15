@@ -1,22 +1,24 @@
 <template>
     <div class="right" id="link-common">
         <div class="link-title">
-            <ul class="left ulList">
-				<li><a href="javascript:;" class="active">华侨城中学 高三八班</a></li>
-				<li><a href="javascript:;">南山中学 高三五班</a></li>
-			</ul>
+            <Select v-model="selId" filterable style="width:300px;">
+                <Option v-for="item in classList" 
+                :value="item.classId" 
+                :key="item.classId" @click="changeSel(item)">{{item.className}}</Option>
+            </Select>
             <div class="right">
-                <button type="button" class="active">老师</button>
-                <button type="button">学生</button>
+                <button type="button" :class="{active:selType==1}" @click="changeType(1)">老师</button>
+                <button type="button" :class="{active:selType==2}" @click="changeType(2)">学生</button>
             </div>
         </div>
 			
 			<div class="rightCont">
 				<ul>
-					<li v-for="item of focusList">
-						<img src="../../assets/imgs/space/headImg.png" />						
-						<p>{{item}}</p>						
-						<button class="out">取消关注</button>
+					<li v-for="item of classMemeberList">
+						<img :src="item.logo" @click="goSpaceShow(item)"/>						
+						<p @click="goSpaceShow(item)">{{item.userName}}</p>						
+						<button class="out" @click="unFollow(item)" v-show="item.follow">取消关注</button>
+            <button class="out" @click="follow(item)" v-show="!item.follow">关注</button>
 					</li>					
 				</ul>
 			</div>
@@ -27,8 +29,132 @@ export default {
     name:'ClassLink',
     data(){
         return {
-            focusList:['帅帅斌','帅帅斌','帅帅斌','帅帅斌','帅帅斌','帅帅斌','帅帅斌','帅帅斌','帅帅斌','帅帅斌','帅帅斌']
+            classMemeberList:[],
+            classList:[],
+            selId:0,
+            selType:1
         }
+    },
+    watch:{
+        selId:'changeSel'//监听班级ID变化
+    },
+    methods:{
+        goSpaceShow(item){
+          window.open('#/ShowSpace/?userId='+item.userId);
+        },
+        getClasses(){//获取所在班级
+            this.$http.post('web/class/a/listJoinClass.do',this.$qs.stringify({
+              token:this.$storage.getStorage("token")
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){
+                if(result.data instanceof Array && result.data.length>0){
+                  this.classList = result.data;
+                  this.selId=result.data[0].classId;
+                  this.getClassMemeber(this.selId,1);
+                }else{
+                  this.classList = [];
+                }
+              }else if(result.status == 9){
+                this.login();
+                return;
+              }else{
+                this.$Message.error(result.message);            
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        },
+        getClassMemeber(cId,uType){//获取关注列表
+            this.$http.post('web/class/a/listClassMemeber.do',this.$qs.stringify({
+              token:this.$storage.getStorage("token"),
+              classId:cId,
+              userType:uType,
+              pageSize:12
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){
+                if(result.data.list instanceof Array && result.data.list.length>0){
+                  this.classMemeberList = result.data.list;
+                }else{
+                  this.classMemeberList = [];
+                }
+              }else if(result.status == 9){
+                this.login();
+                return;
+              }else{
+                this.$Message.error(result.message);            
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        },
+        changeSel(){
+            this.getClassMemeber(this.selId,this.selType);
+        },
+        changeType(item){
+            this.selType=item;
+            this.getClassMemeber(this.selId,this.selType);
+        },
+        unFollow(item){//取消关注
+            this.$http.post('/web/space/a/unFollow.do',this.$qs.stringify({
+              token:this.$storage.getStorage("token"),
+              userId:item.userId
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){
+                this.getClassMemeber(this.selId,this.selType);
+                this.$Message.info(result.message);
+              }else{
+                this.$Message.error(result.message);            
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        },
+        follow(item){//关注
+            this.$http.post('/web/space/a/follow.do',this.$qs.stringify({
+              token:this.$storage.getStorage("token"),
+              userId:item.userId
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){
+                this.getClassMemeber(this.selId,this.selType);
+                this.$Message.info(result.message);
+              }else{
+                this.$Message.error(result.message);            
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        }
+    },
+    created(){
+        this.getClasses();
     }
 }
 </script>

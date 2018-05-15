@@ -5,10 +5,14 @@
     </div> 
     <ul class="dynamic-content">
     	<li v-for="item in infos" class="clear">
-            <img :src="item.uploadUserLogo" alt="人员照片">
+            <img :src="item.logo" alt="人员照片">
             <div>
-                <p><b>{{item.uploadUserName}}</b><span class="right"><Icon type="ios-time-outline"></Icon> {{new Date(item.createTime).getMinutes()}}分钟</span></p>
-                <p>上传了 <span>{{item.recourceLocalName}}</span></p>
+                <p>
+                  <b :title="item.userName">{{item.userName}}</b>
+                  <span class="right"><Icon type="ios-time-outline"></Icon> {{new Date(item.createTime).Format("yyyy-M-d hh:mm:ss")}}</span>
+                  <!-- <span class="right"><Icon type="ios-time-outline"></Icon> {{new Date(item.createTime).getMinutes()}}分钟</span> -->
+                </p>
+                <p>{{item.title}} <span @click="toInfo(item)" :title="item.name">{{item.name}}</span></p>
             </div>
         </li>
     </ul>
@@ -17,10 +21,12 @@
 
 
 <script>
+import global_ from '@/components/Global';
   export default {
-	name:'SpaceList',
+	name:'spaceDynamic',
   	data () {
   	  return {
+        token:this.$storage.getStorage("token"),
   	  }
   	},
     props:{
@@ -28,7 +34,34 @@
             type:Array,
             required:true
         }
-    } 
+    } ,
+    methods:{
+        login(){
+          this.$router.replace({
+             name:"Login",
+             query: {redirect: this.$router.currentRoute.fullPath}
+            })
+        },
+      toInfo(item){
+          if(!this.token){
+            this.login();
+            return;
+          };
+          if(item.type==1){//资源
+            this.$router.push({
+              path:'/DetailResource',
+              query:{
+                resourceLocalId:item.fromId          
+              }
+            }); 
+          }else{
+            this.$router.push({
+                path:'/MySpace/ArticalInfo',
+                query:{articleId:item.fromId}
+            });
+          }
+      }
+    }
   }
 </script>
 
@@ -63,9 +96,16 @@
 .dynamic-content li>div b{
 	font-size: 16px;
 	/*color: #1cb0ea;*/
+  display: inline-block;
+  cursor: pointer;
+  width: 75px;
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
 }
 .dynamic-content li>div p{
-	line-height: 30px
+	line-height: 30px;
+  width:195px;
 }
 .dynamic-content li>div p span{
 	font-size: 12px;
@@ -80,5 +120,6 @@
 .dynamic-content li>div p:nth-child(2) span{
   font-size: 14px;
   color:#1cb0ea;
+  cursor: pointer;
 }
 </style>

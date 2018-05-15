@@ -16,7 +16,6 @@
                 @click="playVideo(item)">
                   <span class="font3">{{item.name}}<Icon type="chevron-down"></Icon></span>
                   <ul>
-
                     <li v-for="itemSub in item.children" 
                     v-if="itemSub.children.length!=0" 
                     @click="playVideo(itemSub)">
@@ -24,7 +23,7 @@
                       <ul>
                         <li v-for="itemSubs in itemSub.children"
                         @click="playVideo(itemSubs)">
-                          <span class="font6 pl60">{{itemSubs.name}}</span>
+                          <span :class="{active:itemSubs.id==selId,font6:true,pl60:true}">{{itemSubs.name}}</span>
                         </li> 
                       </ul>
                     </li> 
@@ -32,7 +31,7 @@
                     <li v-for="itemSub in item.children" 
                     v-if="itemSub.children.length==0" 
                     @click="playVideo(itemSub)">
-                      <span class="font6 pl40">{{itemSub.name}}</span>
+                      <span :class="{active:itemSub.id==selId,font6:true,pl40:true}">{{itemSub.name}}</span>
                     </li> 
 
                   </ul>
@@ -40,7 +39,7 @@
                 <li v-for="item in courseTree" 
                 v-if="item.children.length==0" 
                 @click="playVideo(item)">
-                  <span class="font6">{{item.name}}</span>
+                  <span :class="{active:item.id==selId,font6:true}">{{item.name}}</span>
                 </li> 
               </ul>
   			</div>
@@ -56,8 +55,8 @@
   			</div>
   			<div class="infoRight right" v-show="courseInfo.isMyCourse==0">
           <span class="price" v-show="courseInfo.isFree==0">
-            <span>￥</span>
-            <span style="font-size: 36px;color: #ff6464;">{{(courseInfo.money)/100}}</span>
+            <!-- <span>￥</span>
+            <span style="font-size: 36px;color: #ff6464;">{{(courseInfo.money)/100}}</span> -->
           </span>
   				<span v-show="courseInfo.isFree==1">
 	  				<span style="font-size: 16px;">免费</span>
@@ -70,7 +69,7 @@
   	<div class="pageBottom w-1200">
   		<div>
   			<div class="left teacher">
-  				<img src="../../assets/imgs/space/t20.png">
+  				<img :src="teacherInfo.userLogo">
   			</div>
   			<div class="left teacherInfo">
 	  			<h4>{{courseInfo.userName}}</h4>
@@ -98,6 +97,7 @@
             teacherInfo: {},
             courseInfo: {},
             courseTree: [],
+            selId:0,
         }
     },
     methods:{
@@ -126,6 +126,7 @@
         }else{
           this.$Message.info('此目录无视频资源！');
         }
+        this.selId=item.id;
       },
       addMycourse(courseId){
       this.$http.post('/web/course/a/add2MyCourse.do',this.$qs.stringify({
@@ -240,6 +241,9 @@
   position: relative;
   line-height: 50px;
   cursor: pointer;
+}
+.videoList .treeList li .active{
+  color:#1cb0ea;
 }
 .font6{
   display: inline-block;

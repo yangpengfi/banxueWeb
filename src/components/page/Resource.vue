@@ -20,12 +20,26 @@
                       <a href="javascript:void(0);" 
                       v-for="(version,index) in item.versions" 
                       @click="toAreaResource(version)" v-if="index<6">{{version.name}}</a>
-                      <a href="javascript:void(0);" v-if="item.versions.length>6" class="active">更多</a> 
+                      <a href="javascript:void(0);" v-if="item.versions.length>6" 
+                        @click="toAreaResource(version)" class="active">更多</a> 
                       </p>                      
                     </li>                   
                   </ul>
                 </li>
               </ul>              
+            </div>
+            <div class="resNumBox">
+              <p class="mt75">
+                <span class="rNumber">{{resouceCount.totalNum}}</span><br>
+                <span class="rType">已有海量资源</span>
+              </p>
+              <p class="mt45">
+                <span class="rNumber">{{resouceCount.lastNum}}</span><br>
+                <span class="rType">最近更新资源</span>
+              </p>
+              <p class="mt45">
+                <button @click="goMyResource">查看我的资源</button>
+              </p>
             </div>
           </div>          
         </div>   
@@ -37,8 +51,8 @@
               <span class="right more" @click="goSpecialClass">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
           </div>
           <div class="class-content">
-              <p><img src="../../assets/imgs/resource/courseimgA.jpg" alt="特色微课宣传图片"></p>
-              <resClasses :resClasses="specialClasses"></resClasses>
+              <p><img src="../../assets/imgs/resource/courseimgA.png" alt="特色微课宣传图片"></p>
+              <MircoClass :resClasses="specialClasses"></MircoClass>
           </div>
         </div>
         <div class="w-590 right">
@@ -61,8 +75,8 @@
               </div> 
               <ul>
                 <li v-for="item in famousLecture">
-                  <img :src="fileType(item.fileSuffix,1)" alt="课程图标">
-                  <span>{{item.recourceLocalName}}</span>                  
+                  <img :src="fileType(item.fileSuffix,1)" alt="课程图标" @click="toDetailResource(item)">
+                  <span  @click="toDetailResource(item)">{{item.recourceLocalName}}</span>                  
                 </li>
               </ul>
           </div>
@@ -70,14 +84,14 @@
               <div class="left w-430">
                 <div class="section-box">
                   <span class="section-title">最新资源</span> 
-                  <span class="address">[ 深圳 ]</span>             
+                  <!-- <span class="address">[ 深圳 ]</span>              -->
                 </div>
                 <ResourceList :resourceList="newResource"></ResourceList>
               </div>
               <div class="right w-430">
                 <div class="section-box">
                   <span class="section-title">最热资源</span>    
-                  <span class="address">[ 深圳 ]</span>           
+                  <!-- <span class="address">[ 深圳 ]</span>            -->
                 </div>
                 <ResourceList :resourceList="hotResource"></ResourceList>
               </div>
@@ -92,17 +106,20 @@
 <script>
 import global_ from '@/components/Global'; 
 import ResClasses from '@/components/common/ResClasses';
+import MircoClass from '@/components/common/MircoClass';
 import ResourceList from '@/components/common/ResourceList';
-import SpaceDynamic from '@/components/common/SpaceDynamic.vue';
+import SpaceDynamic from '@/components/common/SpaceRes';
 export default {
     name:'Resource',
     components:{
+        MircoClass,
         ResClasses,
         ResourceList,
         SpaceDynamic
     },
     data(){
       return {
+        token:this.$storage.getStorage("token"),
         resources:global_.subjectList,
         resouceList:[],
         specialClasses:[],
@@ -113,12 +130,39 @@ export default {
         newResource:[],
         hotResource:[],
         latestNews:[],
+        resouceCount:{},
         colorList:global_.colorList,
         randColor:global_.getRandColor(),
         fileType:global_.setFileType
       }
     },
     methods:{
+        toDetailResource(item){
+            if(!this.token){
+              this.login();
+              return;
+            }
+            this.$router.push({
+              path:'/DetailResource',
+              query:{
+                resourceLocalId:item.resourceLocalId          
+              }
+            });   
+        },
+        getResouceCount(sId){//资源最近更新
+          this.$http.post('/web/coursebook/countLastAndTotalResource.do')
+          .then((res)=>{
+            // console.log(res.data); 
+            if(res.data.status==0){
+              this.resouceCount=res.data.data;
+            }else{
+              
+            }
+          })
+          .catch((err)=>{
+            alert(err);
+          })
+        },
         getVersionList(sId){//版本列表
           this.$http.post('/web/coursebook/getVersionsGroupByPeriod.do',this.$qs.stringify({
             subjectId:sId
@@ -136,10 +180,9 @@ export default {
           })
         },
         getSpecialClassesList(){//微课
-          this.$http.post('/web/coursebook/listResourceLocal.do',this.$qs.stringify({
+          this.$http.post('/web/microcourse/listResource.do',this.$qs.stringify({
             pageSize:4,
-            verifyStatus:2,
-            resourceTypeId:0
+            needHost:1
           }))
           .then((res)=>{
             // console.log(res.data); 
@@ -156,10 +199,8 @@ export default {
           })
         },
         getHightClassesList(){//优课
-          this.$http.post('/web/coursebook/listResourceLocal.do',this.$qs.stringify({
-            pageSize:4,
-            verifyStatus:2,
-            resourceTypeId:0
+          this.$http.post('/web/coursebook/listExcellentResource.do',this.$qs.stringify({
+            pageSize:4
           }))
           .then((res)=>{
             // console.log(res.data.classesList); 
@@ -193,7 +234,7 @@ export default {
         },
         getLatestNews(){//名师推荐
           this.$http.post('/web/coursebook/listTeacherLastResource.do',this.$qs.stringify({
-            pageSize:10
+            pageSize:6
           }))
           .then((res)=>{
             // console.log(res.data.classesList);
@@ -208,10 +249,8 @@ export default {
           })
         },
         getNewResourceList(){//最新资源
-          this.$http.post('/web/coursebook/listTeacherHostResource.do',this.$qs.stringify({
-            pageSize:8,
-            verifyStatus:2,
-            resourceTypeId:0
+          this.$http.post('/web/coursebook/listRegionLastResource.do',this.$qs.stringify({
+            pageSize:8
           }))
           .then((res)=>{
             // console.log(res.data.classesList); 
@@ -227,7 +266,7 @@ export default {
         },
         getHotResourceList(){//最热资源
           this.$http.post('/web/coursebook/listRegionHostResource.do',this.$qs.stringify({
-            pageSize:10,
+            pageSize:8,
           }))
           .then((res)=>{
             // console.log(res.data.classesList); 
@@ -241,11 +280,22 @@ export default {
             alert(err);
           })
         },
+        login(){
+          this.$router.replace({
+             name:"Login",
+             query: {redirect: this.$router.currentRoute.fullPath}
+            })
+        },
         toAreaResource(item){
           this.$storage.setSession('baseData',item)
           this.$router.push({
-							path:'/FilterResource/AreaResource?id=AreaResource'
+							path:'/FilterResource/AreaResource?id=SubjectResource'
           });		
+        },
+        goMyResource(){
+          this.$router.push({
+              path:'/MySpace/MyResource'
+          }); 
         },
         goSpecialClass(){
           this.$router.push({
@@ -276,6 +326,7 @@ export default {
       this.getLatestNews();
       this.getNewResourceList();
       this.getHotResourceList();
+      this.getResouceCount();
     }
 }
 </script>
@@ -284,7 +335,7 @@ export default {
   width: 100%;
   height: 515px;
   background-color:#1cb0ea;
-  background: url('../../assets/imgs/resource/banner.png') no-repeat center center;
+  background: url('../../assets/imgs/resource/banner.png') no-repeat top center;
 }
 #banner>div{
   position: relative;
@@ -370,6 +421,43 @@ export default {
 .sub-resource li a.active{
   color: #1cb0ea;
   font-weight: bold;
+}
+.resNumBox{
+  width: 320px;
+  height: 340px;
+  background:url('../../assets/imgs/resource/rNum.png') no-repeat center;
+  position: absolute;
+  top:50px;
+  right: 0;
+  text-align: center;
+}
+.mt75{
+  margin-top: 75px;
+}
+.mt45{
+  margin-top: 35px;
+}
+.rNumber{
+  font-size: 24px;
+  line-height: 28px;
+  color: #1cb0ea;
+}
+.rType{
+  font-size: 14px;
+  line-height: 28px;
+  color: #666666;
+}
+.resNumBox button{
+  width: 140px;
+  height: 32px;
+  background-color: #1cb0ea;
+  box-shadow: inset 0px -2px 0px 0px 
+    #149fd6;
+  border-radius: 5px;
+  font-size: 14px;
+  text-align: center;
+  line-height: 32px;
+  color: #ffffff;
 }
 #classes{
   overflow: hidden;

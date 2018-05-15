@@ -2,7 +2,7 @@
     <div>
         <p class="space-total"> 
             <span>资源建设总量 </span>
-            <b>3467034</b> 
+            <b>{{totalCount}}</b> 
         </p>        
         <div class="pecent">                   
             <div id="pieThree"></div>
@@ -14,10 +14,41 @@ export default {
     name:'ResourceTab',
     data(){
         return {
-            
+            dataList:[],
+            totalCount:15494
         }
     },
     methods:{
+        getPieDate(){
+            this.$http.post('web/coursebook/countResource')
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status != 0){
+                this.$Message.error('请求资源失败，请重试');
+              }else{ 
+                let resData=result.data['资源'];
+                this.totalCount=resData.totalCount;
+                if(resData.data instanceof Array && resData.data.length>0){
+                    for(let i=0,len=resData.data.length;i<len;i++){
+                        this.dataList.push({
+                            'value':resData.data[i].count,
+                            'name':resData.data[i].subjectName
+                        })
+                    }
+                    this.drawPieThree();
+                }else{
+                  this.dataList = [];
+                }           
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        },
         drawPieThree(){
             let pieThree = this.$echarts.init(document.getElementById('pieThree'));
             pieThree.setOption({
@@ -30,23 +61,14 @@ export default {
                             name:'资源',
                             type:'pie',
                             radius: ['60%', '80%'],                            
-                            data:[
-                                {value:335, name:'政治',itemStyle:{normal:{color:'#4cb1a7'}}},
-                                {value:310, name:'化学',itemStyle:{normal:{color:'#ec7777'}}},
-                                {value:234, name:'数学',itemStyle:{normal:{color:'#e5c649'}}},
-                                {value:135, name:'物理',itemStyle:{normal:{color:'#a6c733'}}},
-                                {value:1048, name:'英语',itemStyle:{normal:{color:'#57bcda'}}},
-                                {value:251, name:'语文',itemStyle:{normal:{color:'#489e95'}}},
-                                {value:147, name:'生物',itemStyle:{normal:{color:'#ecd77f'}}},
-                                {value:102, name:'地理',itemStyle:{normal:{color:'#94b033'}}}
-                            ]
+                            data:this.dataList
                         }
                     ]
             });
         }
     },
     mounted(){
-        this.drawPieThree();
+        this.getPieDate();
     }   
 }
 </script>

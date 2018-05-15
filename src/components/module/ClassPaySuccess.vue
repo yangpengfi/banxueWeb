@@ -32,7 +32,7 @@
 				<span>恭喜，您已付款成功！</span>
 			</p>
 			<p class="msgBtn">
-				<span @click="check(1)" @hover :class="{active:act==1}">查看我的课程</span>
+				<span @click="check(1)"  :class="{active:act==1}">查看我的课程</span>
 				<span @click="check(2)" :class="{active:act==2}">查看订单详情</span>
 			</p>
 			<p class="msgFoot">

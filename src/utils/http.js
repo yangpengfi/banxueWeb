@@ -1,4 +1,4 @@
-apiGet(url){
+function apiGet(url){
     return new Promise((resolve, reject) => {
         this.$http.get(url).then((res) => {
             if(res.status != 200){
@@ -12,7 +12,7 @@ apiGet(url){
         })
     })
 };
-apiPost(url, data){
+function apiPost(url, data){
     return new Promise((resolve, reject) => {
         this.$http.post(url, this.$qs.stringify(data)).then((res) => {
             if(res.status != 200){

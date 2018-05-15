@@ -79,30 +79,32 @@
                 </ul>
                 <div class="contents" :class="{contentsAll:selType ==2}">
                     <div class="right-title">           
-                        <div class="totel">共有 <span>30</span> 个资源</div>
+                        <div class="totel">共有 <span>{{totalCount}}</span> 个资源</div>
                     </div>
                     <ul class="right-list">            
                         <li v-for="item of resourceList">
                         <div class="file-img">
-                            <img src="/static/imgs/resource/fileVideo.png" alt="文档图片">
+                            <img src="../../../static/imgs/resource/fileVideo.png" alt="文档图片" @click="toDetailResource(item)">
                         </div>
                         <div class="file-content">
-                            <h5>{{item.knowledgePoint}} </h5>
+                            <h5 @click="toDetailResource(item)" :title="item.knowledgePoint">{{item.knowledgePoint}} </h5>
                             <p>
                             <span>{{item.periodName}}</span>
                             <span>{{item.gradeName}}</span>
                             <span>{{item.subjectName}}</span>
                             <span>专辑名称：{{item.topic}}</span>
                             </p>
-                            <!-- <p>讲师：{{item.lecturer}}</p> -->
                         </div>
                         <div class="file-star">
-                            <!-- <span>特色微课</span> -->
-                            <!-- <Rate v-model="star"></Rate> -->
                         </div>
                         </li>                
                     </ul>
-                    <Page :total="totalCount" show-elevator show-total class="page-box"></Page>	
+                    <Page 
+                    :total="totalCount" 
+                    :current="current" 
+                    :pageSize="pageSize" 
+                    @on-change="pageChange"
+                    show-elevator show-total class="page-box"></Page>	
                 </div>
             </div>
         </div>
@@ -118,6 +120,8 @@ export default {
             token:this.$storage.getStorage('token'),
             star:5,
             totalCount:10,
+            current:1,
+            pageSize:10,
             allType:[
                 {id:1,name:'同步微课'},
                 {id:2,name:'专题微课'}
@@ -139,6 +143,12 @@ export default {
       }
   },
   methods:{
+    login(){
+      this.$router.replace({
+         name:"Login",
+         query: {redirect: this.$router.currentRoute.fullPath}
+        })
+    },
     changeType(item){
       this.selType=item.id; 
       if(this.selType==2){
@@ -157,18 +167,15 @@ export default {
       this.gradeList=item.gradeList;
       this.getSubjectList(this.selGrade);
       this.getTitleList(this.selPeriod,this.selGrade,1);
-      this.getResourceList(this.selPeriod,this.selGrade,1);
     },
     changeGrade(item){
       this.selGrade=item.id;
       this.getSubjectList(this.selGrade);
-      this.getTitleList(this.selPeriod,this.selGrade,1);
-      this.getResourceList(this.selPeriod,this.selGrade,1); 
+      this.getTitleList(this.selPeriod,this.selGrade,1); 
     },
     changeSubject(item){
       this.selSubject=item.id; 
-      this.getTitleList(this.selPeriod,this.selGrade,this.selSubject); 
-      this.getResourceList(this.selPeriod,this.selGrade,this.selSubject); 
+      this.getTitleList(this.selPeriod,this.selGrade,this.selSubject);  
     },
     changeSpecial(item){
       this.selSpecial=item.columnId;
@@ -176,7 +183,8 @@ export default {
     },
     changeTheme(item){
       this.selTheme=item.themeId; 
-      this.getResourceList(0,0,item.subjectId,this.selTheme);
+      this.subjectId=item.subjectId; 
+      this.getResourceList(0,0,this.subjectId,this.selTheme);
     },
     changelist(item){
       this.selTopic=item.topicId; 
@@ -233,7 +241,11 @@ export default {
       }))
      .then((res)=>{
         if(res.data.status==0){
-          this.subjectList=res.data.data;
+            if(res.data.data instanceof Array && res.data.data.length>0){
+                this.subjectList=res.data.data;
+            }else{
+              this.subjectList = [];
+            }
         }else{
           this.$Message.info(res.data.message);
         }
@@ -254,6 +266,7 @@ export default {
             if(res.data.data instanceof Array && res.data.data.length>0){
               this.titleList=res.data.data;
               this.selTopic=res.data.data[0].topicId;
+              this.getResourceList(pId,gId,sId,0,this.selTopic);
             }else{
               this.titleList = [];
             }
@@ -278,6 +291,9 @@ export default {
       }))
      .then((res)=>{
         if(res.data.status==0){
+            this.totalCount=res.data.data.totalCount;
+            this.current=res.data.data.currPage;
+            this.pageSize=res.data.data.pageSize;
             if(res.data.data.list instanceof Array && res.data.data.list.length>0){
               this.resourceList=res.data.data.list;
             }else{
@@ -291,6 +307,26 @@ export default {
         alert(err);
       })
     }, 
+    toDetailResource(item){
+        if(!this.token){
+              this.login();
+              return;
+        }
+        this.$router.push({
+          path:'/DetailResource',
+          query:{
+            resourceId:item.resourceId,
+            microcourse:1          
+          }
+        });   
+    },
+    pageChange(page){
+        if(this.selType==2){
+            this.getResourceList(0,0,2,this.selTheme,0,page);
+        }else{
+            this.getResourceList(this.selPeriod,this.selGrade,this.selSubject,0,this.selTopic,page);
+        }
+    }
   },
   created(){
     this.getTitleList(this.selPeriod,this.selGrade,this.selSubject);
@@ -311,8 +347,9 @@ export default {
     #filter-list>div p{
         float: left;
         font-size: 14px;
-        color: #999;
+        color: #333;
         padding: 8px 0;
+        cursor: default;
     }
     #filter-list>div p span{
         margin-left: 35px;
@@ -442,6 +479,11 @@ export default {
    .file-content h5{
      color: #333;
      font-size: 14px;
+     cursor: pointer;
+     max-width: 375px;
+     overflow: hidden;
+     text-overflow:ellipsis;
+     white-space: nowrap;
    }
    .ivu-page{
      text-align: center;

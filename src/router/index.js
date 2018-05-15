@@ -6,7 +6,6 @@ import Space from '@/components/page/Space'
 import UploadResource from '@/components/module/UploadResource'
 import LoadResource from '@/components/page/LoadResource.vue'
 import MySpace from '@/components/common/MySpace.vue'
-import ClassSub from '@/components/page/ClassSub.vue'
 
 Vue.use(Router)
 
@@ -19,6 +18,14 @@ export default new Router({
         {
           path: '/',          
           component: Index
+        },
+        {
+          path: 'NewsList',
+          component: resolve => require(['../components/page/NewsList.vue'], resolve)          
+        },
+        {
+          path: 'NewsDetail',
+          component: resolve => require(['../components/page/NewsDetail.vue'], resolve)          
         },
         {
           path: 'Resource',
@@ -57,6 +64,10 @@ export default new Router({
         {
           path: 'DetailResource',
           component: resolve => require(['../components/page/DetailResource.vue'], resolve)          
+        }, 
+        {
+          path: 'DetailResourceSubject',
+          component: resolve => require(['../components/page/DetailResourceSubject.vue'], resolve)          
         },     
         {
           path: 'Classes',
@@ -71,8 +82,12 @@ export default new Router({
           component: resolve => require(['../components/page/Application.vue'], resolve)
         },
         {
-          path: '/ClassSub',          
-          component: ClassSub
+          path: 'AppDetail',
+          component: resolve => require(['../components/page/AppDetail.vue'], resolve)
+        },
+        {
+          path: '/ClassSub', 
+          component: resolve => require(['../components/page/ClassSub.vue'], resolve)
         },
         {
           path: '/ClassDatile',          
@@ -97,14 +112,44 @@ export default new Router({
         {
           path: 'CommitPeople',
           component: resolve => require(['../components/page/CommitPeople.vue'], resolve)
+        },
+        {
+          path: 'DownLoadApp',
+          component: resolve => require(['../components/page/DownLoadApp.vue'], resolve)
         }
       ]
     },
-    
     {
       path: '/Login',
       name: 'Login',      
       component: resolve => require(['../components/page/Login.vue'], resolve)      
+    },
+    {
+      path:'/Register',
+      component: resolve => require(['../components/page/Register.vue'], resolve),
+      children:[
+          {
+            path: '/',          
+            component: resolve => require(['../components/module/TeacherRegisterOne.vue'], resolve)
+          },
+          {
+            path: 'TeacherRegisterTwo',          
+            component: resolve => require(['../components/module/TeacherRegisterTwo.vue'], resolve)
+          },
+          {
+            path: 'StudentRegisterOne',          
+            component: resolve => require(['../components/module/StudentRegisterOne.vue'], resolve)
+          },
+          {
+            path: 'StudentRegisterTwo',          
+            component: resolve => require(['../components/module/StudentRegisterTwo.vue'], resolve)
+          }
+      ]
+    },
+    {      
+      path:'/ForgetPassword',
+      name:'ForgetPassword',
+      component: resolve => require(['../components/page/ForgetPassword.vue'], resolve)
     },
     {
       path: '/MySpace',   
@@ -219,6 +264,10 @@ export default new Router({
           component: resolve => require(['../components/module/WriteArticle.vue'], resolve)
         },
         {
+          path: 'ArticalInfo',
+          component: resolve => require(['../components/module/ArticalInfo.vue'], resolve)
+        },
+        {
           path: 'LoadResource/:resourceKindId',
           component: LoadResource
         },
@@ -253,7 +302,109 @@ export default new Router({
     {
       path: '/ShowSpace', 
       name: 'ShowSpace',   
-      component: resolve => require(['../components/page/ShowSpace.vue'], resolve) 
+      component: resolve => require(['../components/page/ShowSpace.vue'], resolve),
+      children:[
+        {
+          path: '/',          
+          component: resolve => require(['../components/page/ShowSpaceIndex.vue'], resolve)
+        }, 
+        {
+          path: 'MyResource',
+          component: resolve => require(['../components/page/MyResource.vue'], resolve),
+          children:[
+            {
+              path: '/',          
+              component: UploadResource
+            },
+            {
+              path: 'PushResource',          
+              component: resolve => require(['../components/module/PushResource.vue'], resolve)
+            },
+            {
+              path: 'DownloadResource',          
+              component: resolve => require(['../components/module/DownloadResource.vue'], resolve)
+            },
+            {
+              path: 'CollectResource',          
+              component: resolve => require(['../components/module/CollectResource.vue'], resolve)
+            }
+          ]
+        },
+        {
+          path: 'MyList',
+          component: resolve => require(['../components/page/MyList.vue'], resolve),
+          children:[
+            {
+              path: '/',          
+              component: resolve => require(['../components/module/FocusLink.vue'], resolve)
+            },
+            {
+              path: 'FunLink',          
+              component: resolve => require(['../components/module/FunLink.vue'], resolve)
+            },
+            {
+              path: 'ClassLink',          
+              component: resolve => require(['../components/module/ClassLink.vue'], resolve)
+            },
+            {
+              path: 'MateLink',          
+              component: resolve => require(['../components/module/MateLink.vue'], resolve)
+            }
+          ]
+        }, 
+        {
+          path: 'Achievements',
+          component: resolve => require(['../components/page/Achievements.vue'], resolve),
+          children:[
+            {
+              path: '/',          
+              component: resolve => require(['../components/module/AllClassify.vue'], resolve)
+            }
+          ]
+        }, 
+        {
+          path: 'MinClasses',
+          component: resolve => require(['../components/page/MinClass.vue'], resolve),
+          children:[
+            {
+              path: '/',          
+              component: resolve => require(['../components/module/CreateClass.vue'], resolve)
+            },
+            {
+              path: 'BuiedClass',          
+              component: resolve => require(['../components/module/BuiedClass.vue'], resolve)
+            }
+          ]
+        },
+        {
+          path: 'CreateClassOne',
+          component: resolve => require(['../components/module/Step1.vue'], resolve)
+        },
+        {
+          path: 'CreateClassTwo',
+          component: resolve => require(['../components/module/Step2.vue'], resolve)
+        },
+        {
+          path: 'CreateClassThree',
+          component: resolve => require(['../components/module/Step3.vue'], resolve)
+        },
+        {
+          path: 'CreateClassFour',
+          component: resolve => require(['../components/module/Step4.vue'], resolve)
+        },
+        {
+          path: 'WriteArticle',
+          component: resolve => require(['../components/module/WriteArticle.vue'], resolve)
+        },
+        {
+          path: 'ArticalInfo',
+          component: resolve => require(['../components/module/ArticalInfo.vue'], resolve)
+        },
+        {
+          path: 'LoadResource/:resourceKindId',
+          component: LoadResource
+        }      
+      ] 
     }
   ]
 })

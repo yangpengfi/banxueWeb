@@ -11,7 +11,7 @@
                 <li v-for="item in per2gradeList">
                   <p>{{item.name}}</p>
                   <div>
-                    <a href="#" 
+                    <a href="javascript:void(0);" 
                     v-for="sub in item.gradeList" 
                     @click="gotoSub(item.id,sub.id)">{{sub.name}}</a>
                   </div>
@@ -27,21 +27,21 @@
         <div id="new-classes" class="w-1200">          
           <div class="section-box">
             <span class="section-title">最新课程</span>
-            <span class="right more">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
+            <span class="right more" @click="gotoSub(1,0)">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
           </div>
           <ClassList :classList="newClasses"></ClassList>           
         </div>
         <div id="recommend-classes" class="w-1200">
           <div class="section-box">
             <span class="section-title">推荐课程</span>
-            <span class="right more">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
+            <span class="right more" @click="gotoSub(1,0)">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
           </div>
           <ClassList :classList="recomClasses"></ClassList> 
         </div>
         <div id="hot-classes" class="w-1200">
           <div class="section-box">
             <span class="section-title">热门课程</span>
-            <span class="right more">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
+            <span class="right more" @click="gotoSub(1,0)">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
           </div>
           <ClassList :classList="hotClasses"></ClassList> 
         </div>
@@ -65,8 +65,14 @@ export default {
         }
     },
     methods:{
-        gotoSub(pId,gId){
-            this.$router.push('/ClassSub?pId='+pId+'&gId='+gId);
+        gotoSub(periodId,gradeId){
+            this.$router.push({
+              path:'/ClassSub',
+              query:{
+                pId:periodId,
+                gId:gradeId          
+              }
+            });
         },
         getNewClassesList(){
           this.$http.post('/web/course/listCourse.do',this.$qs.stringify({
@@ -120,7 +126,7 @@ export default {
   width: 100%;
   height: 480px;
   background-color: #E0BB83;
-  background: url('../../assets/imgs/classes/banner.png') no-repeat center center;
+  background: url('../../assets/imgs/classes/banner02.png') no-repeat center center;
 }
 #banner>div{
   position: relative;

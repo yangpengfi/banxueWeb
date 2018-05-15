@@ -1,17 +1,12 @@
 <template>
   <div>
       <div id="banner">
-        <Carousel autoplay v-model="value2" loop>
-            <CarouselItem>
+        <Carousel autoplay v-model="value1" loop>
+            <CarouselItem v-for="item in bannerList">
                 <div class="demo-carousel">
-                    <img src="../../assets/imgs/index/indexBanner01.jpg">
+                    <img :src="item.imgPath">
                 </div>
-            </CarouselItem>
-            <CarouselItem>
-                <div class="demo-carousel">
-                    <img src="../../assets/imgs/index/indexBanner02.jpg">
-                </div>
-            </CarouselItem>        
+            </CarouselItem>  
         </Carousel>
       </div>
       <div class="w-1200" id="role-container">
@@ -34,41 +29,29 @@
         <div id="result" class="w-1200">
           <div class="result">
                 <div class="section-box">
-                    <span class="section-title">成果.咨询</span>
+                    <span class="section-title">资讯动态</span>
+                    <span class="right more" @click="goNewsList">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
                 </div>   
                 <div class="result-content">
-                    <img src="../../assets/imgs/index/u143.png" alt="教学成果图片">
-                    <div>
-                        <h1>教育部办公厅印发《2017年教育信息化工程工作推进会》</h1>
-                        <p>
-                            党的十九大报告指出，建设教育强国是中华民族伟大复兴的基础工程，必须把教育事业放在优先位置，深化教育改革，加快教育现代化，办好人民满意的教育。教育现代化还需要实现哪些根本性跨越？今年两会期间，记者采访了几位来自教育战线的全国人大代表，听听他们的建议。
-                            <a href="#" class="msg-detail">[详情]</a>
-                        </p>
+                    <div class="img">
+                        <Carousel autoplay v-model="value2" loop>
+                            <CarouselItem v-for="item in newsInfoImgList">
+                                <div class="demo-carousel" @click="goDetail(item)">
+                                    <img :src="item.imgPath">
+                                    <span :title="item.title">{{item.title}}</span>
+                                </div>
+                            </CarouselItem>  
+                        </Carousel>
+                    </div>
+                    <div class="rightBox">
+                        <h1>{{infoOne.title}}</h1>
+                        <p>{{infoOne.summary}}</p>
+                        <a href="javascript:void(0);" class="msg-detail" @click="goDetail(infoOne)">[详情]</a>
                         <ul>
-                            <li>
-                                <span>2017年福建省基础教育信息化工程工作推进会——从深化应用</span>
-                                <span class="date">06-12</span>
-                            </li>
-                            <li>
-                                <span>福建省示范性幼儿园新增14所</span>                                
-                                <span class="date">05-12</span>
-                            </li>
-                            <li>
-                                <span>2017年福建省基础教育信息化工程工作推进会——从深化应用</span>
-                                <span class="date">06-12</span>
-                            </li>
-                            <li>
-                                <span>福建省示范性幼儿园新增14所</span>                                
-                                <span class="date">05-12</span>
-                            </li>
-                            <li>
-                                <span>2017年福建省基础教育信息化工程工作推进会——从深化应用</span>
-                                <span class="date">06-12</span>
-                            </li>
-                            <li>
-                                <span>福建省示范性幼儿园新增14所</span>                                
-                                <span class="date">05-12</span>
-                            </li>                            
+                            <li  v-for="item in newsInfoTitleList" @click="goDetail(item)">
+                                <span>{{item.title}}</span>
+                                <span class="date">{{formatTime(item.createTime)}}</span>
+                            </li>                       
                         </ul>
 
                     </div>
@@ -76,10 +59,10 @@
           </div>
           <div class="monitor">
                 <div class="section-box">
-                    <span class="section-title">应用监控</span>
+                    <span class="section-title">数据中心</span>
                     <p>
+                      <span @click="changeTab('ResourceTab')" :class="{active:currentTab=='ResourceTab'}">资源</span>
                         <span @click="changeTab('SpaceTab')" :class="{active:currentTab=='SpaceTab'}">空间</span>
-                        <span @click="changeTab('ResourceTab')" :class="{active:currentTab=='ResourceTab'}">资源</span>
                         <span @click="changeTab('TeachTab')" :class="{active:currentTab=='TeachTab'}">教学</span>
                     </p>
                 </div> 
@@ -89,8 +72,8 @@
       </div>      
       <div id="classes" class="w-1200">
             <div class="section-box">
-                <span class="section-title">热门课程</span>
-                <span class="right more">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
+                <span class="section-title">免费课程</span>
+                <span class="right more" @click="gotoSub(1,0)">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
             </div>
             <ClassList :classList="recomClasses"></ClassList>          
       </div>
@@ -99,13 +82,16 @@
             <div class="section-box">
                 <span class="section-title">优秀空间</span>
                 <p class="section-tab">
-                    <span class="active">教师</span>
-                    <span>学生</span>
+                    <span v-for="item in spaceRole" 
+                    :class="{active:item.id==roleId}" 
+                    @click="changeSpaceTab(item)" 
+                    :key="item.id">{{item.role}}</span>
+                    <!-- <span>学生</span>
                     <span>家长</span>
-                    <span>学校</span>
+                    <span>学校</span> -->
                 </p>
             </div>
-            <SpaceList></SpaceList> 
+            <SpaceList :spaceList="spaceLists"></SpaceList> 
         </div>
         <SpaceDynamic :infos="latestNews"></SpaceDynamic>    
       </div>
@@ -113,11 +99,11 @@
             <div class="open-title">
                 <span class="small-size">平台</span>
                 已有
-                <span class="blue-num">1481</span>
-                所学校开通了智慧校园服务
+                <span class="blue-num">1000</span>
+                所学校开通了数字校园服务
             </div>
-            <p>仅需1分钟即可开始免费体验智慧校园产品服务</p> 
-            <router-link to="/OpenSchool" class="open-btn">开通智慧校园</router-link>
+            <p><!-- 仅需1分钟即可开始免费体验数字校园产品服务 --></p> 
+            <a href="javascript:void(0);" @click="goOpenSchool" class="open-btn">开通数字校园</a>
       </div>     
   </div>
 </template>
@@ -128,6 +114,7 @@ import SpaceDynamic from '@/components/common/SpaceDynamic.vue';
 import SpaceTab from '@/components/module/SpaceTab.vue';
 import ResourceTab from '@/components/module/ResourceTab.vue';
 import TeachTab from '@/components/module/TeachTab.vue';
+import global_ from '@/components/Global'; 
 export default {
     name:'Index',
     components:{
@@ -140,126 +127,225 @@ export default {
     },
     data () {
         return {
+            token:this.$storage.getStorage("token"),
+            value1: 0,
             value2: 0,
+            bannerList:[],            
+            newsInfoImgList:[],            
+            newsInfoTitleList:[],            
             recomClasses:[],            
             roleList:[
                 {role:'管理者',icon:'./static/imgs/index/managerIcon.png',title:'我想知道如何提升工作效率和教育水平',id:"manager",color:'#54CCC8',position:'-2'},
                 {role:'教师',icon:'./static/imgs/index/teacherIcon.png',title:'我想知道如何提升工作效率和教育水平',id:"teacher",color:'#61bf2e',position:'-22'},
                 {role:'学生',icon:'./static/imgs/index/studentsIcon.png',title:'我想知道如何提升学习效率和成绩',id:"student",color:'#ffbd5f',position:'-42'},
-                {role:'家长',icon:'./static/imgs/index/homemasterIcon.png',title:'我想知道如何了解孩子的学习情况',id:"parent",color:'#ff9191',position:'-62'}
+                {role:'家长',icon:'./static/imgs/index/homemasterIcon.png',title:'我想知道如何了解孩子的学习情况',id:"parent",color:'#19a5f0',position:'-62'}
             ],            
             imgList:{
                 manager:['./static/imgs/index/managerSelect01.png','./static/imgs/index/managerSelect02.png','./static/imgs/index/managerSelect03.png','./static/imgs/index/managerSelect04.png'],
                 teacher:['./static/imgs/index/teacherSelect01.png','./static/imgs/index/teacherSelect02.png','./static/imgs/index/teacherSelect03.png','./static/imgs/index/teacherSelect04.png'],
                 student:['./static/imgs/index/studentsSelect01.png','./static/imgs/index/studentsSelect02.png','./static/imgs/index/studentsSelect03.png','./static/imgs/index/studentsSelect04.png'],
-                parent:['./static/imgs/index/studentsSelect01.png','./static/imgs/index/studentsSelect02.png','./static/imgs/index/studentsSelect03.png','./static/imgs/index/studentsSelect04.png']
+                parent:['./static/imgs/index/parentsselectA.png','./static/imgs/index/parentsselectB.png','./static/imgs/index/parentsselectC.png','./static/imgs/index/parentsselectD.png']
             },
             subImgList:['./static/imgs/index/managerSelect01.png','./static/imgs/index/managerSelect02.png','./static/imgs/index/managerSelect03.png','./static/imgs/index/managerSelect04.png'],
             nowId:'manager',
             nowColor:'#54CCC8',
             nowPosition:'-2',
-            currentTab:'SpaceTab' ,
-            latestNews:[]    
+            currentTab:'ResourceTab' ,
+            infoOne:{},
+            latestNews:[
+            {id:1,title:"发布了文章",logo:'http://192.168.8.252:86//user/2018/05/09/1659c4b2bdf44a30be01bac689ed366d.jpg',userName:'刘小斌',name:'《一元一次方程课件.doc》',createTime:1524813477000}],
+            spaceRole:[
+              {role:'老师',id:"Teacher"},
+              {role:'学生',id:"Student"},
+              // {role:'家长',id:3},
+              // {role:'学校',id:4}
+            ],
+            roleId:"Teacher",
+            spaceLists:[],
+            formatTime:global_.formatTime  
         }
     },
     methods:{
+        login(){
+          this.$router.replace({
+             name:"Login",
+             query: {redirect: this.$router.currentRoute.fullPath}
+            })
+        },
+        goOpenSchool(){
+          if(!this.token){
+            this.login();
+            return;
+          }
+          this.$router.push({
+                path:'/OpenSchool'
+          });   
+        },
+        goDetail(item){
+            this.$router.push({
+                path:'/NewsDetail',
+                query:{newsInfoId:item.newsInfoId,selType:item.type}
+          }); 
+        },
+        goNewsList(){
+          this.$router.push({
+                path:'/NewsList'
+          });   
+        },
+        gotoSub(periodId,gradeId){
+            this.$router.push({
+              path:'/ClassSub',
+              query:{
+                pId:periodId,
+                gId:gradeId          
+              }
+            });
+        },
         getRecomClassesList(){
           this.$http.post('/web/course/listCourse',this.$qs.stringify({
             needHotest:1,
             pageSize:8
           }))
           .then((res)=>{
-            // console.log(res.data.data.list); 
-            this.recomClasses=res.data.data.list;
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status != 0){
+                this.$Message.error('请求资源失败，请重试');
+              }else{ 
+                if(result.data.list instanceof Array && result.data.list.length>0){
+                  this.recomClasses = result.data.list;
+                }else{
+                  this.recomClasses = [];
+                }           
+              }
+            }  
           })
           .catch((err)=>{
             alert(err);
           })
         },
-        drawPieOne(){
-            let pieOne = this.$echarts.init(document.getElementById('pie0ne'));
-            pieOne.setOption({
-                tooltip: {
-                    trigger: 'item',
-                    formatter: "{a} <br/>{b}: {c} ({d}%)"
-                },               
-                series: [
-                    {
-                        name:'空间数量',
-                        type:'pie',
-                        radius: ['35%', '55%'],
-                        avoidLabelOverlap: false,
-                        label: {
-                            normal: {
-                                formatter: '75%',
-                                position: 'center',
-                                textStyle: {
-                                    fontSize: '14',
-                                    fontWeight: 'bold'
-                                }
-                            },
-                            emphasis: {
-                                show: true,
-                                textStyle: {
-                                    fontSize: '12',
-                                    fontWeight: 'bold'
-                                }
-                            }
-                        },
-                        labelLine: {
-                            normal: {
-                                show: false
-                            }
-                        },
-                        data:[
-                            {value:8888, name:'占有量',itemStyle:{normal:{color:'#31C46E'}}},
-                            {value:2222, name:'剩余量',itemStyle:{normal:{color:'#31C499'}}}                            
-                        ]
-                    }
-                ]
-            });
+        getBannerList(){
+          this.$http.post('web/banner/list.do',this.$qs.stringify({
+            pageSize:3
+          }))
+          .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status != 0){
+                this.$Message.error('请求资源失败，请重试');
+              }else{ 
+                if(result.data instanceof Array && result.data.length>0){
+                  this.bannerList = result.data;
+                }else{
+                  this.bannerList = [];
+                }           
+              }
+            } 
+          })
+          .catch((err)=>{
+            alert(err);
+          })
         },
-        drawPieTwo(){
-            let pieTwo = this.$echarts.init(document.getElementById('pieTwo'));
-            pieTwo.setOption({
-               tooltip: {
-                    trigger: 'item',
-                    formatter: "{a} <br/>{b}: {c} ({d}%)"
-                },                
-                series: [
-                    {
-                        name:'空间数量',
-                        type:'pie',
-                        radius: ['35%', '55%'],
-                        avoidLabelOverlap: false,
-                        label: {
-                            normal: {                                
-                                formatter: '100%',
-                                position: 'center',
-                                textStyle: {
-                                    fontSize: '14',
-                                    fontWeight: 'bold'
-                                }
-                            },
-                            emphasis: {
-                                show: true,
-                                textStyle: {
-                                    fontSize: '12',
-                                    fontWeight: 'bold'
-                                }
-                            }
-                        },
-                        labelLine: {
-                            normal: {
-                                show: false
-                            }
-                        },
-                        data:[
-                            {value:8888, name:'占有量',itemStyle:{normal:{color:'#31C46E'}}}                                                     
-                        ]
-                    }
-                ]
-            });
+        getNewInfoImgList(){
+          this.$http.post('web/newsInfo/showList',this.$qs.stringify({
+            pageSize:3
+          }))
+          .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status != 0){
+                this.$Message.error('请求资源失败，请重试');
+              }else{ 
+                if(result.data.list instanceof Array && result.data.list.length>0){
+                  this.newsInfoImgList = result.data.list;
+                }else{
+                  this.newsInfoImgList = [];
+                }           
+              }
+            } 
+          })
+          .catch((err)=>{
+            alert(err);
+          })
+        },
+        getNewInfoList(){
+          this.$http.post('web/newsInfo/list.do',this.$qs.stringify({
+            pageSize:7
+          }))
+          .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status != 0){
+                this.$Message.error('请求资源失败，请重试');
+              }else{ 
+                if(result.data.list instanceof Array && result.data.list.length>0){
+                  this.newsInfoTitleList = result.data.list;
+                  this.infoOne=result.data.list[0];
+                }else{
+                  this.newsInfoTitleList = [];
+                }           
+              }
+            }
+          })
+          .catch((err)=>{
+            alert(err);
+          })
+        },
+        getSpaceList(role){//获取优秀空间
+            this.$http.post('web/space/listExcellent'+role+'Space.do',this.$qs.stringify({
+              pageSize:9
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status != 0){
+                this.$Message.error('请求资源失败，请重试');
+              }else{ 
+                if(result.data.list instanceof Array && result.data.list.length>0){
+                  this.spaceLists = result.data.list;
+                }else{
+                  this.spaceLists = [];
+                }           
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        },
+        getSpaceDynamic(type){//获取最新动态
+            this.$http.post('web/space/listAllSpaceDynamic.do',this.$qs.stringify({
+              pageSize:5,
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){
+                if(result.data.list instanceof Array && result.data.list.length>0){
+                  this.latestNews = result.data.list;
+                }else{
+                  this.latestNews = [];
+                }
+              }else{ 
+                 this.$Message.error(result.message);          
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
         },
         changeRole(item){
             this.nowId=item.id; 
@@ -269,14 +355,19 @@ export default {
         },
         changeTab(tab){
             this.currentTab = tab;
-        }
-    },
-    mounted(){
-        this.drawPieOne();
-        this.drawPieTwo();
+        },
+        changeSpaceTab(item){
+            this.roleId = item.id;
+            this.getSpaceList(item.id);
+        },
     },
     created:function(){     
-        this. getRecomClassesList();
+        this.getRecomClassesList();
+        this.getBannerList();
+        this.getNewInfoList();
+        this.getNewInfoImgList();
+        this.getSpaceList(this.roleId);
+        this.getSpaceDynamic();
     }
 }
 </script>
@@ -284,7 +375,9 @@ export default {
     #banner img{
         vertical-align: bottom;
         width: 100%;
+        max-height: 600px;
     }   
+    /*用户角色*/
     #role-container{
         padding: 0 17px 40px;
         background-color: #fff;        
@@ -300,7 +393,7 @@ export default {
         height: 266px;  
         padding: 0 20px;     
         text-align: center;        
-        cursor: pointer;
+        cursor: default;
         border:1px solid transparent;
         margin-bottom: 20px;
     }    
@@ -333,6 +426,9 @@ export default {
         border-bottom: 1px solid transparent;
         color: #000;
     }    
+    .more{
+        padding-top: 20px;
+    }
     .drop-arrow{
         position: absolute;
         bottom: -13px;        
@@ -359,8 +455,9 @@ export default {
     }
     #role-tab li{
         float: left;
-        cursor: pointer;
+        cursor: default;
     }
+    /*资讯动态*/
     #result-container{
         background-color: #fff;
         width: 100%;
@@ -374,7 +471,29 @@ export default {
     .result{
         float: left;
         width: 70%;         
-    }    
+    }   
+    .demo-carousel{
+      position: relative;
+      cursor: pointer;
+    } 
+    .demo-carousel>span{
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      display: inline-block;
+      box-sizing: border-box;
+      width: 260px;
+      height: 40px;
+      line-height: 40px;
+      padding:0 40px;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      font-size: 16px;
+      overflow: hidden;
+      text-overflow:ellipsis;
+      white-space: nowrap;
+    }
+    /*数据中心*/
     .monitor{
         float: right;
         width: 30%;
@@ -385,37 +504,40 @@ export default {
         border-top: 1px solid #E9E9E9; 
         padding: 20px 20px 50px 0;  
     }
-    .result-content>img{
+    .result-content>.img{
         float: left;
         width: 30%;        
     }
-    .result-content>div{
+    .result-content>.rightBox{
         float: right;
         width: 68%;
     }
-    .result-content>div h1{
+    .rightBox h1{
         width: 80%;
         overflow: hidden;
         text-overflow:ellipsis;
         white-space: nowrap;
         color:#1cb0ea;
     }    
-    .result-content>div p{
+    .rightBox p{
         text-indent:2em;
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 3;
+        color:#999;
         overflow: hidden;
+        height: 55px;
     }
-    .result-content ul{
+    .rightBox ul{
         margin-top: 20px;
     }
-    .result-content ul li{
+    .rightBox ul li{
         overflow: hidden;
         width: 100%;
         height:30px;
+        cursor: pointer;
     }
-    .result-content ul li span:first-child{
+    .rightBox ul li span:first-child{
         float: left;        
         font-size: 14px;
         color:#333;
@@ -481,7 +603,7 @@ export default {
         width: 280px;
         height: 60px;
         line-height: 60px;
-        margin-top: 530px;        
+        margin-top: 550px;        
         border:none;
         color:#fff;
         font-size: 20px;

@@ -1,6 +1,12 @@
 <template>
-    <div class="w-1200 my-application">
-        <ApplicationInfo :infoList="appList"></ApplicationInfo>  
+    <div class="w-1200 my-application"  id="app-content">
+        <div v-for="item in appList" v-if="item.children.length>0">
+            <div class="section-box">
+                <span class="section-title">{{item.name}}</span>
+            </div>
+            <ApplicationInfo :infoList="item.children"></ApplicationInfo>           
+        </div>
+      <div class="clear"></div> 
     </div>
 </template>
 <script>
@@ -12,15 +18,38 @@ export default {
     },
     data () {
         return {
-            appList:[
-                  {name:'伴学网',size:'22M',value:4,text:'伴学网app是一款移动教学软件。软件已云课堂为中心，教师可直接在线为学生上课，可也自己录制视频供学生观看，在线进行信息发布等，让学生与老师关联更紧密。有需要的用户欢迎下载使用。'},
-                  {name:'伴学网',size:'22M',value:4,text:'伴学网app是一款移动教学软件。软件已云课堂为中心，教师可直接在线为学生上课，可也自己录制视频供学生观看，在线进行信息发布等，让学生与老师关联更紧密。有需要的用户欢迎下载使用。'},
-                  {name:'伴学网',size:'22M',value:4,text:'伴学网app是一款移动教学软件。软件已云课堂为中心，教师可直接在线为学生上课，可也自己录制视频供学生观看，在线进行信息发布等，让学生与老师关联更紧密。有需要的用户欢迎下载使用。'},
-                  {name:'伴学网',size:'22M',value:4,text:'伴学网app是一款移动教学软件。软件已云课堂为中心，教师可直接在线为学生上课，可也自己录制视频供学生观看，在线进行信息发布等，让学生与老师关联更紧密。有需要的用户欢迎下载使用。'},
-                  {name:'伴学网',size:'22M',value:4,text:'伴学网app是一款移动教学软件。软件已云课堂为中心，教师可直接在线为学生上课，可也自己录制视频供学生观看，在线进行信息发布等，让学生与老师关联更紧密。有需要的用户欢迎下载使用。'},
-                  {name:'伴学网',size:'22M',value:4,text:'伴学网app是一款移动教学软件。软件已云课堂为中心，教师可直接在线为学生上课，可也自己录制视频供学生观看，在线进行信息发布等，让学生与老师关联更紧密。有需要的用户欢迎下载使用。'}
-            ]
+            appList:[]
         }
+    },
+    methods:{
+      getAppList(){
+        this.$http.post('web/appInfo/listByType',this.$qs.stringify({
+            pageSize:3
+        }))
+        .then((res)=>{
+        if(res.status != 200){
+          this.$Message.error('请求失败请重试');
+        }else{
+          let result = res.data;
+          if(result.status != 0){
+            this.$Message.error(result.message);
+          }else{ 
+            console.log(result)
+            if(result.data instanceof Array && result.data.length>0){
+              this.appList = result.data;
+            }else{
+              this.appList = [];
+            }           
+          }
+        } 
+        })
+        .catch((err)=>{
+            alert(err);
+        })
+      }
+    },
+    created(){
+        this.getAppList();
     }
 }
 </script>
@@ -29,4 +58,11 @@ export default {
 		margin-top: 30px;
 		margin-bottom: 60px;
 	}
+  #app-content>div{
+  margin-top: 20px;
+}
+
+#app>.clear{
+  margin-bottom: 80px;
+}
 </style>

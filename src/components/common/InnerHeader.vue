@@ -1,7 +1,7 @@
 <template>
 	<div id="innerHeader">
 		<div id="spaceTitle">
-			<span>阿里巴巴的空间</span>
+			<span>{{userNme}}的空间</span>
 			<div id="infoSet">
 				<div @click="toIndex">
 					<span>平台首页</span>
@@ -10,7 +10,7 @@
 					<span>设置</span> 
 					<div class="login-out">
 						<p @click="toPersonCenter">个人中心</p>
-						<p @click="login">退出</p>
+						<p @click="logout">退出</p>
 					</div>
 				</div>
 			</div>
@@ -18,7 +18,7 @@
 		<div class="nav-bar">
 			<ul>
 				<li v-for="(relation,index) in relations" v-on:click="relationClick(relation)">
-					<router-link :to='relation.path' :class="{active:relation.id==nowId}">{{relation.text}}</router-link>
+					<a href="javascript:void(0);" :class="{active:relation.id==selelectId}">{{relation.text}}</a>
 				</li>
 			</ul>
 		</div>
@@ -30,8 +30,9 @@ export default {
 	name: 'v-header',
 	data () {
 		return {
+			userNme:this.$storage.getStorage("userInfo").trueName,
 			relations:[
-					{text:'空间首页',path:'/MySpace/',id:'sapceIndex'},   
+					{text:'空间首页',path:'/MySpace/',id:'spaceIndex'},   
 					{text:'我的资源',path:'/MySpace/MyResource',id:'myResource'},   
 					{text:'课程',path:'/MySpace/MinClasses',id:'minClasses'},   
 					{text:'学习成果',path:'/MySpace/Achievements',id:'achievements'},   
@@ -39,28 +40,44 @@ export default {
 					{text:'我的通讯录',path:'/MySpace/MyList',id:'myList'},   
 					{text:'展示空间',path:'/ShowSpace',id:'showSpace'}
 			],
-			nowId:'sapceIndex'
+			selelectId:'spaceIndex'
 		}
 	},
 	methods:{
 		relationClick(item){  
-			this.nowId=item.id; 
+			this.selelectId=item.id; 
+			if(item.id=='showSpace'){
+				window.open('#/ShowSpace/?userId='+this.$storage.getStorage("userInfo").id);
+				return;
+			}
+			this.$router.push({
+                  path:item.path
+            }); 
 		},
-		login(){
-			this.$router.push('/Login');
+		logout(){
+			this.$http.post('/web/user/a/logout.do',this.$qs.stringify({
+            skey:new Date().getTime(),
+            token:this.$storage.getStorage("token"),
+          }))
+          .then((res)=>{
+            if(res.data.status==0||res.data.status==9){
+            	this.$storage.setStorage("token",'');
+	            this.$storage.setStorage("vipStatus",0);
+	            this.$storage.setStorage("userInfo",'');
+				this.$router.push('/Login');
+            }else{
+              
+            }
+          })
+          .catch((err)=>{
+            alert(err);
+          })
 		},
 		toIndex(){
 			this.$router.push('/');
 		},
 		toPersonCenter(){
 			this.$router.push('/MySpace/PersonalCenter');
-		}
-	},
-	mounted(){
-		if(this.$route.query.spaceTitle != ''){
-			this.nowId = this.$route.query.spaceTitle;
-		}else{
-			this.nowId ='sapceIndex';
 		}
 	}  
 }

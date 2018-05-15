@@ -254,7 +254,7 @@ export default {
             uniCode:'',
             uniCodeList:[],
             options: {
-                target: 'http://192.168.8.251/banxue/web/chunkUpload/a/uploadChunkFile',
+                target: this.$baseURL+'/web/chunkUpload/a/uploadChunkFile.do',
                 testChunks: false,
                 forceChunkSize:true,
                 simultaneousUploads:1,

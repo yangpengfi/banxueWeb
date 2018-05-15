@@ -93,13 +93,13 @@
           <ul class="right-list">            
              <li v-for="item of resourceList">
               <div class="file-img">
-                <img :src="fileType(item.fileSuffix,0)" alt="文档图片">
+                <img :src="fileType(item.fileSuffix,0)" alt="文档图片" @click="toDetailResource(item)">
               </div>
               <div class="file-content">
-                <h5 :title="item.recourceLocalName">{{item.recourceLocalName}}</h5>
+                <h5 :title="item.recourceLocalName" @click="toDetailResource(item)">{{item.recourceLocalName}}</h5>
                 <p>
                   <span>大小：{{formatSize(item.fileSize)}}</span>
-                  <span>浏览：{{item.view}}</span>
+                  <span>浏览：{{item.browseNum}}</span>
                   <span>下载：{{item.downloadNum}}次</span>
                   <span>收藏：{{item.collectNum}}</span>
                 </p>
@@ -159,7 +159,7 @@ export default {
           ver2text:'人教版七年级上册',
           titles:[
             {id:1,name:'同步资源'},
-            {id:2,name:'知识点微课'}
+            {id:2,name:'知识点资源'}
           ],
           resourceKindId:1,   
           selTitle:1,		
@@ -183,9 +183,17 @@ export default {
         deep:true
     },
     methods:{
+        login(){
+          this.$router.replace({
+             name:"Login",
+             query: {redirect: this.$router.currentRoute.fullPath}
+            })
+        },
         changeTitle(item){
           this.selTitle=item.id;      
-          this.resourceKindId=item.id;  
+          this.resourceKindId=item.id; 
+          this.filter.resourceKindId=this.resourceKindId;
+          this.baseData.resourceKindId=this.resourceKindId; 
           this.getResourceLocalTypeList()
           if(item.id==1){
             this.getNodeTree(this.baseData)
@@ -197,6 +205,18 @@ export default {
           this.type=item.id; 
           this.filter.resourceTypeId=this.type;
           this.getResourceList(this.filter)
+        },
+        toDetailResource(item){
+            if(!this.token){
+              this.login();
+              return;
+            }
+            this.$router.push({
+              path:'/DetailResource',
+              query:{
+                resourceLocalId:item.resourceLocalId          
+              }
+            });   
         },
         filterPer:function () {
             this.filter.subjectId=0;
@@ -336,6 +356,7 @@ export default {
                     }else{  
                         if(result.data.children instanceof Array && result.data.children.length>0){
                             this.nodeTree = result.data.children;
+                            this.getResourceList(data)
                         }else{
                             this.nodeTree = [];
                         }           
@@ -359,6 +380,7 @@ export default {
                     }else{  
                         if(result.data.children instanceof Array && result.data.children.length>0){
                             this.nodeTree = result.data.children;
+                            this.getResourceList(data)
                         }else{
                             this.nodeTree = [];
                         }           
@@ -518,10 +540,10 @@ export default {
             });
         },  
         pageChange(page){
-            // this.filter.pageIndex=page;
-            // this.getResourceList(this.filter)
-            let data={pageIndex:page}
-            this.getResourceList(data)
+            this.filter.pageIndex=page;
+            this.getResourceList(this.filter)
+            // let data={pageIndex:page}
+            // this.getResourceList(data)
         } 
     },
     created() {
@@ -529,6 +551,8 @@ export default {
         if(this.baseData.id){
             this.filter.periodId=this.baseData.periodId;
             this.filter.token=this.token;
+            this.filter.resourceKindId=this.resourceKindId;
+            this.baseData.resourceKindId=this.resourceKindId;
             this.baseData.token=this.token;
             this.baseData.withDisabledNode=1;
             this.baseData.versionId=this.baseData.id;
@@ -744,15 +768,18 @@ export default {
      font-size: 16px;
      color: #7b8085;
    }
+   .sel-type{
+    max-width: 690px;
+   }
    .sel-type span{
-     float: left;
+     display: inline-block;
      width: 80px;
      text-align: center;
      margin-top: 10px;
    }
    .sel-type a{
-     float: left;
-     width: 100px;
+     display: inline-block;
+     padding: 0 15px;
      height: 40px;
      line-height: 40px;
      text-align: center;

@@ -2,173 +2,32 @@
     <div id="bg">
         <div id="my-space">
             <div class="space-title">
-                <img src="../../assets/imgs/space/touxiang.jpg" alt="头像">
+                <img :src="spaceInfo.logo" alt="头像"/>
                 <div class="my-info">
-                    <p>书拉密女</p>
-                    <span>深圳市华侨城中学</span>
+                    <p>{{spaceInfo.userName}}</p>
+                    <span>{{spaceInfo.schoolName}}</span>
                 </div>
                 <div class="my-operate">
                     <p>
-                        <b>180</b>
+                        <b>{{spaceInfo.resourceCount}}</b>
                         <span>资源</span>
                     </p>
                     <p class="no-line">
-                        <b>132</b>
-                        <span>说说</span>
+                        <b>{{spaceInfo.articleCount}}</b>
+                        <span>文章</span>
                     </p>
-                    <button>
-                        关注
-                    </button>
+                    <button v-show="!theFollow" @click="follow">关注</button>
+                    <button v-show="theFollow"  @click="unFollow">取消关注</button>
                 </div>
             </div>
             <ul class="title-list">
-                <li v-for="item of titleList">
-                    <router-link :to="item.path+'?spaceTitle='+item.id" :class="{active:item.id == localTitle}">{{item.title}}</router-link>
+                <li v-for="item in titleList" @click="changeTitle(item)">
+                    <router-link :to="item.path" :class="{active:item.id == localTitle}">{{item.title}}</router-link>
                 </li>
             </ul>
         </div>
-        <div id="space-content">
-            <div class="left-content">
-                <div class="show-space">
-                    <img src="../../assets/imgs/space/decoration.jpg" alt="装饰图片">
-                </div>
-                <div class="myView">
-					<p class="viewTitle more-focus">
-						我的关注
-						<span>更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
-					</p>
-					<ul class="viewCont">
-						<li class="marginTop" v-for="item of peopleList">
-							<img src="../../assets/imgs/space/headImg.png"/>
-							<p>{{item.name}}</p>
-						</li>
-					</ul>
-				</div>
-				<div class="myView">
-					<p class="viewTitle total-visitor">
-						最近访客
-						<span>26564次</span>
-					</p>
-					<ul class="viewCont">
-						<li class="marginTop" v-for="item of peopleList">
-							<img src="../../assets/imgs/space/headImg.png" />
-							<p>{{item.name}}</p>
-						</li>
-					</ul>
-					<div>
-						<Page :total="40" size="small"></Page>
-					</div>
-				</div>
-                <div class="visitor-total">
-                    <p>今日访问量：<span>23</span></p>
-                    <p>独立用户访问量：<span>561</span></p>
-                    <p>学生访问量：<span>362</span></p>
-                    <p>空间访问量：<span>46</span></p>
-                </div>
-                <div class="message">
-                    <p>留言区</p>
-                    <div>
-                        <textarea placeholder="登录后即可留言……"></textarea>
-                    </div>
-                    <div>
-                        <button class="comment" disabled>发表留言</button>
-                    </div>
-                    <ul>
-                        <li v-for="item of messageList">
-                            <img src="../../assets/imgs/space/defaultImg.png" alt="默认图片">
-                            <div>
-                                <p>
-                                    <span class="name">{{item.name}}</span>
-                                    <span class="time">{{item.time}}</span>
-                                </p>
-                                <p>{{item.file}}</p>
-                            </div>
-                        </li>
-                    </ul>
-                    <div class="message-page">
-						<Page :total="40" size="small"></Page>
-					</div>
-                </div>
-            </div>
-            <div class="right-content">
-                <div class="new-achievement">
-                    <p class="common-title">
-                        我的关注
-						<span>更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
-                    </p>
-                    <ul>
-                        <li v-for="item of newAchList">
-                            <div class="list-title">
-                                <b>【顶】</b>
-                                <span>{{item.title}}</span>
-                            </div>
-                            <p class="list-content">
-                                {{item.content}}
-                            </p>
-                            <div class="other-info">
-                                <span>{{item.time}}</span>
-                                <span>阅读</span>
-                                <b>{{item.read}}</b>
-                                <span>评论</span>
-                                <b>{{item.comment}}</b>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="his-resource">
-                    <p class="common-title">
-                        他的资源
-						<span>更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
-                    </p>
-                    <ul>
-                        <li v-for="item of resourceList">
-                            <p>
-                                {{item.content}}
-                            </p>
-                            <div>
-                                <Rate v-model="item.star"></Rate>
-                                <span>{{item.total}}/{{item.all}}</span>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="his-dynamic">
-                    <p  class="common-title">
-                        他的动态
-						<span>更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
-                    </p>
-                    <ul>
-                        <li v-for="item of dynamicList">
-                            <img src="../../assets/imgs/space/defaultImg.png" alt="默认图片">
-                            <div class="dynamic-content">
-                                <p>
-                                    <span class="name">{{item.name}}</span>
-                                   {{item.from}}
-                                </p>
-                                <p>
-                                    发表了
-                                    <span class="file">
-                                        {{item.file}}
-                                    </span>
-                                </p>
-                            </div>
-                            <div class="dynamic-operate">
-                                <p>
-                                    <span>赞</span>{{item.praise}}
-                                    <span>转发</span>{{item.transmit}}
-                                    <span>评论</span>
-                                </p>
-                                <p class="time">
-                                    {{item.time}}
-                                </p>
-                            </div>
-                        </li>
-                    </ul>
-                    <div class="more-dynamic">
-                        <button id="load-more">加载更多</button>
-                    </div>
-                </div>
-            </div>
+        <div class="content" style="min-height:600px">
+            <transition name="move" mode="out-in"><router-view></router-view></transition>
         </div>
         <v-foot></v-foot>
     </div>
@@ -182,50 +41,129 @@ export default {
     },
     data () {
         return {
-            peopleList:[
-				{id:1,name:'张三'},
-				{id:2,name:'张三'},
-				{id:3,name:'张三'},
-				{id:4,name:'张三'},
-				{id:5,name:'张三'},
-				{id:6,name:'张三'},
-				{id:7,name:'张三'},
-				{id:8,name:'张三'},
-				{id:9,name:'张三'},
-				{id:10,name:'张三'}
-			],
-            star:5,
+            token:this.$storage.getStorage("token"),
+            userId:0,
+            spaceInfo:{},
+            theFollow:false,
             titleList:[
-                {id:'showSpace',title:'主页',path:'/ShowSpace'},
-                {id:'myResource',title:'资源中心',path:'/MySpace/MyResource'},
-                {id:'achievements',title:'学习成果',path:'/MySpace/Achievements'},
-                {id:'myList',title:'通讯录',path:'/MySpace/MyList'}
+                {id:'showSpace',title:'主页',path:'/ShowSpace/'},
+                {id:'myResource',title:'资源中心',path:'/ShowSpace/MyResource'},
+                {id:'achievements',title:'学习成果',path:'/ShowSpace/Achievements'},
+                {id:'myList',title:'通讯录',path:'/ShowSpace/MyList'}
             ],
             localTitle:'showSpace',
-            newAchList:[
-                {id:1,title:'期末考试复习的10大法宝',time:'2018-3-19',read:'5612',comment:'243',content:'期末考试是一种手段，检验知识、技能的掌握情况，也是对一学期学习成果的一次检验。平常学得扎实的同学到了这时就是大显身手的时候，证明自己的能力；平常学得不够好的同学通过考试能巩固知识，能看到自己的进步，那就是成功...'},
-                {id:2,title:'期末考试复习的10大法宝',time:'2018-3-19',read:'5612',comment:'243',content:'期末考试是一种手段，检验知识、技能的掌握情况，也是对一学期学习成果的一次检验。平常学得扎实的同学到了这时就是大显身手的时候，证明自己的能力；平常学得不够好的同学通过考试能巩固知识，能看到自己的进步，那就是成功...'},
-                {id:3,title:'期末考试复习的10大法宝',time:'2018-3-19',read:'5612',comment:'243',content:'期末考试是一种手段，检验知识、技能的掌握情况，也是对一学期学习成果的一次检验。平常学得扎实的同学到了这时就是大显身手的时候，证明自己的能力；平常学得不够好的同学通过考试能巩固知识，能看到自己的进步，那就是成功...'}
-            ],
-            resourceList:[
-                {id:1,content:'睡虎地秦墓竹简，又称睡虎地秦简、云梦秦简，是指1975年12月在湖北省云……',star:5,all:20,total:8},
-                {id:2,content:'睡虎地秦墓竹简，又称睡虎地秦简、云梦秦简，是指1975年12月在湖北省云……',star:5,all:20,total:8},
-                {id:3,content:'睡虎地秦墓竹简，又称睡虎地秦简、云梦秦简，是指1975年12月在湖北省云……',star:5,all:20,total:8},
-                {id:4,content:'睡虎地秦墓竹简，又称睡虎地秦简、云梦秦简，是指1975年12月在湖北省云……',star:5,all:20,total:8},
-                {id:5,content:'睡虎地秦墓竹简，又称睡虎地秦简、云梦秦简，是指1975年12月在湖北省云……',star:5,all:20,total:8}
-            ],
-            dynamicList:[
-                {id:1,name:'余康',from:'华侨城中学',file:'一元一次方程求解',time:'2018-3-19  15:42:18',praise:1,transmit:2},
-                {id:2,name:'余康',from:'华侨城中学',file:'一元一次方程求解',time:'2018-3-19  15:42:18',praise:1,transmit:2},
-                {id:3,name:'余康',from:'华侨城中学',file:'一元一次方程求解',time:'2018-3-19  15:42:18',praise:1,transmit:2},
-                {id:4,name:'余康',from:'华侨城中学',file:'一元一次方程求解',time:'2018-3-19  15:42:18',praise:1,transmit:2},
-                {id:5,name:'余康',from:'华侨城中学',file:'一元一次方程求解',time:'2018-3-19  15:42:18',praise:1,transmit:2}
-            ],
-            messageList:[
-                {id:1,name:'张涵',from:'华侨城中学',file:'上传了《一元一次方程式求解 》',time:'2018-3-19'},
-                {id:2,name:'余康',from:'华侨城中学',file:'上传了《一元一次方程式求解 》',time:'2018-3-19'}
-            ]
         } 
+    },
+    methods:{
+        login(){
+          this.$router.replace({
+             name:"Login",
+             query: {redirect: this.$router.currentRoute.fullPath}
+            })
+        },
+        getSpaceInfo(){
+            this.$http.post('web/space/spaceInfo.do',this.$qs.stringify({
+              userId:this.userId,
+              token:this.token
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){
+                this.spaceInfo = result.data; 
+              }else{ 
+                this.$Message.error('请求资源失败，请重试');      
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        },
+        isFollowers(){//是否关注
+            this.$http.post('/web/space/isFollow.do',this.$qs.stringify({
+              token:this.token,
+              userId:this.userId
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){
+                this.theFollow=result.data;
+              }else if(result.status == 9){
+                this.login();
+                return;
+              }else{
+                this.$Message.error('请求资源失败，请重试');            
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        },
+        unFollow(){//取消关注
+            this.$http.post('/web/space/a/unFollow.do',this.$qs.stringify({
+              token:this.token,
+              userId:this.userId
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){
+                this.isFollowers();
+                this.$Message.info(result.message);
+              }else{
+                this.$Message.error(result.message);            
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        },
+        follow(){//关注
+            this.$http.post('/web/space/a/follow.do',this.$qs.stringify({
+              token:this.$storage.getStorage("token"),
+              userId:this.userId
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){
+                this.isFollowers();
+                this.$Message.info(result.message);
+              }else{
+                this.$Message.error(result.message);            
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        },
+        changeTitle(item){
+            this.localTitle=item.id;
+        }
+    },
+    created(){
+        this.userId=this.$router.history.current.query.userId;
+        let pageId=this.$router.history.current.path.split('/')[2];
+        if(!pageId){
+           this.localTitle="showSpace" 
+        }else{
+          this.localTitle=pageId;  
+        }
+        this.getSpaceInfo();
+        this.isFollowers();
     }
 }
 </script>

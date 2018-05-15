@@ -1,20 +1,14 @@
 <template>
   <div id="app">
       <div class="banner">
-        <img src="../../assets/imgs/app/banner.png">
+        <img src="../../assets/imgs/app/myappbg.jpg">
       </div>
       <div id="app-content" class="w-1200">
-        <div>
+        <div v-for="item in appList" v-if="item.children.length>0">
             <div class="section-box">
-                <span class="section-title">智慧教学</span>
+                <span class="section-title">{{item.name}}</span>
             </div>
-            <ApplicationInfo :infoList="teachList"></ApplicationInfo>           
-        </div>
-        <div>
-            <div class="section-box">
-                <span class="section-title">智慧管理</span>
-            </div>
-            <ApplicationInfo :infoList="manageList"></ApplicationInfo>           
+            <ApplicationInfo :infoList="item.children"></ApplicationInfo>           
         </div>
       </div>
       <div class="clear"></div>
@@ -29,17 +23,38 @@ export default {
     },
     data () {
         return {
-            teachList:[
-                  {name:'伴学网',size:'22M',value:4,text:'伴学网app是一款移动教学软件。软件已云课堂为中心，教师可直接在线为学生上课，可也自己录制视频供学生观看，在线进行信息发布等，让学生与老师关联更紧密。有需要的用户欢迎下载使用。'},
-                  {name:'伴学网',size:'22M',value:4,text:'伴学网app是一款移动教学软件。软件已云课堂为中心，教师可直接在线为学生上课，可也自己录制视频供学生观看，在线进行信息发布等，让学生与老师关联更紧密。有需要的用户欢迎下载使用。'},
-                  {name:'伴学网',size:'22M',value:4,text:'伴学网app是一款移动教学软件。软件已云课堂为中心，教师可直接在线为学生上课，可也自己录制视频供学生观看，在线进行信息发布等，让学生与老师关联更紧密。有需要的用户欢迎下载使用。'}
-            ],
-            manageList:[
-                  {name:'伴学网',size:'22M',value:4,text:'伴学网app是一款移动教学软件。软件已云课堂为中心，教师可直接在线为学生上课，可也自己录制视频供学生观看，在线进行信息发布等，让学生与老师关联更紧密。有需要的用户欢迎下载使用。'},
-                  {name:'伴学网',size:'22M',value:4,text:'伴学网app是一款移动教学软件。软件已云课堂为中心，教师可直接在线为学生上课，可也自己录制视频供学生观看，在线进行信息发布等，让学生与老师关联更紧密。有需要的用户欢迎下载使用。'},
-                  {name:'伴学网',size:'22M',value:4,text:'伴学网app是一款移动教学软件。软件已云课堂为中心，教师可直接在线为学生上课，可也自己录制视频供学生观看，在线进行信息发布等，让学生与老师关联更紧密。有需要的用户欢迎下载使用。'}
-            ]
+            appList:[]
         }
+    },
+    methods:{
+      getAppList(){
+        this.$http.post('web/appInfo/listByType',this.$qs.stringify({
+            pageSize:3
+        }))
+        .then((res)=>{
+        if(res.status != 200){
+          this.$Message.error('请求失败请重试');
+        }else{
+          let result = res.data;
+          if(result.status != 0){
+            this.$Message.error('请求资源失败，请重试');
+          }else{ 
+            console.log(result)
+            if(result.data instanceof Array && result.data.length>0){
+              this.appList = result.data;
+            }else{
+              this.appList = [];
+            }           
+          }
+        } 
+        })
+        .catch((err)=>{
+            alert(err);
+        })
+      }
+    },
+    created(){
+        this.getAppList();
     }
 }
 </script>

@@ -5,16 +5,16 @@
 		</p>
 		<Form :model="formRight" label-position="right" :label-width="100" id="password-form">
             <FormItem label="原密码：">
-                <Input v-model="formRight.input1"></Input>
-            </FormItem>
-            <FormItem label="修改密码：">
-                <Input v-model="formRight.input2"></Input>
+                <Input v-model="formRight.Pwd" type="password"></Input>
             </FormItem>
             <FormItem label="新密码：">
-                <Input v-model="formRight.input3"></Input>
+                <Input v-model="formRight.newPwd" type="password"></Input>
+            </FormItem>
+            <FormItem label="确认密码：">
+                <Input v-model="formRight.surePwd" type="password"></Input>
             </FormItem>
             <FormItem>
-                <Button type="primary">确认完成</Button>
+                <Button type="primary" @click="submitPwd">确认完成</Button>
             </FormItem>
         </Form>
 	</div>
@@ -25,11 +25,63 @@ export default {
   data(){
       return{
         formRight: {
-            input1: '',
-            input2: '',
-            input3: ''
+            Pwd: '',
+            newPwd: '',
+            surePwd: ''
         },
       }
+  },
+  methods:{
+    submitPwd(){
+        if(!this.formRight.Pwd){
+            this.$Message.warning({
+                content: '原密码不能为空！',
+                duration: 2
+            });
+            return;
+        }else if(!this.formRight.newPwd){
+            this.$Message.warning({
+                content: '请输入新密码！',
+                duration: 2
+            });
+            return;
+        }else if(!this.formRight.surePwd){
+            this.$Message.warning({
+                content: '请输入确认密码！',
+                duration: 2
+            });
+            return;
+        }else if(this.formRight.newPwd!=this.formRight.surePwd){
+            this.$Message.warning({
+                content: '密码输入不一致！',
+                duration: 2
+            });
+            return;
+        }
+        this.$http.post('/web/user/a/updatePwd.do',this.$qs.stringify({
+            token:this.$storage.getStorage('token'),
+            password:this.$md5(this.formRight.Pwd),
+            newPassword:this.$md5(this.formRight.surePwd)
+        }))
+        .then((res)=>{
+        if(res.data.status==0){
+            this.$Message.success({
+                content: '密码修改成功!',
+                duration: 2
+            });
+            this.formRight={
+                Pwd: '',
+                newPwd: '',
+                surePwd: ''
+            }
+        }else{
+            this.$Message.error(res.data.message);
+        }
+        })
+        .catch((err)=>{
+            alert(err);
+        })
+    }
   }
 }
 </script>

@@ -2,7 +2,7 @@
   <div id="login">
       <header id="login-header">
         <div class="logo-top">
-          <img src="../../assets/imgs/login/logoWhite.png"/>         
+          <img src="../../assets/imgs/login/loginlogo.png" @click="goIndex"/>         
         </div>
       </header>
       <section id="section">
@@ -18,7 +18,7 @@
                   placeholder="账号" 
                   style="width: 250px" 
                   :maxlength="11" 
-                  title="密码长度不超过11位"></Input>
+                  title="账号长度不超过11位"></Input>
               </div>
               <div class="input" @click="hideErrorBox">
                   <Input v-model="pwd" 
@@ -29,8 +29,9 @@
                   :maxlength="16" 
                   title="密码长度不超过16位"></Input>
               </div>
-              <div class="input">
-                  <Checkbox v-model="single">一周内自动登录</Checkbox>
+              <div class="more-operate">
+                  <router-link class="left" to="/Register/">免费注册</router-link>
+                  <router-link class="right" to="/ForgetPassword">忘记密码</router-link>
               </div>
               <Button type="primary" long @click="login">登录</Button>
           </div>         
@@ -58,6 +59,9 @@ export default {
       }
     },
     methods:{
+      goIndex(){
+        this.$router.push({path:'/'});
+      },
       login(){
         let userName=this.mobile;
         let password=this.$md5(this.pwd);
@@ -71,6 +75,8 @@ export default {
             // console.log(res.data); 
             if(res.data.status==0){
             this.$storage.setStorage("token",res.data.data.token);
+            this.$storage.setStorage("vipStatus",res.data.data.user.vipStatus);
+            this.$storage.setStorage("userInfo",res.data.data.user);
             this.$router.push({path:decodeURIComponent(url)});
             }else{
               this.error=true;
@@ -82,7 +88,7 @@ export default {
           })
       },
       hideErrorBox(){
-        console.log(111)
+        // console.log(111)
         this.error=false;
       }
     }
@@ -101,30 +107,36 @@ export default {
 .logo-top{
     width: 1200px;
     margin: 0 auto;    
-    padding-top: 40px;
+    padding-top: 10px;
     padding-left: 20px;
 }
 #section{
   position: absolute;
-  top: 0;
+  top: 100px;
   right: 0;
   left: 0;
-  bottom: 0;
-  background: #409eff url('../../assets/imgs/login/bgimg.png') no-repeat center center;
-  
+  bottom: 80px;
+  background: #fff url('../../assets/imgs/login/loginbg.png') no-repeat center;
+  background-size: 100% 100%;
 }
 .content{
   position: relative;
-  margin-top: 120px;
+  /*margin-top: 120px;*/
 }
 .loginBox{
     width: 333px;
     position: absolute;
-    right: 10%;
-    top: 150px;
+    right: 1%;
+    top: 130px;
     padding: 20px 40px 30px;
     background: #fff;
     border-radius: 5px;
+}
+@media screen and (max-width: 1366px) {
+    .loginBox{
+        width: 300px;
+        top: 100px;
+    }
 }
 .login-box-msg{
   margin-bottom: 35px;
@@ -140,13 +152,22 @@ export default {
 .ivu-input{
   border:none;
 }
+.more-operate{
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.more-operate a{
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
 #footer{
   position: fixed;
   bottom: 0;
   left: 0;
-  color: #fff;
+  color: #999;
   width: 100%;
-  padding-bottom: 60px;
+  padding-bottom: 34px;
   font-size: 14px;
 }
 .footer{

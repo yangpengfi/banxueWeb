@@ -4,21 +4,21 @@
 		<div class="spaceCont">
 			<div class="left">				
 				<div id="name">
-					<img src="../../assets/imgs/space/headImg.png" alt="头像"/>
+					<img :src="spaceInfo.logo" alt="头像"/>
 					<div id="nameIntroduction">
-						<span>帅帅斌</span>
-						<span>老师</span>
-						<p>深圳市华侨中学</p> 
+						<span :title="spaceInfo.userName">{{spaceInfo.userName}}</span>
+						<span :title="spaceInfo.userTypeStr">{{spaceInfo.userTypeStr}}</span>
+						<p :title="spaceInfo.schoolName">{{spaceInfo.schoolName}}</p> 
 					</div>
 				</div>
 				
 				<div id="resource">
 					<div id="side">
-						<p>10</p>
+						<p>{{spaceInfo.resourceCount}}</p>
 						<p>资源</p>
 					</div>
 					<div id="side">
-						<p>30</p>
+						<p>{{spaceInfo.articleCount}}</p>
 						<p>学习成果</p>
 					</div>
 				</div>
@@ -39,14 +39,14 @@
 						<div class="bgImgApp"></div>
 						<div class="fonts">下载客户端</div>
 					</div>
-					<img src="../../assets/imgs/space/code.jpg" alt="二维码图片" />
+					<img src="../../assets/imgs/space/ter.png" alt="二维码图片" />
 				</div>
 			</div>
 		
 			<div class="center">
 				<div class="unfishedList">
 					<p class="unfishedTitle">
-						<a href="#">待办完成任务</a>
+						<a href="#">待完成任务</a>
 					</p>
 					<ul v-if="unfinishedList.length>0">
 						<li v-for="item of unfinishedList">{{item.info}}</li>
@@ -62,20 +62,20 @@
 						</ul>
 					</div>
 					<ul class="spaceList">
-						<li v-for="item of spaceList">
+						<li v-for="item of latestNews">
 							<div class="headImg">
-								<img src="../../assets/imgs/space/headImg.png" />
+								<img :src="item.logo" />
 							</div>
 							<div class="headImgInfo">
 								<p class="headName">
-									<a href="#">{{item.name}}</a>
-									<span>{{item.date}}</span>
+									<a href="#">{{item.userName}}</a>
+									<span>{{new Date(item.createTime).Format("yyyy-M-d hh:mm:ss")}}</span>
 								</p>
 								<p class="className">
-									<span>上传了</span>&nbsp;{{item.file}}
+									<span>{{item.title}}</span>&nbsp;<a href="javascript:void(0);" @click="toInfo(item)">{{item.name}}</a>
 								</p>								
 								<div class="comment">
-									<p>
+									<!-- <p>
 										<span></span>
 										<a href="javascript:void(0);">赞一个</a>
 									</p>
@@ -86,12 +86,12 @@
 									<p>
 										<span class="review"></span>
 										<a href="javascript:void(0);">评论</a>
-									</p>
+									</p> -->
 								</div>
 							</div>
 						</li>
 					</ul>
-					<button id="load-more">加载更多</button>
+					<button id="load-more" @click="getMore" v-show="hasMore">加载更多</button>
 				</div>
 			</div>
 			
@@ -100,7 +100,7 @@
 			<div class="right">
 				<div class="threeBtn">
 					<button type="button" @click="toLoadResource">上传资源</button>
-					<button type="button">写文章</button>
+					<button type="button" @click="toWrite">写文章</button>
 					<button type="button">班级详情</button>
 				</div>
 				<div class="myView">
@@ -110,24 +110,27 @@
 					</p>
 					<ul class="viewCont">
 						<li class="marginTop" v-for="item of peopleList">
-							<img src="../../assets/imgs/space/headImg.png"/>
-							<p>{{item.name}}</p>
+							<img :src="item.logo" @click="goSpaceShow(item)"/>
+							<p  @click="goSpaceShow(item)" :title="item.userName">{{item.userName}}</p>
 						</li>
 					</ul>
 				</div>
 				<div class="myView">
 					<p class="viewTitle total-visitor">
 						最近访客
-						<span>26564次</span>
+						<span>{{vTotal}}次</span>
 					</p>
 					<ul class="viewCont">
-						<li class="marginTop" v-for="item of peopleList">
-							<img src="../../assets/imgs/space/headImg.png" />
-							<p>{{item.name}}</p>
+						<li class="marginTop" v-for="item of visitorList">
+							<img  :src="item.logo" @click="goSpaceShow(item)"/>
+							<p  @click="goSpaceShow(item)" :title="item.userName">{{item.userName}}</p>
 						</li>
 					</ul>
 					<div>
-						<Page :total="40" size="small"></Page>
+						<Page :total="vTotalCount" 
+						:current="currPage" 
+						@on-change="pageChange" 
+						size="small"></Page>
 					</div>
 				</div>
 			</div> 
@@ -135,55 +138,216 @@
 	</div>
 </template>
 <script>
+import global_ from '@/components/Global';
 export default {
 	name:'SpaceIndex',
 	data(){
 		return {
+				token:this.$storage.getStorage("token"),
 				unfinishedList:[
-					{id:1,info:'张老师复制了作业，请于9:30之前完成'},
-					{id:2,info:'张老师复制了作业，请于9:30之前完成'},
-					{id:3,info:'张老师复制了作业，请于9:30之前完成'},
-					{id:4,info:'张老师复制了作业，请于9:30之前完成'}
+					{id:1,info:'初二1班“英语作业0511”待批改。'},
+					{id:2,info:'新任务“2018年下学期学生评价”。请于2018年6月28日之前完成'},
+					{id:3,info:'初二2班“英语作业0511”待批改。'},
+					{id:4,info:'初二1班“英语作业0512”待批改。'}
 				],
 				spaceStatus:[
-					{id:1,title:'全部'},
-					{id:2,title:'班级'},
-					{id:3,title:'好友'},
-					{id:4,title:'与我相关'}
+					{id:0,title:'全部'},
+					{id:1,title:'班级'},
+					{id:2,title:'好友'},
+					{id:3,title:'与我相关'}
 				],
-				localStatus:1,
-				spaceList:[
-					{id:1,name:'灵活的大瘦子',file:'《一元一次方程课件.doc》',date:'2018-1-25 14:30:36'},
-					{id:2,name:'灵活的大瘦子',file:'《一元一次方程课件.doc》',date:'2018-1-25 14:30:36'},
-					{id:3,name:'灵活的大瘦子',file:'《一元一次方程课件.doc》',date:'2018-1-25 14:30:36'},
-					{id:4,name:'灵活的大瘦子',file:'《一元一次方程课件.doc》',date:'2018-1-25 14:30:36'},
-					{id:5,name:'灵活的大瘦子',file:'《一元一次方程课件.doc》',date:'2018-1-25 14:30:36'},
-					{id:6,name:'灵活的大瘦子',file:'《一元一次方程课件.doc》',date:'2018-1-25 14:30:36'}
+				localStatus:0,
+				latestNews:[
+					{id:1,title:"发布了文章",logo:'http://192.168.8.252:86//user/2018/05/09/1659c4b2bdf44a30be01bac689ed366d.jpg',userName:'刘小斌',name:'《一元一次方程课件.doc》',createTime:1524813477000},
 				],
 				localSpaceId:1,
-				peopleList:[
-					{id:1,name:'张三'},
-					{id:2,name:'张三'},
-					{id:3,name:'张三'},
-					{id:4,name:'张三'},
-					{id:5,name:'张三'},
-					{id:6,name:'张三'},
-					{id:7,name:'张三'},
-					{id:8,name:'张三'},
-					{id:9,name:'张三'},
-					{id:10,name:'张三'}
-				]
+				peopleList:[],
+				visitorList:[],
+				spaceInfo:{},
+				vTotalCount:0,
+				vTotal:25,
+				currPage:1,
+				pidx:1,
+				hasMore:true,
 		}
 	},
 	methods:{
+		getMore(){
+			this.pidx++;
+			this.getSpaceDynamic(this.localStatus,this.pidx,2);
+		},
+		goSpaceShow(item){
+	        window.open('#/ShowSpace/?userId='+item.userId);
+        },
+		toInfo(item){
+		  if(!this.token){
+		    this.login();
+		    return;
+		  };
+		  if(item.type==1){//资源
+		    this.$router.push({
+		      path:'/DetailResource',
+		      query:{
+		        resourceLocalId:item.fromId          
+		      }
+		    }); 
+		  }else{
+		    this.$router.push({
+		        path:'/MySpace/ArticalInfo',
+		        query:{articleId:item.fromId}
+		    });
+		  }
+		},
+        login(){
+          this.$router.replace({
+             name:"Login",
+             query: {redirect: this.$router.currentRoute.fullPath}
+            })
+        },
 		changeStatus(item){
 			this.localStatus = item.id;
+			this.getSpaceDynamic(this.localStatus)
 		},
 		toLoadResource(){
 			this.$router.push({
 				path:'/MySpace/LoadResource/1',  				
 			});
-		}
+		},
+		toWrite(){
+			this.$router.push('/MySpace/WriteArticle');
+		},
+		getSpaceInfo(){
+			this.$http.post('web/space/spaceInfo.do',this.$qs.stringify({
+              userId:this.$storage.getStorage("userInfo").id,
+              token:this.token
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){
+              	this.spaceInfo = result.data; 
+              }else if(result.status == 9){
+              	this.login();
+              	return;
+              }else{ 
+                this.$Message.error('请求资源失败，请重试');      
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+		},
+        getFollowers(){//获取关注列表
+            this.$http.post('/web/space/followers.do',this.$qs.stringify({
+              pageSize:9,
+              userId:this.$storage.getStorage("userInfo").id
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){
+                if(result.data.list instanceof Array && result.data.list.length>0){
+                  this.peopleList = result.data.list;
+                }else{
+                  this.peopleList = [];
+                }
+              }else if(result.status == 9){
+              	this.login();
+              	return;
+              }else{
+                this.$Message.error('请求资源失败，请重试');            
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        },
+        getVisitors(page){//获取访客列表
+            this.$http.post('web/space/listVisitors.do',this.$qs.stringify({
+              pageIndex:page||1,
+              pageSize:9,
+              userId:this.$storage.getStorage("userInfo").id
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){ 
+                if(result.data.list instanceof Array && result.data.list.length>0){
+                  this.visitorList = result.data.list;
+                  this.vTotalCount = result.data.totalCount;
+                  this.vTotal = result.data.otherData;
+                  this.currPage = result.data.currPage;
+                }else{
+                  this.visitorList = [];
+                } 
+              }else if(result.status == 9){
+              	this.login();
+              	return;
+              }else{ 
+                this.$Message.error('请求资源失败，请重试');         
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        }, 
+        getSpaceDynamic(type,pidx,more){//获取最新动态
+            this.$http.post('web/space/listSpaceDynamic.do',this.$qs.stringify({
+              pageSize:5,
+              token:this.token,
+              queryType:type||0,
+              pageIndex:pidx||1,
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){
+                if(result.data.list instanceof Array && result.data.list.length>0){
+                	this.hasMore=true;
+                	if(more){
+                		for (var i = 0,len=result.data.list.length; i <len; i++) {
+                			this.latestNews.push(result.data.list[i])
+                		}
+                	}else{
+                		this.latestNews = result.data.list;
+                	}
+                }else{
+                	this.hasMore=false;
+                	if(pidx>1){
+                		this.$Message.info("没有数据了！");
+                	}else{
+                		this.latestNews=[];
+                	}
+                }
+              }else{ 
+                 this.$Message.error(result.message);          
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        },
+        pageChange(page){
+            this.getVisitors(page)
+        } 
+	},
+	created(){
+		this.getSpaceInfo();
+		this.getFollowers();
+		this.getVisitors(1);
+		this.getSpaceDynamic();
 	}
 }
 </script>
@@ -224,6 +388,9 @@ export default {
 	}
 	#name img{
 		margin-top: 20px;
+		width: 80px;
+		height: 80px;
+		border-radius: 4px;
 		float: left;
 	}
 	#nameIntroduction{
@@ -231,29 +398,43 @@ export default {
 		margin-left: 22px;
 	}
 	#nameIntroduction span:first-child{
+		display: inline-block;
+		max-width: 70px;
 		font-size: 16px;
 		color: #0098e0;
+		overflow: hidden;
+	    text-overflow:ellipsis;
+	    white-space: nowrap;
 	}
 	#nameIntroduction span:nth-child(2){
+		display: inline-block;
+		max-width: 60px;
 		margin-left: 15px;
 		font-size: 14px;
 		color: #999;
+		overflow: hidden;
+	    text-overflow:ellipsis;
+	    white-space: nowrap;
 	}
 	#nameIntroduction p{
 		color: #666;
 		font-size: 14px;
 		font-weight: 600;
+		max-width: 150px;
+		overflow: hidden;
+	    text-overflow:ellipsis;
+	    white-space: nowrap;
 	}
 	#resource{
 		width: 300px;
-		height: 100px;/**/
+		height: 100px;
 		background: rgb(255, 255, 255);
 		margin-top: 10px;
 		border: 1px solid rgb(223, 228, 232);
 	}
 	#resource #side{
 		width: 50%;
-		height: 60px;/**/
+		height: 60px;
 		border-right: 1px solid #ccc; 
 		margin-top: 20px;
 		float: left;
@@ -323,6 +504,7 @@ export default {
 	}
 	#code img{
 		margin-left: 50px;
+		width: 190px;
 	}
 	.center{
 		width: 580px;		
@@ -487,9 +669,9 @@ export default {
 		width: 140px;
 		height: 40px;
 		border: solid 1px #dfe4e9;
-		color: #999;
+		color: #fff;
 		font-size: 14px;
-		background-color: transparent;
+		background-color: #1cb0ea;
 		border-radius: 3px;
 		cursor: pointer;
 	}
@@ -555,6 +737,7 @@ export default {
 		width: 33%;
 		text-align: center;
 		margin-bottom: 25px;
+		min-height: 75px;
 	}
 	.viewCont li img{
 		width: 40px;
@@ -564,6 +747,9 @@ export default {
 	.viewCont li p{
 		font-size: 14px;
 		color: #7b8085;
+		overflow: hidden;
+	    text-overflow:ellipsis;
+	    white-space: nowrap;
 	}
 	.myView>div{
 		text-align: center;

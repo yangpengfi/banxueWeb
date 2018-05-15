@@ -4,49 +4,55 @@
           <div class="left">
             <div class="article-box">
                 <div class="article">
-                    <h2>岭东书画院院长陈锦雄（激夫）一行莅临丰顺县丰</h2>
-                    <p>是一座破落的小院。小院的地势其实并不低，只是因为四周邻居咄咄逼人的高楼，才硬是让小院感觉到自己正陷于山谷里。</p>
-                    <p>小院里只有一座孤零零的东屋。堂屋早在多年前，一场暴雨的疯狂肆虐后不得不拆掉了。现在那寂寞冷清的地基上堆满了柴禾和杂物。一株从地基的边缘窜出来的灌木似乎并不嫌弃小院的卑微，蓬蓬勃勃地生长着，这才让小院有了一点点儿生机。东屋也是很多年前用土呸砌起来的那种，低矮窄小，虽也算不上牢固但相对还算安稳，总算能让这位风蚀残年的老人有个安身的窝。</p>
-                    <p>老人年轻时也曾结过一次婚，还有过一个孩子。后来妻子莫名离家出走，不久，孩子又不幸夭折，从此老人便开始了漫长而孤寂的独居生活。老人原本身体硬朗，一直跟着一家建筑队干活，起早贪黑的，慢慢地也小有积蓄。堂屋的重建也在他的计划之中。然而生命中的悲怆从未结束。在一次清晨的上班途中，一场突如其来的车祸彻底改变了老人的后半生。从医院里出来的老人已经变得一无所有包括他的健康。一根从柴禾堆上捡出来的木棍成了他的拐杖。有时天气好点儿的时候，他就凭借这根免费的手杖来到街口晒晒太阳。常常就会有经过的村里人边走边狐疑地久久打量着这个形容枯槁的老头，末了，他们总是大吃一惊地猛然驻足：喂，这不是刘来福吗？!怎么成这幅吊样子了？老人总是抬起.一只勉强还能睁开的眼睛无奈地笑笑。</p>
-                    <p>老人的身体一天不比一天。生活也一天天拮居起来。他要计算每天的午饭是买新鲜面条呢还是要步履蹒跚地到远一点的小卖铺里买挂面划算。他要计算一天必须烧几块煤球才能让余下的熬过整个寒冷的冬季。毕竟他现在的生活只能指靠每月的几十块养老金了，能省几个钢镚就省几个钢镚。老人也许是这十里八乡唯一不用洗衣机的人。以前手脚灵活的时候真不觉得没多大不方便，但现在仅洗衣服这件事就已变得异常困难。老人越来越落魄起来了。脏兮兮的衣服看起来真让人心生厌恶 ，特别是对老人的那位邻居来说。老人的邻居是位身材挺拔的老者，素有洁癖。不说在中央身居要职的儿子如何让他常常自豪地在众人面前口若悬河，就说他刚刚俊工的三层欧式小楼也已经让他在村里鹤立鸡群了。那设计！那装修！真真甩村里其他人好几条街。邻居和老人之间是从不用打招呼的，即使他们两人就在家门口碰面。</p>
-                    <p>一日天气突变，呼啸而至的北风让气温陡然降了下来。傍晚时分，风终于停止了怒吼，雪却不期而至……"</p>
-                    <div v-if="isMember">
+                    <h2 v-if="!isMicrocourse">{{resourceDetail.recourceLocalName}}</h2>
+                    <h2 v-if="isMicrocourse">{{resourceDetail.knowledgePoint}}</h2>
+                    <div class="viewBox" v-show="!isMember"></div>
+                    <!-- <div id="reader" v-show="isPfd"></div> -->
+                    <iframe src="http://ow365.cn/?i=15549&furl=http://www.mybanxue.com:86/resource/zxxk/6940294.doc" v-show="isPfd" frameborder="0" width="100%" height="500" id="reader"></iframe>
+                    <video :src="resourceUrl" controls="controls" controlslist="nodownload" v-show="isVideo"></video>
+                    <audio :src="resourceUrl" controls="controls" controlslist="nodownload" v-show="isAudio"></audio>
+                    <img :src="resourceUrl" v-show="isImg">
+                    <div class="noMember" v-if="!isMember">
                         <b>如需阅读或下载完整版，请登录APP</b>
                         <span>开通会员</span>
                     </div>
                 </div>
-                <div class="from">
-                    <span>贡献者：</span>灵活的小胖子
-                    <span>贡献时间：</span>2018-3-12
-                    <span>所在学校：</span>华侨城中学
-                    <Rate v-model="articleStar" class="rate"></Rate>
+                <div class="from" v-if="!isMicrocourse">
+                    <span>贡献者：</span>{{resourceDetail.uploadUserName}}
+                    <span>贡献时间：</span>{{formatTime(resourceDetail.createTime)}}
+                    <span v-show="resourceDetail.schoolName">所在学校：</span>
+                    <b v-show="resourceDetail.schoolName">{{resourceDetail.schoolName}}</b>
+                    <Rate v-model="resourceDetail.score" allow-half disabled class="rate"></Rate>
                 </div>
                 <div class="operate-article">
-                    <a href="javascript:void(0);">收藏</a>
-                    <a href="javascript:void(0);">下载</a>
+                    <a href="javascript:void(0);" @click="collectOrDel" :class="{collect:isCollect}">收藏</a>
+                    <a :href="resourceUrl" v-if="!isVideo">下载</a>
                 </div>
             </div>
-            <div class="comment-box">
+            <div class="comment-box" v-show="!this.isMicrocourse">
                 <div class="comment">
-                    <textarea  rows="8" placeholder="发表你的精彩评论啦"></textarea>
-                    <button>发表评论</button>
+                    <textarea  rows="8" v-model="comment" placeholder="发表你的精彩评论啦"></textarea>
                 </div>
-                <div class="res-quality"><span>资源质量：</span> <Rate v-model="recommendStar"></Rate></div>
+                <div class="res-quality">
+                    <span>资源质量：</span> <Rate v-model="recommendStar"></Rate><br>
+                    <button @click="createResourceComment" class="myButton">发表评论</button>
+                </div>
+                
                 <div class="comment-list">
                     <div>
-                        <p>评论<span> （82条）</span></p>
+                        <p>评论<span> （{{commentNum}}条）</span></p>
                     </div>
                     <ul>
                         <li v-for="item of commentList">
-                            <p class="left"><img src="/static/imgs/resource/fileXls.png"  alt="头像"></p>
+                            <p class="left"><img :src="item.headUrl"  alt="头像"></p>
                             <div class="left">
                                 <div class="comment-title">
-                                    <span>{{item.name}}</span>
-                                    <span>{{item.time}}</span>
+                                    <span>{{item.userName}}</span>
+                                    <span>{{new Date(item.createTime).Format("yyyy-M-d hh:mm:ss")}}</span>
                                 </div>
                                 <p class="comment-content">{{item.comment}}</p>
                                 <p>
-                                    <Rate v-model="item.star"></Rate>
+                                    <Rate v-model="item.score"></Rate>
                                 </p>
                             </div>
                         </li>
@@ -59,10 +65,10 @@
                     <p><span></span><b>推荐搜索</b></p>
                     <ul>
                         <li v-for="item of recommendSearch">
-                            <img src="/static/imgs/resource/fileXls.png" alt="资源图标">
+                            <img :src="fileType(item.fileSuffix,0)" alt="资源图标" @click="toDetailResource(item)">
                             <div>
-                                <p>{{item.title}}</p>
-                                <Rate v-model="item.star"></Rate>
+                                <p @click="toDetailResource(item)" class="resTitle" :title="item.recourceLocalName">{{item.recourceLocalName}}</p>
+                                <Rate v-model="item.score"></Rate>
                             </div>
                         </li>
                     </ul>
@@ -72,31 +78,279 @@
   </div>
 </template>
 <script>
+import global_ from '@/components/Global';
 export default {
     name:'DetailResource',
     data(){
         return{
+            token:this.$storage.getStorage("token"),
+            resourceLocalId:0,
+            resourceDetail:{},
+            resourceUrl:'',
             articleStar:5,
             recommendStar:0,
-            recommendSearch:[
-                {title:'高考快速提分秘籍',star:3},
-                {title:'高考快速提分秘籍',star:4},
-                {title:'高考快速提分秘籍',star:5},
-                {title:'高考快速提分秘籍',star:4},
-                {title:'高考快速提分秘籍',star:4},
-                {title:'高考快速提分秘籍',star:3}
-            ],
-            commentList:[
-                {id:1,name:'灵活的小胖子',time:'2018-4-13 / 14：36：39',star:5,comment:'写的很好，喜欢孙悟空，但不喜欢《悟空传》这部电影，看过小说，里面的悟空也曾有过一段黑暗的时光，忘记了一切，遇到曾经并肩作战过的同伴还当成妖怪要打死，比《西游记》里的凄惨要更让人心疼，结局也是唏嘘不已，《悟空传》好的地方是每个人看都有不同的感悟，这是那部电影做不到的。'},
-                {id:2,name:'灵活的AAA',time:'2018-4-13 / 14：36：39',star:5,comment:'写的很好，喜欢孙悟空，但不喜欢《悟空传》这部电影，看过小说，里面的悟空也曾有过一段黑暗的时光，忘记了一切，遇到曾经并肩作战过的同伴还当成妖怪要打死这是那部电影做不到的。'},
-                {id:3,name:'灵活的BBB',time:'2018-4-13 / 14：36：39',star:5,comment:'写的很好，喜欢孙悟空，但不喜欢《悟空传》这部电影，看过小说，遇到曾经并肩作战过的同伴还当成妖怪要打死，比《西游记》里的凄惨要更让人心疼，结局也是唏嘘不已，《悟空传》好的地方是每个人看都有不同的感悟，这是那部电影做不到的。'},
-                {id:4,name:'灵活的CCC',time:'2018-4-13 / 14：36：39',star:5,comment:'写的很好，喜欢孙悟空，但不喜欢《悟空传》这部电影，看过小说，里面的悟空也曾有过一段黑暗的时光。'}
-            ],
-            isMember:false
+            recommendSearch:[],
+            commentList:[],
+            commentNum:5,
+            comment:'',
+            isImg:0,
+            isVideo:0,
+            isAudio:0,
+            isPfd:0,
+            isMember:0,
+            isCollect:true,
+            isMicrocourse:false,
+            formatSize:global_.formatSize,
+            fileType:global_.setFileType,
+            formatTime:global_.formatTime
         }
     },
     methods:{
-        
+        viewInit(info){
+            if(info.previewType==1){//0=未知，1=图片，2=PDF，3=音频，4=视频，5=百度文库预览
+                this.isImg=1;
+                this.isVideo=0;
+                this.isAudio=0;
+                this.isPfd=0;
+            }else if(info.previewType==2 || info.previewType==5){
+                this.isImg=0;
+                this.isVideo=0;
+                this.isAudio=0;
+                this.isPfd=1;
+                this.getBceDocumentPreView();
+            }else if(info.previewType==3){
+                this.isImg=0;
+                this.isVideo=0;
+                this.isAudio=1;
+                this.isPfd=0;
+            }else if(info.previewType==4){
+                this.isImg=0;
+                this.isVideo=1;
+                this.isAudio=0;
+                this.isPfd=0;
+            }
+        },
+        toDetailResource(item){
+            this.isMicrocourse=false;
+            this.resourceLocalId=this.$router.history.current.query.resourceLocalId;
+            this.getResourceDetail(this.resourceLocalId);
+            this.$router.push({
+                path:'/DetailResource',
+                query:{
+                    resourceLocalId:item.resourceLocalId                    
+                }
+            });     
+        },
+        getResourceDetail(rId){
+        this.$http.post('/web/coursebook/getResourceLocalDetail.do',this.$qs.stringify({
+            token:this.token,
+            resourceLocalId:rId
+          }))
+         .then((res)=>{
+            if(res.data.status==0){
+                this.getListResourceComment();
+                this.resourceDetail=res.data.data;
+                this.isCollect=this.resourceDetail.isCollect;
+                if(this.isMember){
+                  this.getResourceLocalUrl(rId);
+                  this.viewInit(res.data.data);  
+                }
+            }else{
+              this.$Message.info(res.data.message);
+            }
+          })
+          .catch((err)=>{
+            alert(err);
+          })
+        },
+        getMicrocourseDetail(rId){
+        this.$http.post('/app/microcourse/a/getResourceDetail.do',this.$qs.stringify({
+            token:this.token,
+            resourceId:rId
+          }))
+         .then((res)=>{
+            if(res.data.status==0){
+                this.isImg=0;
+                this.isVideo=1;
+                this.isAudio=0;
+                this.isPfd=0;
+                this.getListResourceComment();
+                this.resourceUrl=res.data.data.server+res.data.data.videoUrl;
+                this.resourceDetail=res.data.data;
+                this.isCollect=res.data.data.isCollect;
+            }else{
+              this.$Message.info(res.data.message);
+            }
+          })
+          .catch((err)=>{
+            alert(err);
+          })
+        },
+        collectOrDel(){
+            if(this.isCollect){
+                this.delCollectResource();
+            }else{
+                this.collectResource();
+            }
+        },
+        collectResource(){
+            let url=this.isMicrocourse?'/web/microcourse/a/collectResource.do':'/web/coursebook/a/collectResource.do';
+            console.log(url)
+            this.$http.post(url,this.$qs.stringify({
+                token:this.token,
+                resourceLocalId:this.resourceLocalId
+            }))
+            .then((res)=>{
+            if(res.data.status==0){
+               this.$Message.info(res.data.message);
+               this.isCollect=true;
+            }else{
+              this.$Message.info(res.data.message);
+            }
+            })
+            .catch((err)=>{
+            alert(err);
+            }) 
+        },
+        delCollectResource(){
+            let url=this.isMicrocourse?'/web/microcourse/a/deleteCollectResource.do':'/web/coursebook/a/deleteCollectResource.do';
+            this.$http.post(url,this.$qs.stringify({
+                token:this.token,
+                resourceLocalIds:this.resourceLocalId
+            }))
+            .then((res)=>{
+            if(res.data.status==0){
+               this.$Message.info(res.data.message);
+               this.isCollect=false;
+            }else{
+              this.$Message.info(res.data.message);
+            }
+            })
+            .catch((err)=>{
+            alert(err);
+            }) 
+        },
+        getHostSearchResource(){
+            this.$http.post('/web/coursebook/listHostSearchResource.do',this.$qs.stringify({
+                token:this.token
+            }))
+            .then((res)=>{
+            if(res.data.status==0){
+               this.recommendSearch=res.data.data.list;
+            }else{
+              this.$Message.info(res.data.message);
+            }
+            })
+            .catch((err)=>{
+            alert(err);
+            }) 
+        },
+        getResourceLocalUrl(){
+            this.$http.post('/web/coursebook/a/getResourceLocalUrl.do',this.$qs.stringify({
+                token:this.token,
+                resourceLocalId:this.resourceLocalId
+            }))
+            .then((res)=>{
+            if(res.data.status==0){
+               this.resourceUrl=res.data.data;
+            }else{
+              this.$Message.info(res.data.message);
+            }
+            })
+            .catch((err)=>{
+            alert(err);
+            }) 
+        },
+        getBceDocumentPreView(){//百度预览
+            this.$http.post('/web/coursebook/a/getBceDocumentPreView.do',this.$qs.stringify({
+                token:this.token,
+                resourceLocalId:this.resourceLocalId
+            }))
+            .then((res)=>{
+            if(res.data.status==0){
+                /*let option = {
+                    docId: res.data.data.documentId,
+                    token: res.data.data.token,
+                    host: res.data.data.host,
+                    serverHost: 'http://doc.bj.baidubce.com',
+                    width: 698, // 文档容器宽度
+                    pn: 1,  // 定位到第几页，可选
+                    fontSize:'big',
+                    toolbarConf: {
+                        page: true, // 上下翻页箭头图标
+                        pagenum: true, // 几分之几页
+                        full: false, // 是否显示全屏图标,点击后全屏
+                        copy: false, // 是否可以复制文档内容
+                        position: 'center', // 设置 toolbar中翻页和放大图标的位置(值有left/center)
+                    }, // 文档顶部工具条配置对象,必选
+                    enviroment: 'online'
+                };*/
+                // new Document('reader', option);
+               document.getElementById('reader').src="http://ow365.cn/?i=15549&furl="+res.data.data.viewUrl;
+            }else{
+              this.$Message.info(res.data.message);
+            }
+            })
+            .catch((err)=>{
+            alert(err);
+            })
+        },
+        getListResourceComment(){//评论列表
+            let url=this.isMicrocourse?'/web/microcourse/listResourceComment.do':'/web/coursebook/listResourceComment.do';
+            // console.log(url)
+            this.$http.post(url,this.$qs.stringify({
+                token:this.token,
+                resourceLocalId:this.resourceLocalId
+            }))
+            .then((res)=>{
+            if(res.data.status==0){
+               this.commentList=res.data.data.list;
+               this.commentNum=res.data.data.totalCount;
+            }else{
+              this.$Message.info(res.data.message);
+            }
+            })
+            .catch((err)=>{
+            alert(err);
+            })
+        },
+        createResourceComment(){//创建评论
+            let url=this.isMicrocourse?'/web/microcourse/a/createResourceComment.do':'/web/coursebook/a/createResourceComment.do';
+            this.$http.post(url,this.$qs.stringify({
+                token:this.token,
+                resourceLocalId:this.resourceLocalId,
+                comment:this.comment,
+                score:this.recommendStar
+            }))
+            .then((res)=>{
+            if(res.data.status==0){
+               this.getListResourceComment();
+            }else{
+              this.$Message.info(res.data.message);
+            }
+            })
+            .catch((err)=>{
+            alert(err);
+            })
+        }
+    },
+    created(){
+        // let oHead = document.getElementsByTagName('HEAD').item(0); 
+        // let oScript= document.createElement("script"); 
+        // oScript.type = "text/javascript"; 
+        // oScript.src="http://static.bcedocument.com/reader/v2/doc_reader_v2.js"; 
+        // oHead.appendChild( oScript);
+        this.getHostSearchResource();
+        if(this.$router.history.current.query.microcourse){
+            this.isMicrocourse=true;
+            this.resourceLocalId=this.$router.history.current.query.resourceId;
+            this.getMicrocourseDetail(this.resourceLocalId)
+        }else{
+            this.isMicrocourse=false;
+            this.resourceLocalId=this.$router.history.current.query.resourceLocalId;
+            this.getResourceDetail(this.resourceLocalId);
+        }
+        this.isMember=this.$storage.getStorage('vipStatus');
     }
 }
 </script>
@@ -117,7 +371,7 @@ export default {
         width: 360px;        
     }  
     .article-box{
-        padding: 40px 60px 0;
+        padding: 40px 60px 40px;
     }
     .recommend-list{
         padding: 35px 20px 0;
@@ -130,6 +384,13 @@ export default {
         height: 30px;
         line-height: 30px;  
         vertical-align: middle;   
+    }
+    .recommend-list .resTitle{
+        width: 250px;
+        overflow: hidden;
+        text-overflow:ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
     }
     .recommend-list span{
         float: left;
@@ -158,6 +419,7 @@ export default {
     }
     .article{
         position: relative;
+        text-align: center;
     }
     .article h2{
         color: #333;
@@ -165,20 +427,28 @@ export default {
         padding-bottom: 20px;
         border-bottom: 1px solid #f8f8f8;
         margin-bottom: 16px;
+        text-align: left;
     }
-    .article p{
-        font-size: 14px;
-        line-height: 28px;
-        text-indent:50px;
-        color: #666;
+    .article img{
+        max-width: 695px;
     }
-    .article>div{
+    .article video{
+        width: 100%;
+    }
+    .article audio{
+        width: 70%;
+        margin: 25px auto;
+    }
+    .article .viewBox{
+        min-height: 400px;
+    }
+    .article>.noMember{
         position: absolute;
-        bottom: 0;
+        top: 51px;
         left: 0;
         width: 100%;
-        height: 100px;
-        line-height: 100px;
+        height: 400px;
+        line-height: 400px;
         text-align: center;
         background-color: #fff;
         color: #333;
@@ -196,6 +466,9 @@ export default {
         margin-top: 60px;
         font-size: 14px;
         color: #999;
+    }
+    .from b{
+        font-weight: 400px!important;
     }
     .from span{
         margin-left: 30px;
@@ -220,6 +493,11 @@ export default {
         border: 1px solid #ff7171;
         color: #ff7171;
     }
+    .collect{
+        color:#fff!important;
+        background-color: #ff7171;
+        border-width: 0!important;
+    }
     .operate-article a:last-child{
         margin-left: 20px;
         border-color:#32b9ff;
@@ -235,22 +513,22 @@ export default {
     }
     .comment textarea{
         float: left;
-        width: 500px;
+        width: 695px;
         border-radius: 5px;
         border:1px solid #dfe4e9;
         padding: 10px;
     }
-    .comment button{
-        float: left;
+    .myButton{
+        /*float: left;*/
         width: 140px;
         height: 40px;
-        background-color: #b7bcc1;
+        background-color: #409eff;
         border-radius: 5px;
         color: #fff;
         font-size: 16px;
         border:none;
-        margin-top: 40px;
-        margin-left: 20px;
+        margin-top: 15px;
+        /*margin-left: 20px;*/
     }
     .res-quality{
         font-size: 16px;

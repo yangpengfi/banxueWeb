@@ -2,23 +2,23 @@
     <div>
        <p class="space-total"> 
             <span>已开通的空间 </span> <br>
-            <b>14131912</b> 
+            <b>{{spaceCount.totalCount}}</b> 
         </p>
         <ul class="one-total">
             <li>
                 <img src="../../assets/imgs/index/teacherRole.png" alt="老师icon">
                 <p>老师</p>
-                <p class="one-num">565758</p>
+                <p class="one-num">{{spaceCount.teacher}}</p>
             </li>
             <li>
                 <img src="../../assets/imgs/index/studentRole.png" alt="学生icon">
                 <p>学生</p>
-                <p class="one-num">4577949</p>
+                <p class="one-num">{{spaceCount.student}}</p>
             </li>
             <li>
                 <img src="../../assets/imgs/index/masterparentRole.png" alt="家长icon">
                 <p>家长</p>
-                <p class="one-num">8975185</p>
+                <p class="one-num">{{spaceCount.parent}}</p>
             </li>
         </ul>
         <div class="pecent">                   
@@ -30,9 +30,13 @@
 <script>
 export default {
   name:'SpaceTab',
-
+  data(){
+    return {
+            spaceCount:{}
+        }
+  },
   methods:{        
-        drawPieOne(){
+        drawPieOne(data){
             let pieOne = this.$echarts.init(document.getElementById('pie0ne'));
             pieOne.setOption({
                 tooltip: {
@@ -47,7 +51,7 @@ export default {
                         avoidLabelOverlap: false,
                         label: {
                             normal: {
-                                formatter: '75%',
+                                formatter: data.active_percent,
                                 position: 'center',
                                 textStyle: {
                                     fontSize: '14',
@@ -68,14 +72,14 @@ export default {
                             }
                         },
                         data:[
-                            {value:8888, name:'占有量',itemStyle:{normal:{color:'#31C46E'}}},
-                            {value:2222, name:'剩余量',itemStyle:{normal:{color:'#31C499'}}}                            
-                        ]
+                            {value:data.activeCount, name:'空间活跃',itemStyle:{normal:{color:'#31C46E'}}},
+                            {value:(data.totalCount-data.activeCount), name:'不活跃',itemStyle:{normal:{color:'#31C499'}}}
+                            ]
                     }
                 ]
             });
         },
-        drawPieTwo(){
+        drawPieTwo(data){
             let pieTwo = this.$echarts.init(document.getElementById('pieTwo'));
             pieTwo.setOption({
                tooltip: {
@@ -90,7 +94,7 @@ export default {
                         avoidLabelOverlap: false,
                         label: {
                             normal: {                                
-                                formatter: '100%',
+                                formatter: data.open_percent,
                                 position: 'center',
                                 textStyle: {
                                     fontSize: '14',
@@ -111,17 +115,37 @@ export default {
                             }
                         },
                         data:[
-                            {value:8888, name:'占有量',itemStyle:{normal:{color:'#31C46E'}}}                                                     
+                           {value:data.openCount, name:'空间开通',itemStyle:{normal:{color:'#31C46E'}}},
+                            {value:(data.totalCount-data.openCount), name:'未开通',itemStyle:{normal:{color:'#31C499'}}}
                         ]
                     }
                 ]
             });
-        }        
+        },
+        getSpaceCount(){
+            this.$http.post('/web/space/spaceCount.do')
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status != 0){
+                this.$Message.error('请求资源失败，请重试');
+              }else{ 
+                this.spaceCount=result.data;
+                this.drawPieOne(result.data.active);
+                this.drawPieTwo(result.data.open);           
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        },        
     },
-    mounted(){
-        this.drawPieOne();
-        this.drawPieTwo();
-    }    
+    created(){
+        this.getSpaceCount();
+    }   
 }
 </script>
 <style scoped>

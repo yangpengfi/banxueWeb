@@ -8,15 +8,18 @@
                 </div>                
                 <div class="class-price" v-show="item.imgUrl!=''">
                     <p>{{item.name}}</p>
-                    <span>￥</span>
-                    <b>{{(item.money)/100}}</b>
+                    <!-- <span>￥</span>
+                    <b>{{(item.money)/100}}</b> -->
                 </div> 
                 <div class="classText" v-show="item.imgUrl==''">
-                    <h1>{{item.name}}</h1>
-                    <p class="textMid">
-                        <span>{{item.gradeName+item.subjectName+item.versionName}}</span><br>
-                        <span>共{{item.videoNums}}讲</span>
-                    </p>
+                    <div class="classHead" 
+                    :style="{backgroundColor:bgcolor(),backgroundImage:`url(${setBgImg(item.subjectId)})`}">
+                        <h1>{{item.name}}</h1>
+                        <p class="textMid">
+                            <span>{{item.gradeName+item.subjectName+item.versionName}}</span><br>
+                            <span>共{{item.videoNums}}讲</span>
+                        </p>
+                    </div>
                     <p class="textFoot">
                         <span v-show="item.isFree==0">￥<b>{{(item.money)/100}}</b></span>
                         <span v-show="item.isFree==1" class="free">免费</span>
@@ -27,11 +30,13 @@
     </div>
 </template>
 <script>
+import global_ from '@/components/Global'; 
 export default {
     name:'ClassList',
     data(){
         return {
-
+            bgcolor:global_.getCoursebgColor,
+            setBgImg:global_.setCourseImg
         }
     },
     props:{
@@ -110,17 +115,20 @@ export default {
         height: 265px;
         background-color: #fff;
         text-align: center;
-        padding-top:55px;
         box-sizing: border-box;
         box-shadow: 0px 0px 1px 0px rgba(70,130,147,.2); 
     }  
-    .classText h1{
+    .classHead{
+        padding-top:55px;
+        padding-bottom: 50px;
+    }
+    .classHead h1{
         font-size: 20px;
-        color:#333;
+        color:#fff;
     }
     .textMid{
         font-size: 14px;
-        color:#666;
+        color:#fff;
         line-height: 20px;
         margin-top: 15px;
     }
@@ -132,7 +140,6 @@ export default {
         white-space: nowrap;
     }
     .textFoot{
-        margin-top: 50px;
         border-top: 2px dashed #e9e9e9;
         width: 260px;
         height: 70px;

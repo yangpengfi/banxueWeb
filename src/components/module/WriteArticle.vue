@@ -5,42 +5,109 @@
 				<a href="#">写文章</a> 
 			</p>
 			
-			<form class="articleForm">
+			<div class="articleForm">
 				<p>
-					文章标题：
-					<input type="text" class="titleTxt"/>
+					<span>标题：</span>
+					<input type="text" v-model="title" class="titleTxt"/>
 				</p>
 				<p>
-					&nbsp;&nbsp;&nbsp;文标题：
-					
+					<span>内容：</span>
+					 <UE :defaultMsg="defaultMsg" :config="config" ref="ue"></UE>
 				</p>
 				<p>
-					文章分类：
-					<select class="articleTyep">
-						<option>1</option>
-						<option>1</option>
-						<option>1</option>
-						<option>1</option>
-						<option>1</option>
-						<option>1</option>
+					<span>文章分类：</span>
+					<select class="articleTyep" v-model="typeId">
+						 <option v-for="item in achList" :value="item.typeId">{{item.typeName}}</option>
 					</select>
 				</p>
 				<p class="authorityP">
-					设置权限：
-					<input type="radio" name="authority" /><label>仅自己可见</label>
-					<input type="radio" name="authority"  id="public"/><label>公开</label>
+					<span>设置权限：</span>
+					<input type="radio" name="authority" value="2" v-model="openStatus"/><label>仅自己可见</label>
+					<input type="radio" name="authority" value="1"  id="public" v-model="openStatus"/><label>公开</label>
 				</p>
 				
-				<input type="submit" value="发表" class="btn setUp"/>
-				<input type="submit" value="取消" class="btn cancle"/>
+				<input type="submit" value="发表" class="btn setUp" @click="creatAtcal"/>
+				<input type="submit" value="取消" class="btn cancle" @click="goAchievemnet"/>
 				
-			</form>
+			</div>
 		</div>		
 	</div>
 </template>
 <script>
+import global_ from '@/components/Global';
+import UE from '@/components/common/ue';
 export default {
-  name:'WriteArticle'
+  name:'WriteArticle',
+  components: {UE},
+  data(){
+  	return{
+  		title:"",
+  		typeId:0,
+  		openStatus:1,
+  		defaultMsg: '文章内容',
+        config: {
+          initialFrameWidth: null,
+          initialFrameHeight: 200
+        },
+        achList:[]
+  	}
+  },
+  methods:{
+  	getAchList(){
+			this.$http.post('/web/space/article/listArticleType.do',this.$qs.stringify({
+              userId:this.$storage.getStorage("userInfo").id
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){
+              	this.achList = result.data; 
+              }else if(result.status == 9){
+              	global_.login();
+              	return;
+              }else{ 
+                this.$Message.error(result.message);      
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+		},
+		creatAtcal(){
+			this.$http.post('/web/space/article/a/createArticle.do',this.$qs.stringify({
+              typeId:this.typeId,
+              content:this.$refs.ue.getUEContent(),
+              title:this.title,
+              openStatus:this.openStatus,
+              token:this.$storage.getStorage("token"),
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){
+              	this.goAchievemnet();
+              	this.$Message.success(result.message); 
+              }else{ 
+                this.$Message.error(result.message);      
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+		},
+		goAchievemnet(){
+			this.$router.push('/MySpace/Achievements');
+		}
+	},
+	created(){
+		this.getAchList();
+	}
 }
 </script>
 
@@ -53,7 +120,7 @@ export default {
 	.right{
 		width: 1080px;
 		padding: 40px 60px 40px 60px;
-		height: 559px;
+		/*height: 559px;*/
 		border: 1px solid #e9e9e9;
 		margin: auto;
 		float: left;
@@ -75,6 +142,12 @@ export default {
 		font-size: 14px;
 		color: #666666;
 		margin-top: 30px;
+	}
+	.articleForm>p>span{
+		display: inline-block;
+		width: 70px;
+		text-align: right;
+		vertical-align: top;
 	}
 	.articleForm .titleTxt{
 		width: 350px;
@@ -113,12 +186,19 @@ export default {
 		border-radius: 5px;
 	}
 	.setUp{
-		margin-left: 20px;
+		margin-left: 70px;
 	}
 	.cancle{
 		margin-left: 30px;
 		background: #cbcbcb;
 	}
+	textarea{
+        /*float: left;*/
+        width: 695px;
+        border-radius: 5px;
+        border:1px solid #dfe4e9;
+        padding: 10px;
+    }
 </style>
 	
 

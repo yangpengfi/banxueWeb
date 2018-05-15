@@ -13,11 +13,19 @@ import 'iview/dist/styles/iview.css';
 
 import './assets/css/base.css' /*引入公共样式*/
 
+import '../static/ueditor/ueditor.config.js'
+import '../static/ueditor/ueditor.all.min.js'
+import '../static/ueditor/lang/zh-cn/zh-cn.js'
+import '../static/ueditor/ueditor.parse.min.js'
+
 // 引入echarts
 import echarts from 'echarts'
 Vue.prototype.$echarts = echarts 
 
-axios.defaults.baseURL = 'http://192.168.8.251/banxue/';
+const baseURL='http://192.168.8.251/banxue/';
+// const baseURL='http://mybanxue.com';
+Vue.prototype.$baseURL = baseURL;
+axios.defaults.baseURL = baseURL;
 Vue.prototype.$http = axios;
 
 

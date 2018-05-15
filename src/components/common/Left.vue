@@ -4,7 +4,7 @@
 				<li v-for="(item,index) in leftList" v-on:click="changeTitle(item)" :class="{active:item.id==nowId}">
 					<span></span>
 					<router-link :to='item.path'>{{item.title}}</router-link>
-				</li>			
+				</li>				
 			</ul>
 		</div>
 </template>
@@ -26,7 +26,7 @@ export default {
 		changeTitle(item){  
 			this.nowId=item.id; 			
 		}
-	}     
+	}    
 }
 </script>
 

@@ -9,7 +9,7 @@
                     <span class="leftTitle">{{per2sub}} <br> <small :title="ver2text" v-show="resourceKindId==1">{{ver2text}}</small></span>
                     <Icon type="chevron-down"></Icon>
                     <transition name="mybox">
-                      <div :class="{selDown:true,top74:resourceKindId==1,top47:resourceKindId==2}" v-show="boxshow">
+                      <div :class="{selDown:true,top74:resourceKindId==1}" v-show="boxshow">
                           <p>
                               <span>学 段：</span>
                               <select v-model="filter.periodId" id="per">
@@ -24,18 +24,18 @@
                                   <option v-for="item in subList" :value="item.subjectId" :key="item.subjectId">{{item.subjectName}}</option>
                               </select>
                           </p>
-                          <p v-show="resourceKindId==1">
+                          <p>
                               <span>版 本：</span>
                               <select v-model="filter.versionId" id="ver">
                                   <option value="0">请选择版本</option>
                                   <option v-for="item in verList" :value="item.id" :key="item.id">{{item.name}}</option>
                               </select>
                           </p>
-                          <p v-show="resourceKindId==1">
+                          <p>
                               <span>册 别：</span>
                               <select v-model="filter.textbookId" id="text">
                                   <option value="0">请选择册别</option>
-                                  <option v-for="item in textList" :value="item.textbookId" :key="item.textbookId">{{item.textbookName}}</option>
+                                  <option v-for="item in textList" :value="item.id" :key="item.id">{{item.name}}</option>
                               </select>
                           </p>
                           <p class="text-center">
@@ -87,21 +87,18 @@
           <ul class="right-list">            
              <li v-for="item of resourceList">
               <div class="file-img">
-                <img :src="fileType(item.fileSuffix,0)" alt="文档图片">
+                <img :src="fileType(item.documentSuffix,0)" alt="文档图片" @click="toDetailResource(item)">
               </div>
               <div class="file-content">
-                <h5 :title="item.recourceLocalName">{{item.recourceLocalName}}</h5>
+                <h5 :title="item.documentName" @click="toDetailResource(item)">{{item.documentName}}</h5>
                 <p>
-                  <span>大小：{{formatSize(item.fileSize)}}</span>
-                  <span>浏览：{{item.view}}</span>
-                  <span>下载：{{item.downloadNum}}次</span>
-                  <span>收藏：{{item.collectNum}}</span>
+                  <span>大小：{{formatSize(item.documentSize)}}</span>
+                  <span>{{item.periodName}}</span>
+                  <span>{{item.subjectName}}</span>
                 </p>
-                <p>贡献者：{{item.uploadUserName}}</p>
-                <p>贡献时间：{{formatTime(item.createTime)}}</p>
               </div>
               <div>
-                 <Rate v-model="star"></Rate>
+                 <!-- <Rate allow-half v-model="item.score"></Rate> -->
               </div>
             </li>                
           </ul>
@@ -124,9 +121,14 @@ export default {
           token:this.$storage.getStorage("token"),
           filter:{
             periodId:2,
+            periodName:'初中',
             subjectId:2,
+            subjectName:"数学",
             versionId:293,
+            versionName:"人教版",
             textbookId:1343,
+            textbookName:"七年级上册",
+            documentKind:0,
             withDisabledNode:1
           },
           nodeTree:[],
@@ -144,7 +146,6 @@ export default {
           foldId1:'',
           foldId2:'',
           boxshow:false,
-          baseData:this.$storage.getSession('baseData'),
           per2sub:'初中数学',
           ver2text:'人教版七年级上册',
           titles:[
@@ -153,8 +154,17 @@ export default {
           ],
           resourceKindId:1,   
           selTitle:1,       
-          typeList:[],
-          type:1,
+          typeList:[
+            {id: 0, name: "不限"},
+            {id: 1, name: "课件"},
+            {id: 2, name: "教案"},
+            {id: 3, name: "试卷"},
+            {id: 4, name: "学案"},
+            {id: 5, name: "素材"},
+            {id: 6, name: "视频"},
+            {id: 7, name: "综合"},
+          ],
+          type:0,
           star:5,
           totalCount:10,
           current:1,
@@ -172,10 +182,30 @@ export default {
         'filter.versionId': 'filterVer',
         deep:true
     },
-  methods:{    
-    changeType(item){
+  methods:{ 
+        login(){
+          this.$router.replace({
+             name:"Login",
+             query: {redirect: this.$router.currentRoute.fullPath}
+            })
+        },
+        toDetailResource(item){
+            if(!this.token){
+              this.login();
+              return;
+            }
+            this.$router.push({
+              path:'/DetailResourceSubject',
+              query:{
+                documentId:item.documentId,        
+                periodId:item.periodId,        
+                subjectId:item.subjectId        
+              }
+            });   
+        },   
+        changeType(item){
           this.type=item.id; 
-          this.filter.resourceTypeId=this.type;
+          this.filter.documentKind=this.type;
           this.getResourceList(this.filter)
         },
         filterPer:function () {
@@ -212,7 +242,7 @@ export default {
             }
         },
         getResourceList(data){
-            this.$http.post('/web/coursebook/listResourceLocal.do',this.$qs.stringify(data))
+            this.$http.post('/web/coursebook/listZxxkDocument.do',this.$qs.stringify(data))
             .then(res => { 
             if(res.status != 200){
               this.$Message.error('请求失败请重试');
@@ -244,58 +274,38 @@ export default {
             return myselect.options[index].text; 
         },
         mySure:function () {
-          if(this.resourceKindId==1){
             if(this.filter.textbookId){
                 this.boxshow = false;
                 this.getNodeTree(this.filter);
                 this.per2sub=this.getSelText('per')+this.getSelText('sub');
                 this.ver2text=this.getSelText('ver')+this.getSelText('text');
             }
-          }else if(this.resourceKindId==2){
-            if(this.filter.subjectId){
-                this.boxshow = false;
-                this.getKnowTree(this.filter);
-                this.per2sub=this.getSelText('per')+this.getSelText('sub');
-            }
-          }
         },
         tabLoad1(item){
           this.loadId1 = item.id;  
           this.loadId2 = '';
           this.loadId3 = '';
-          if(this.resourceKindId == 1){
-            this.filter.bid1 = item.id; 
-            this.filter.kid1 = '';          
-          }else if(this.resourceKindId == 2){
-            this.filter.kid1 = item.id;
-            this.filter.bid1 = '';
-          }
+          this.filter.bookNodeId1 = item.id; 
+          this.filter.bookNodeId2 = 0; 
+          this.filter.bookNodeId3 = 0; 
           this.getResourceList(this.filter)
         },
         tabLoad2(item){
           this.loadId2 = item.id; 
           this.loadId1 = '';
           this.loadId3 = ''; 
-          if(this.resourceKindId == 1){
-            this.filter.bid2 = item.id;
-            this.filter.kid1 = '';               
-          }else if(this.resourceKindId == 2){
-            this.filter.kid2 = item.id;
-            this.filter.bid1 = '';
-          }
+          this.filter.bookNodeId1 = 0; 
+          this.filter.bookNodeId3 = 0; 
+          this.filter.bookNodeId2 = item.id;
           this.getResourceList(this.filter)
         },
         tabLoad3(item){
           this.loadId3 = item.id; 
           this.loadId1 = '';
           this.loadId2 = ''; 
-          if(this.resourceKindId == 1){
-            this.filter.bid3 = item.id;  
-            this.filter.kid1 = '';            
-          }else if(this.resourceKindId == 2){
-            this.filter.kid3 = item.id;
-            this.filter.bid1 = '';
-          }
+          this.filter.bookNodeId1 = 0; 
+          this.filter.bookNodeId2 = 0; 
+          this.filter.bookNodeId3 = item.id;  
           this.getResourceList(this.filter)
         },
         unfold1(item){              
@@ -304,31 +314,8 @@ export default {
         unfold2(item){              
           this.foldId2 = item.id;
         },
-        getKnowTree(data){
-            this.$http.post('/web/coursebook/getKnowledgePointTree.do',qs.stringify(data))
-            .then(res => { 
-                if(res.status != 200){
-                    this.$Message.error('请求失败请重试');
-                }else{
-                    let result = res.data;
-                    if(result.status != 0){
-                        this.$Message.error('请求资源失败，请重试');
-                    }else{  
-                        if(result.data.children instanceof Array && result.data.children.length>0){
-                            this.nodeTree = result.data.children;
-                        }else{
-                            this.nodeTree = [];
-                        }           
-                    }
-                }     
-
-            })
-            .catch(function (error) {
-                alert(error);
-            });
-        },
         getNodeTree(data){
-            this.$http.post('/web/coursebook/getBookNodeTree.do',qs.stringify(data))
+            this.$http.post('/web/coursebook/getZxxkBookNodeTree.do',qs.stringify(data))
             .then(res => { 
                 if(res.status != 200){
                     this.$Message.error('请求失败请重试');
@@ -337,8 +324,8 @@ export default {
                     if(result.status != 0){
                         this.$Message.error('请求资源失败，请重试');
                     }else{  
-                        if(result.data.children instanceof Array && result.data.children.length>0){
-                            this.nodeTree = result.data.children;
+                        if(result.data instanceof Array && result.data.length>0){
+                            this.nodeTree = result.data;
                         }else{
                             this.nodeTree = [];
                         }           
@@ -369,7 +356,7 @@ export default {
                             this.subList = result.data.list;
                             if(sId){
                                 this.filter.subjectId=sId;
-                                this.getVersionList(this.baseData.periodId,this.baseData.subjectId,this.baseData.id);
+                                this.getVersionList(this.filter.periodId,this.filter.subjectId,this.filter.versionId);
                             }
                         }else{
                             this.subList = [];
@@ -384,7 +371,7 @@ export default {
             });
         },  
         getVersionList(pId,sId,vId){
-            this.$http.post('/web/coursebook/listBookVersion.do',qs.stringify({       
+            this.$http.post('/web/coursebook/listZxxkVersion.do',qs.stringify({       
                 periodId:pId,
                 subjectId:sId,
                 name:'',
@@ -400,11 +387,12 @@ export default {
                   if(result.status != 0){
                     this.$Message.error('请求资源失败，请重试');
                   }else{  
-                    if(result.data.list instanceof Array && result.data.list.length>0){
-                        this.verList = result.data.list; 
+                    if(result.data instanceof Array && result.data.length>0){
+                        this.verList = result.data;
+                        this.filter.versionName=result.data[0].name; 
                         if(vId){
                             this.filter.versionId=vId;
-                            this.getTextBookList(this.baseData.periodId,this.baseData.subjectId,this.baseData.id,true);
+                            this.getTextBookList(this.filter.periodId,this.filter.subjectId,this.filter.versionId,true);
                         }             
                     }else{
                         this.verList = [];
@@ -418,11 +406,10 @@ export default {
             });
         },
         getTextBookList(pId,sId,vId,tId){
-            this.$http.post('/web/coursebook/listTextbook.do',qs.stringify({        
+            this.$http.post('/web/coursebook/listZxxkTextbook.do',qs.stringify({        
                 periodId:pId,
                 subjectId:sId,
                 versionId:vId,
-                name:'',
                 status:1,
                 pageIndex:1,
                 pageSize:100
@@ -435,21 +422,20 @@ export default {
                     if(result.status != 0){
                         this.$Message.error('请求资源失败，请重试');
                     }else{              
-                        if(result.data.list instanceof Array && result.data.list.length>0){
-                            this.textList = result.data.list;
-                            this.baseData.textbookId=result.data.list[0].textbookId;            
-                            this.baseData.textbookName=result.data.list[0].textbookName;  
+                        if(result.data instanceof Array && result.data.length>0){
+                            this.textList = result.data;
+                            this.filter.textbookId=result.data[0].id;            
+                            this.filter.textbookName=result.data[0].name;  
                             
                             if(tId){
-                                this.filter.textbookId=this.baseData.textbookId;
-                                if(result.data.list[0].textbookId!=1343){
-                                  this.ver2text=this.baseData.name+this.baseData.textbookName;
+                                if(result.data[0].textbookId!=1343){
+                                  this.ver2text=this.filter.versionName+this.filter.textbookName;
                                 }
-                                this.getNodeTree(this.baseData);
+                                this.getNodeTree(this.filter);
                                 this.getResourceList(this.filter) 
                             }        
                         }else{
-                            this.textList = [{textbookId:0,textbookName:'无'}];
+                            this.textList = [{id:0,name:'无'}];
                             this.nodeTree = []
                             this.baseData.textbookId=0;            
                             this.baseData.textbookName='无';
@@ -461,54 +447,14 @@ export default {
                 alert(error);
             });
         }, 
-        getResourceLocalTypeList(){
-            this.$http.post('/web/coursebook/listResourceLocalType.do',qs.stringify({        
-                type:this.resourceKindId,
-                token:this.token
-            }))
-            .then(res => { 
-                if(res.status != 200){
-                    this.$Message.error('请求失败请重试');
-                }else{
-                    let result = res.data;
-                    if(result.status != 0){
-                        this.$Message.error('请求资源失败，请重试');
-                    }else{              
-                        if(result.data.list instanceof Array && result.data.list.length>0){
-                            this.typeList = result.data.list;
-                            this.typeList.unshift({id: 0, name: "不限", type: 1});  
-                            this.type=result.data.list[0].id;         
-                        }else{
-                            this.typeList = [];
-                        }
-                    }
-                }  
-            })
-            .catch(function (error) {
-                alert(error);
-            });
-        },  
         pageChange(page){
-            // this.filter.pageIndex=page;
-            // this.getResourceList(this.filter)
-            let data={pageIndex:page}
-            this.getResourceList(data)
+            this.filter.pageIndex=page;
+            this.getResourceList(this.filter)
         } 
     },
     created() {
-        if(this.baseData.id){
-            this.filter.periodId=this.baseData.periodId;
-            this.filter.token=this.token;
-            this.baseData.token=this.token;
-            this.baseData.withDisabledNode=1;
-            this.baseData.versionId=this.baseData.id;
-            this.per2sub=this.baseData.periodName+this.baseData.subjectName;
-            this.getSubjectList(this.baseData.periodId,this.baseData.subjectId);
-        }else{
-            this.per2sub=this.filter.periodName+this.filter.subjectName;
-            this.getSubjectList(2,2);
-        }
-        this.getResourceLocalTypeList() 
+        this.per2sub=this.filter.periodName+this.filter.subjectName;
+        this.getSubjectList(2,2);
     }
 }
 </script>
@@ -695,15 +641,18 @@ export default {
      font-size: 16px;
      color: #7b8085;
    }
+   .sel-type{
+    max-width: 690px;
+   }
    .sel-type span{
-     float: left;
+     display: inline-block;
      width: 80px;
      text-align: center;
      margin-top: 10px;
    }
    .sel-type a{
-     float: left;
-     width: 100px;
+     display: inline-block;
+     padding: 0 15px;
      height: 40px;
      line-height: 40px;
      text-align: center;
@@ -759,7 +708,7 @@ export default {
      color: #999;
    }
    .file-content p{
-     margin: 5px 0;
+     margin-top: 55px;
    }
    .file-content p span{
      margin-right: 20px;

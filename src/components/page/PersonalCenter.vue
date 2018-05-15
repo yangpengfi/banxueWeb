@@ -19,15 +19,9 @@ export default {
                 {title:'任教信息',path:'/MySpace/PersonalCenter/TeacherMessage',id:'teacherMessage'},   
                 {title:'申请成为认证老师',path:'/MySpace/PersonalCenter/Teacher',id:'teacher'},   
                 {title:'访问权限',path:'/MySpace/PersonalCenter/Authority',id:'authority'}
-            ],
-            nowId:'personInfo'
+            ]
         }
-    },
-    methods:{
-        changeTitle(item){  
-            this.nowId=item.id; 			
-        }
-    }    
+    }   
 }
 </script>
 <style scoped>

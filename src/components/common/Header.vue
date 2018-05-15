@@ -3,18 +3,18 @@
     <div id="header" class="w-1200">    
       <div class="left">
           <div class="logo">
-            <img src="../../assets/imgs/index/u124.png" alt="这是logo图片">
+            <img src="../../assets/imgs/index/webtitlelogo.png" alt="这是logo图片">
           </div>        
           <div class="title">
             <div>伴学网教育云平台</div>
             <p>专注中小学个性化教育</p>
           </div>
           <div class="address">
-            <span href="#">运营千城计划</span>
+            <!-- <span href="#">运营千城计划</span>
             <p>
               <img src="../../assets/imgs/index/u120.png" alt="地图定位图片">
               <a href="#">深圳</a>
-            </p>
+            </p> -->
           </div>
       </div>        
       <ul class="left nav">
@@ -23,8 +23,9 @@
         </li>
       </ul>
       <div class="right">
-        <button @click = "login">登录</button>
-        <button>伴学网</button>      
+        <span v-show="isLogin" class="users" @click="goMySpace"><img :src="userInfo.server+userInfo.logo"> <span>{{userInfo.trueName}}</span></span>
+        <button v-show="!isLogin" @click = "login">登录</button>
+        <button @click="toBanxue">伴学网</button>      
       </div>
     </div>
   </div> 
@@ -42,10 +43,18 @@ export default {
             {text:'空间',path:'/space',id:'space'},   
             {text:'应用',path:'/application',id:'application'} 
       ],
-      nowId:''
+      isLogin:false,
+      nowId:'',
+      userInfo:''
     }
   },
   methods:{
+    toBanxue(){
+      this.$router.push('/DownLoadApp');
+    },
+    goMySpace(){
+      this.$router.push('/MySpace/');
+    },
     login(){
       this.$router.replace({
          name:"Login",
@@ -55,9 +64,71 @@ export default {
     },
     relationClick(item){  
       this.nowId=item.id; 
-    } 
+    } ,
+    //获取pc用户地理位置
+    getLocation(){
+         var options={
+             enableHighAccuracy:true, 
+             maximumAge:1000
+         }
+         if(navigator.geolocation){
+             //浏览器支持geolocation
+             navigator.geolocation.getCurrentPosition(onSuccess,onError,options);
+             
+         }else{
+             //浏览器不支持geolocation
+         }
+     },
+
+     //成功时
+     onSuccess(position){
+         //返回用户位置
+         //经度
+         var longitude =position.coords.longitude;
+         //纬度
+         var latitude = position.coords.latitude;
+
+         //使用百度地图API
+         //创建地图实例  
+         var map =new BMap.Map("container");
+
+         //创建一个坐标
+         var point =new BMap.Point(longitude,latitude);
+         //地图初始化，设置中心点坐标和地图级别  
+         map.centerAndZoom(point,15);
+
+
+
+     },
+     //失败时
+     onError(error){
+         switch(error.code){
+             case 1:
+             alert("位置服务被拒绝");
+             break;
+
+             case 2:
+             alert("暂时获取不到位置信息");
+             break;
+
+             case 3:
+             alert("获取信息超时");
+             break;
+
+             case 4:
+              alert("未知错误");
+             break;
+         }
+
+     }
   },
   created(){
+    if(!this.$storage.getStorage("userInfo")){
+      this.isLogin=false;
+    }else{
+      this.isLogin=true;
+      this.userInfo=this.$storage.getStorage("userInfo");
+    }
     if(!location.hash.substr(2)){
       this.nowId='index';
       return;
@@ -68,8 +139,11 @@ export default {
 </script>
 <style scoped>
 #header-container{
+  position: fixed;
+  top:0;
   width: 100%;
   background-color: #fff;
+  z-index: 9999;
 }
 #header{  
   height:120px;
@@ -92,7 +166,7 @@ export default {
 }
 .title{
   text-align: center;
-  border-right:1px solid #e9e9e9;
+  /*border-right:1px solid #e9e9e9;*/
   padding-right: 25px;
 }
 .title div{
@@ -160,7 +234,18 @@ export default {
   border-radius: 5px;
   cursor: pointer;
 }
-#header>.right>button:first-child{
+#header>.right>button:nth-child(2){
   margin-right: 20px;  
+}
+.users>img{
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+.users>span{
+  font-size: 14px;
+  color: #333;
+  margin:0 12px;
 }
 </style>

@@ -4,8 +4,8 @@
           <li v-for="item in resClasses">
               <div class="left">
                   <!-- <img :src="item.img" alt="学科标识"> -->
-                  <span class="subjectImg" :style="{backgroundColor:item.bgColor}">{{item.subjectName.substr(0,1)}}</span>
-                  <span>{{item.recourceLocalName}}</span>
+                  <span class="subjectImg" :style="{backgroundColor:item.bgColor}" @click="toDetailResource(item)">{{item.subjectName.substr(0,1)}}</span>
+                  <span @click="toDetailResource(item)">{{item.recourceLocalName}}</span>
               </div>
               <div class="right">
                   <span>{{item.browseNum}}</span>
@@ -20,7 +20,7 @@ export default {
     name:'ResClasses',
     data(){
         return {
-          
+          token:this.$storage.getStorage("token"),
         }
     },
     props:{
@@ -28,6 +28,26 @@ export default {
             type:Array,
             required:true
         }
+    } ,
+    methods:{
+        login(){
+          this.$router.replace({
+             name:"Login",
+             query: {redirect: this.$router.currentRoute.fullPath}
+            })
+        },
+        toDetailResource(item){
+            if(!this.token){
+              this.login();
+              return;
+            }
+            this.$router.push({
+              path:'/DetailResource',
+              query:{
+                resourceLocalId:item.resourceLocalId          
+              }
+            });   
+        },
     } 
 }
 </script>
@@ -43,6 +63,9 @@ export default {
         padding: 0 20px;      
 	    font-size: 14px;	
         color: #666;                
+    }
+    .classes-box .left{
+        cursor: pointer; 
     }
     .classes-box .left span{
         padding-left: 16px;   

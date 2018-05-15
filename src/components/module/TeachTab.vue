@@ -2,7 +2,7 @@
     <div>
         <p class="space-total"> 
             <span>资源建设总量 </span>
-            <b>3467034</b> 
+            <b>{{totalCount}}</b> 
         </p>        
         <div class="pecent">                   
             <div id="pieFour"></div>
@@ -14,10 +14,41 @@ export default {
     name:'TeachTab',
     data(){
         return {
-            
+            dataName:[],
+            dataValue:[],
+            totalCount:15494
         }
     },
     methods:{
+        getPieDate(){
+            this.$http.post('web/coursebook/countResource')
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status != 0){
+                this.$Message.error('请求资源失败，请重试');
+              }else{ 
+                let resData=result.data['教学'];
+                this.totalCount=resData.totalCount;
+                if(resData.data instanceof Array && resData.data.length>0){
+                    for(let i=0,len=resData.data.length;i<len;i++){
+                        this.dataName.push(resData.data[i].resourceTypeName)
+                        this.dataValue.push(resData.data[i].count)
+                    }
+                    this.drawPieFour();
+                }else{
+                  this.dataName = [];
+                  this.dataValue = [];
+                }           
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        },
         drawPieFour(){
             let pieFour = this.$echarts.init(document.getElementById('pieFour'));
             pieFour.setOption({
@@ -37,7 +68,7 @@ export default {
                 xAxis : [
                     {
                         type : 'category',
-                        data : ['资源', '导学', '课件', '授课', '检测', '作业'],
+                        data :this.dataName ,
                         axisTick: {
                             alignWithLabel: true
                         }
@@ -54,14 +85,14 @@ export default {
                         name:'资源建设',
                         type:'bar',
                         barWidth: '50%',
-                        data:[10, 52, 200, 334, 390, 330]
+                        data:this.dataValue
                     }
                 ]
             });
         }
     },
     mounted(){
-        this.drawPieFour();
+        this.getPieDate();
     }   
 }
 </script>
