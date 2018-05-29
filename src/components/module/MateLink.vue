@@ -4,9 +4,11 @@
 				<ul>
 					<li v-for="item of matesList">
 						<img :src="item.logo" @click="goSpaceShow(item)"/>						
-						<p @click="goSpaceShow(item)">{{item.userName}}</p>						
-						<button class="out" @click="unFollow(item)" v-show="item.follow">取消关注</button>
-						<button class="out" @click="follow(item)" v-show="!item.follow">关注</button>
+						<p @click="goSpaceShow(item)">{{item.userName}}</p>	
+            <div v-show="!isHis"> 					
+  						<button class="out" @click="unFollow(item)" v-show="item.follow">取消关注</button>
+  						<button class="out" @click="follow(item)" v-show="!item.follow">关注</button>
+            </div> 
 					</li>					
 				</ul>
 			</div>
@@ -17,7 +19,8 @@ export default {
     name:'MateLink',
     data(){
         return {
-            matesList:[]
+            matesList:[],
+            isHis:true
         }
     },
     methods:{
@@ -98,6 +101,12 @@ export default {
         }
     },
     created(){
+        let whoSpace=window.location.hash.split('/')[1];
+        if(whoSpace=='ShowSpace'){
+            this.isHis=true;
+        }else{
+            this.isHis=false;
+        }
     	this.getMates();
     }
 }

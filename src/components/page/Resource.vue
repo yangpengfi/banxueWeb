@@ -289,7 +289,7 @@ export default {
         toAreaResource(item){
           this.$storage.setSession('baseData',item)
           this.$router.push({
-							path:'/FilterResource/AreaResource?id=SubjectResource'
+							path:'/FilterResource/SubjectResource?id=SubjectResource'
           });		
         },
         goMyResource(){

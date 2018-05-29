@@ -61,7 +61,6 @@ function getBaseUrl() {
         }
 function setFileType(fileType,size){
     let baseUrl=getBaseUrl();
-    // console.log(baseUrl)
     let imgUrl=baseUrl;
     switch(fileType){
         case 'doc':

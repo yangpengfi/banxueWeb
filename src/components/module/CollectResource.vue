@@ -39,7 +39,7 @@
 				<button class="left" @click="searchResource">搜索</button>
 			</div>
 		</div>	
-		<div class="operator">	
+		<div class="operator" v-show="!isHis">	
 			<button v-if="resourceList.length>1" @click="showBatch" :class="{active:ifBatch==true}">批量设置</button>
 		</div>		
 		<div class="batch-modify" v-show="ifBatch && resourceList.length>1">
@@ -87,7 +87,7 @@
 							<span>专题名称：{{item.topic}}</span>
 							<span class="upTime">收藏时间：{{item.createTime | formatTime}}</span>
 						</div>
-						<div class="edit">
+						<div class="edit" v-show="!isHis">
 							<p class="edit-title">
 								<span>编辑</span> 
 								<Icon type="arrow-down-b" color="#1caaf1"></Icon>
@@ -187,7 +187,9 @@ export default {
 				deleteInfo:'删除资源成功',
 				deleteClassInfo:'删除特色微课成功',
 				pushInfo:'推送资源成功'
-			}
+			},
+            isHis:true,
+            userId:0
 	  	}
 	},
 	filters: {
@@ -402,6 +404,7 @@ export default {
 			this.$http.post('/web/coursebook/a/listMyCollectResource.do',qs.stringify({				
 				resourceKindId:this.selTitle,
 				name:this.name,
+				userId:this.userId,
 				periodId:this.periodId,
 				subjectId:this.subjectId,
 				versionId:this.bookId,
@@ -433,6 +436,7 @@ export default {
 		getMinClassList(){
 			this.$http.post('/web/microcourse/a/listMyCollectCourse.do',qs.stringify({	
 				name:this.name,
+				userId:this.userId,
 				periodId:this.periodId,
 				subjectId:this.subjectId,
 				gradeId:this.bookId,
@@ -788,7 +792,14 @@ export default {
 			}
 		}		
 	},
-	created:function(){  		
+	created:function(){
+		this.userId=this.$router.history.current.query.userId;
+		let whoSpace=window.location.hash.split('/')[1];
+        if(whoSpace=='ShowSpace'){
+            this.isHis=true;
+        }else{
+            this.isHis=false;
+        }  		
 		this.getResourceList();
     },	   
 }

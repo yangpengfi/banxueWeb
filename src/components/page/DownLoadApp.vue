@@ -29,13 +29,13 @@
     data(){
         return {
             tab:[
-            {id:0,name:"我是老师",imgurl:require('../../assets/imgs/index/appdownload.png'),codeimgurl:require('../../assets/imgs/index/ter.png')},
-            {id:1,name:"我是学生",imgurl:require('../../assets/imgs/index/appdownloadstu.png'),codeimgurl:require('../../assets/imgs/index/stu.png')}
+            {id:0,name:"我是老师",imgurl:require('../../assets/imgs/app/appdownload.png'),codeimgurl:require('../../assets/imgs/app/ter.png')},
+            {id:1,name:"我是学生",imgurl:require('../../assets/imgs/app/appdownloadstu.png'),codeimgurl:require('../../assets/imgs/app/stu.png')}
             ],
             thisId:0,
             val:5,
-            imgurl:require('../../assets/imgs/index/appdownload.png'),
-            codeimgurl:require('../../assets/imgs/index/ter.png'),
+            imgurl:require('../../assets/imgs/app/appdownload.png'),
+            codeimgurl:require('../../assets/imgs/app/ter.png'),
             appInfoArr:[
             {size:66,text:"伴学网是异度云教育旗下中小学在线教育品牌，是K12教育生态服务云平台，伴学网老师端集海量教学资源、云端互动教学、作业、班级管理、数据分析统计、师生沟通、学习交流等为一体，帮助教师实现高质量教学，为教师减负。是老师教学好帮手。",title:"伴学网老师客户端",score:5},
             {size:60,text:"伴学网是异度云教育旗下中小学在线教育品牌，是K12教育生态服务云平台。通过伴学网学生端学生可随时随地回看课堂视频，查漏补缺。系统对学生学习数据进行采集，智能分析并推荐个性化的优质学习资源，帮助学生快速提分，是学生挚爱的学习好帮手！",title:"伴学网学生客户端",score:5}

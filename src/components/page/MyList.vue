@@ -20,7 +20,17 @@ export default {
 				{title:'我的同事',path:'/MySpace/MyList/MateLink',id:'mateLink'}
 			]
         }
-    }    
+    },
+	created(){
+		let userType=this.$storage.getStorage('userInfo').type;
+		if(userType==2){
+			this.linkList=[
+				{title:'我关注的人',path:'/MySpace/MyList/',id:'focusLink'},
+				{title:'我的粉丝',path:'/MySpace/MyList/FunLink',id:'funLink'},
+				{title:'我的班级',path:'/MySpace/MyList/ClassLink',id:'classLink'},
+			]
+		}
+	}    
 }
 </script>
 

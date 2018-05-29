@@ -77,7 +77,26 @@ export default {
 			this.$router.push('/');
 		},
 		toPersonCenter(){
-			this.$router.push('/MySpace/PersonalCenter');
+			let userType=this.$storage.getStorage('userInfo').type;
+			if(userType==2){
+				this.$router.push('/MySpace/PersonalCenter/PersonInfoStudent');
+			}else{
+				this.$router.push('/MySpace/PersonalCenter');
+			}
+		}
+	},
+	created(){
+		let userType=this.$storage.getStorage('userInfo').type;
+		if(userType==2){
+			this.relations=[
+				{text:'空间首页',path:'/MySpace/',id:'spaceIndex'},   
+				{text:'我的资源',path:'/MySpace/MyResource/PushResource',id:'myResource'},   
+				{text:'课程',path:'/MySpace/MinClasses/BuiedClass',id:'minClasses'},   
+				{text:'学习成果',path:'/MySpace/Achievements',id:'achievements'},   
+				{text:'我的应用',path:'/MySpace/MyApplication',id:'myApplication'},
+				{text:'我的通讯录',path:'/MySpace/MyList',id:'myList'},   
+				{text:'展示空间',path:'/ShowSpace',id:'showSpace'}
+			]
 		}
 	}  
 }

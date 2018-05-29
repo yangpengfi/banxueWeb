@@ -10,6 +10,7 @@ import MySpace from '@/components/common/MySpace.vue'
 Vue.use(Router)
 
 export default new Router({
+  //mode: 'history',
   routes: [
     {
       path: '/',              
@@ -280,6 +281,14 @@ export default new Router({
               component: resolve => require(['../components/module/PersonInfo.vue'], resolve),
             },
             {
+              path: 'PersonInfoStudent',          
+              component: resolve => require(['../components/module/PersonInfoStudent.vue'], resolve)
+            },
+            {
+              path: 'ClassInfo',          
+              component: resolve => require(['../components/module/ClassInfo.vue'], resolve)
+            },
+            {
               path: 'ChangePassword',          
               component: resolve => require(['../components/module/ChangePassword.vue'], resolve)
             },
@@ -300,8 +309,7 @@ export default new Router({
       ]     
     },
     {
-      path: '/ShowSpace', 
-      name: 'ShowSpace',   
+      path: '/ShowSpace',    
       component: resolve => require(['../components/page/ShowSpace.vue'], resolve),
       children:[
         {
@@ -310,7 +318,7 @@ export default new Router({
         }, 
         {
           path: 'MyResource',
-          component: resolve => require(['../components/page/MyResource.vue'], resolve),
+          component: resolve => require(['../components/page/HisResource.vue'], resolve),
           children:[
             {
               path: '/',          
@@ -332,7 +340,7 @@ export default new Router({
         },
         {
           path: 'MyList',
-          component: resolve => require(['../components/page/MyList.vue'], resolve),
+          component: resolve => require(['../components/page/HisList.vue'], resolve),
           children:[
             {
               path: '/',          

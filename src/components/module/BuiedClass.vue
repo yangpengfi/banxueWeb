@@ -7,6 +7,9 @@
 						<div>
 							{{item.name}}
 						</div>
+						<p class="videoPro" v-if="item.totalProgress==0">未开始</p>
+						<p class="videoPro" v-else-if="item.totalProgress==100">已完成</p>
+						<p class="videoPro" v-else>已学习{{item.totalProgress}}%</p>
 					</div>
 					<div class="classTitle">
 						<p>{{item.name}}</p>
@@ -104,6 +107,8 @@ export default {
 		width: 160px;
 		height: 120px;
 		float: left;
+		position: relative;
+		overflow: hidden;
 	}
 	.classImg>div{
 		background: url('../../assets/imgs/resource/proclassdefault.png') no-repeat center center;
@@ -120,6 +125,16 @@ export default {
 	}
 	.classImg p{
 		text-align: center;
+	}
+	.classImg .videoPro{
+		position: absolute;    
+		width: 120px;
+		line-height: 30px;
+		background-color: #FFCC00;
+		color: #333;
+		transform:rotate(45deg);
+		top: 15px;
+    	right: -30px;
 	}
 	.classTitle{
 		float: left;

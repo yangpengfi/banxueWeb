@@ -28,9 +28,29 @@
                             <div class="comment-title">
                                 <span>{{item.userName}}</span>
                                 <span>{{new Date(item.createTime).Format("yyyy-M-d hh:mm:ss")}}</span>
-                                <span>回复</span>
+                                <span @click="reply(item)">回复</span>
                             </div>
                             <p class="comment-content">{{item.content}}</p>
+                            <ul v-if="item.children.length>0">
+                                <li v-for="subItem in item.children">
+                                    <p class="left"><img :src="subItem.logo"  alt="头像"></p>
+                                    <div class="left">
+                                        <div class="comment-titlel">
+                                            <span>{{subItem.userName}}</span>
+                                            <p class="comment-content w50">{{subItem.content}}</p>
+                                            <span>{{new Date(subItem.createTime).Format("yyyy-M-d hh:mm:ss")}}</span>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div v-show="item.check" class="reply">
+                                <input 
+                                    type="text" 
+                                    maxlength="200" 
+                                    title="长度不超过200" 
+                                    v-model="replyCommet" placeholder="我也说一句">
+                                    <button @click="commit(item.id)">发表</button>
+                            </div>
                         </div>
                     </li>
                 </ul>
@@ -44,7 +64,7 @@
             </div>
             <div class="comment" id="comments">
                 <textarea  rows="8" v-model="comment" placeholder="发表你的精彩评论啦"></textarea>
-                <button @click="createComment" class="myButton">发表评论</button>
+                <button @click="createComment(0)" class="myButton">发表评论</button>
             </div>
         </div>
 	</div>
@@ -66,9 +86,13 @@ export default {
             commentCurrPage:1,
             pageSize:4,
             isLike:false,
+            replyCommet:'',
         }
 	},
 	methods:{
+        map(data){
+            this.emotionsMap = data;
+        },
 		getArticalInfo(){
 			this.$http.post('/web/space/article/info.do',this.$qs.stringify({
               articleId:this.articleId
@@ -92,15 +116,32 @@ export default {
                 alert(err);
             })
 		}, 
-        createComment(){//创建留言
-            if(!this.comment){
-                this.$Message.info("请输入评论！");
-                return;
+        reply(item){
+            item.check=!item.check;
+        },
+        commit(pId){
+           this.createComment(pId); 
+        },
+        createComment(pId){//创建留言
+            let comm=''
+            if(pId){
+                if(!this.replyCommet){
+                    this.$Message.info("请输入回复内容！");
+                    return;
+                } 
+                comm=this.replyCommet;
+            }else{
+               if(!this.comment){
+                    this.$Message.info("请输入评论！");
+                    return;
+                } 
+                comm=this.comment;
             }
             this.$http.post('/web/space/article/a/createComment.do',this.$qs.stringify({
               articleId:this.articleId,
               token:this.$storage.getStorage("token"),
-              content:this.comment,
+              content:comm,
+              parentId:pId||0
             }))
             .then((res)=>{
             if(res.status != 200){
@@ -108,7 +149,10 @@ export default {
             }else{
               let result = res.data;
               if(result.status == 0){ 
-                this.getSpaceComment(1);
+                this.$Message.success(result.message);
+                this.comment='';
+                this.replyCommet='';
+                this.getSpaceComment(Math.ceil(this.commentTotalCount/this.pageSize));
               }else{ 
                 this.$Message.error(result.message);         
               }
@@ -330,15 +374,21 @@ export default {
     }
     .comment-list>ul li{
         overflow: hidden;
-        padding: 20px 0;
+        padding-top: 20px;
     }    
-    .comment-list>ul li img{
+    .comment-list>ul>li img{
         width: 40px;
         height: 40px;
         border-radius: 50%;
         margin-right: 20px;
     }
-    .comment-list>ul li>div{
+    .comment-list>ul>li ul img{
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        margin-right: 20px;
+    }
+    .comment-list>ul>li>div{
     	width: calc(100% - 65px);
     	padding-bottom: 20px;
         border-bottom:1px solid #e9e9e9;
@@ -348,7 +398,7 @@ export default {
         color:#999;
         font-size: 14px;
     }  
-    .comment-title span:first-child{
+    .comment-title span:first-child,.comment-titlel span:first-child{
         font-size: 16px;
         color: #008fd5;
         margin-right: 35px;
@@ -359,20 +409,47 @@ export default {
         font-size: 14px;
         cursor: pointer;
     }
+    .comment-titlel span:last-child{
+        font-size: 14px;
+        color: #999;
+    }
     .comment-content{
         line-height: 28px;
         font-size: 14px;
         color: #7b8085;
-        text-indent: 2em;
+        /*text-indent: 2em;*/
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
         overflow: hidden;
-        height: 56px;
+        max-height: 56px;
+    }
+    .w50{
+        max-width: 600px;
     }
     .comment-list .pageBox{
     	text-align: center;
     	font-size: 14px;
     	padding: 20px 0;
+    }
+    .reply{
+        margin-top: 15px;
+    }
+    .reply input{
+        width: 250px;
+        height: 30px;
+        line-height: 30px;
+        padding-left: 10px;
+        border-radius: 4px;
+        border:1px solid #ccc;
+        margin-right: 20px;
+    }
+    .reply button{
+        background-color: #47a2ff;
+        color:#fff;
+        padding: 5px 15px;
+        border:none;
+        outline: none;
+        border-radius: 4px;
     }
 </style>

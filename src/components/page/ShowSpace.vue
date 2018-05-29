@@ -47,7 +47,7 @@ export default {
             theFollow:false,
             titleList:[
                 {id:'showSpace',title:'主页',path:'/ShowSpace/'},
-                {id:'myResource',title:'资源中心',path:'/ShowSpace/MyResource'},
+                {id:'myResource',title:'资源中心',path:'/ShowSpace/MyResource?'},
                 {id:'achievements',title:'学习成果',path:'/ShowSpace/Achievements'},
                 {id:'myList',title:'通讯录',path:'/ShowSpace/MyList'}
             ],
@@ -72,9 +72,10 @@ export default {
             }else{
               let result = res.data;
               if(result.status == 0){
-                this.spaceInfo = result.data; 
+                this.spaceInfo = result.data;
+                this.$storage.setStorage("spaceInfo",this.spaceInfo); 
               }else{ 
-                this.$Message.error('请求资源失败，请重试');      
+                this.$Message.error(result.message);
               }
             } 
             })
@@ -98,7 +99,7 @@ export default {
                 this.login();
                 return;
               }else{
-                this.$Message.error('请求资源失败，请重试');            
+                this.$Message.error(result.message);            
               }
             } 
             })
@@ -156,6 +157,9 @@ export default {
     },
     created(){
         this.userId=this.$router.history.current.query.userId;
+        for(let i=0,len=this.titleList.length;i<len;i++){
+            this.titleList[i].path=this.titleList[i].path+'?userId='+this.userId
+        }
         let pageId=this.$router.history.current.path.split('/')[2];
         if(!pageId){
            this.localTitle="showSpace" 

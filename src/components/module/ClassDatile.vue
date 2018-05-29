@@ -122,11 +122,32 @@
       playVideo(item){
         if(item.hasVideo==1){
           this.getCourseVideo(item.courseId,item.id);
+          this.setVideoProgress(item.courseId,item.id);
           document.getElementById("video").setAttribute("controls", "controls");
         }else{
           this.$Message.info('此目录无视频资源！');
         }
         this.selId=item.id;
+      },
+      setVideoProgress(courseId,catalogId){
+      this.$http.post('/web/course/a/updateCourseVideoProgress.do',this.$qs.stringify({
+            token:this.token,
+            courseId:courseId,
+            catalogId:catalogId,
+            progress:10,
+          }))
+          .then((res)=>{
+            // console.log(res.data); 
+            if(res.data.status==0){
+              this.$Message.info(res.data.message);
+              this.courseInfo.isMyCourse=1;
+            }else{
+              alert(res.data.message);
+            }
+          })
+          .catch((err)=>{
+            alert(err);
+          })
       },
       addMycourse(courseId){
       this.$http.post('/web/course/a/add2MyCourse.do',this.$qs.stringify({

@@ -38,7 +38,7 @@
 				<button class="left" @click="searchResource">搜索</button>
 			</div>
 		</div>	
-		<div class="operator">	
+		<div class="operator" v-show="!isHis">	
 			<button v-if="resourceList.length>1" @click="showBatch" :class="{active:ifBatch==true}">批量设置</button>
 		</div>		
 		<div class="batch-modify" v-show="ifBatch && resourceList.length>1">
@@ -72,7 +72,7 @@
 							<span>{{item.bname3 = item.bname3 == "无"?'':item.bname3}}</span>
 							<span class="upTime">下载时间：{{item.createTime | formatTime}}</span>
 						</div>
-						<div class="edit">
+						<div class="edit" v-show="!isHis">
 							<p class="edit-title">
 								<span>编辑</span> 
 								<Icon type="arrow-down-b" color="#1caaf1"></Icon>
@@ -164,7 +164,9 @@ export default {
 				resError:'请求资源失败，请重试',
 				deleteInfo:'删除资源成功',
 				pushInfo:'推送资源成功'
-			}
+			},
+            isHis:true,
+            userId:0
 	  	}
   	},
 	filters: {
@@ -328,6 +330,7 @@ export default {
 			this.$http.post('/web/coursebook/a/listMyDownloadResource.do',qs.stringify({				
 				resourceKindId:this.selTitle,
 				name:this.name,
+				userId:this.userId,
 				periodId:this.periodId,
 				subjectId:this.subjectId,
 				versionId:this.bookId,
@@ -612,7 +615,14 @@ export default {
 			}
 		}		
 	},
-	created:function(){  		
+	created:function(){
+		this.userId=this.$router.history.current.query.userId;
+        let whoSpace=window.location.hash.split('/')[1];
+        if(whoSpace=='ShowSpace'){
+            this.isHis=true;
+        }else{
+            this.isHis=false;
+        }  		
 		this.getResourceList();
     },	 
 }

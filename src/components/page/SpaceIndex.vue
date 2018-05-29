@@ -23,13 +23,7 @@
 					</div>
 				</div>
 				
-				<div class="homework">
-					<img src="../../assets/imgs/space/class.png" alt="头像" align="absmiddle"/>
-					<span>高三一班</span>
-					<a class="bgImg"></a>
-				</div>
-				
-				<div class="homework">
+				<div class="homework" v-show="spaceInfo.userType==1">
 					<img src="../../assets/imgs/space/work.png" alt="头像" align="absmiddle"/>
 					<span>作业</span>
 				</div>
@@ -39,7 +33,8 @@
 						<div class="bgImgApp"></div>
 						<div class="fonts">下载客户端</div>
 					</div>
-					<img src="../../assets/imgs/space/ter.png" alt="二维码图片" />
+					<img src="../../assets/imgs/app/ter.png" alt="二维码图片" v-show="spaceInfo.userType==1"/>
+					<img src="../../assets/imgs/app/stu.png" alt="二维码图片" v-show="spaceInfo.userType==2"/>
 				</div>
 			</div>
 		
@@ -49,7 +44,13 @@
 						<a href="#">待完成任务</a>
 					</p>
 					<ul v-if="unfinishedList.length>0">
-						<li v-for="item of unfinishedList">{{item.info}}</li>
+						<li v-for="item of unfinishedList" @click="unfinishClick(item)">
+							{{item.itemName}}
+							<span v-if="item.itemType==2">
+								<span v-show="item.courseWatchProgress">，未开始学习</span>
+								<span v-show="!item.courseWatchProgress">，已学习了{{item.courseWatchProgress}}%</span>
+							</span>
+						</li>
 					</ul>
 				</div>
 				
@@ -72,7 +73,7 @@
 									<span>{{new Date(item.createTime).Format("yyyy-M-d hh:mm:ss")}}</span>
 								</p>
 								<p class="className">
-									<span>{{item.title}}</span>&nbsp;<a href="javascript:void(0);" @click="toInfo(item)">{{item.name}}</a>
+									<span>{{item.title}}</span>&nbsp;<a href="javascript:void(0);" @click="toInfo(item)" :title="item.name" v-html="item.name"></a>
 								</p>								
 								<div class="comment">
 									<!-- <p>
@@ -99,9 +100,12 @@
 			
 			<div class="right">
 				<div class="threeBtn">
-					<button type="button" @click="toLoadResource">上传资源</button>
+					<button type="button" @click="toLoadResource" v-show="spaceInfo.userType==1">上传资源</button>
+					<button type="button" v-show="spaceInfo.userType==2">作业</button>
+					<button type="button" v-show="spaceInfo.userType==2">错题本</button>
+					<button type="button" v-show="spaceInfo.userType==2">学习分析</button>
 					<button type="button" @click="toWrite">写文章</button>
-					<button type="button">班级详情</button>
+					<button type="button" v-show="spaceInfo.userType==1">班级学情</button>
 				</div>
 				<div class="myView">
 					<p class="viewTitle more-focus">
@@ -118,7 +122,7 @@
 				<div class="myView">
 					<p class="viewTitle total-visitor">
 						最近访客
-						<span>{{vTotal}}次</span>
+						<span>总浏览：{{vTotal}}次</span>
 					</p>
 					<ul class="viewCont">
 						<li class="marginTop" v-for="item of visitorList">
@@ -165,7 +169,7 @@ export default {
 				visitorList:[],
 				spaceInfo:{},
 				vTotalCount:0,
-				vTotal:25,
+				vTotal:0,
 				currPage:1,
 				pidx:1,
 				hasMore:true,
@@ -227,7 +231,10 @@ export default {
             }else{
               let result = res.data;
               if(result.status == 0){
-              	this.spaceInfo = result.data; 
+              	this.spaceInfo = result.data;
+              	if(this.spaceInfo.userType==2){
+              		this.getUnfinishedList();
+              	} 
               }else if(result.status == 9){
               	this.login();
               	return;
@@ -240,6 +247,35 @@ export default {
                 alert(err);
             })
 		},
+        getUnfinishedList(page){//获取待办任务列表
+            this.$http.post('/app/tasktodo/a/listUserTask.do',this.$qs.stringify({
+              pageIndex:page||1,
+              pageSize:5,
+              token:this.token
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){
+                if(result.data instanceof Array && result.data.length>0){
+                  this.unfinishedList = result.data;
+                }else{
+                  this.unfinishedList = [];
+                }
+              }else if(result.status == 9){
+              	this.login();
+              	return;
+              }else{
+                this.$Message.error('请求资源失败，请重试');            
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        },
         getFollowers(){//获取关注列表
             this.$http.post('/web/space/followers.do',this.$qs.stringify({
               pageSize:9,
@@ -341,10 +377,63 @@ export default {
         },
         pageChange(page){
             this.getVisitors(page)
-        } 
+        },
+        deleteTask(tId){//删除待办任务
+            this.$http.post('/app/tasktodo/a/deleteTask.do',this.$qs.stringify({
+              token:this.token,
+              taskIds:tId
+            }))
+            .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
+              let result = res.data;
+              if(result.status == 0){
+                if(result.data.list instanceof Array && result.data.list.length>0){
+                  this.peopleList = result.data.list;
+                }else{
+                  this.peopleList = [];
+                }
+              }else if(result.status == 9){
+              	this.login();
+              	return;
+              }else{
+                this.$Message.error('请求资源失败，请重试');            
+              }
+            } 
+            })
+            .catch((err)=>{
+                alert(err);
+            })
+        },
+        unfinishClick(item){
+        	if(item.itemType==1){
+        		this.$Message.warning({
+                    content: '请在伴学网app完成该任务！',
+                    duration: 2
+                });
+                return;
+        	}else if(item.itemType==2){
+	            this.$router.push({
+	              path:'/ClassDatile',
+	              query:{
+	                courseId:item.itemId          
+	              }
+	            });  
+        	}else if(item.itemType==3){
+        		this.deleteTask(item.id)
+        		this.$router.push({
+	              path:'/DetailResource',
+	              query:{
+	                resourceLocalId:item.itemId          
+	              }
+	            }); 
+        	}
+        }
 	},
 	created(){
 		this.getSpaceInfo();
+		// this.getUnfinishedList();
 		this.getFollowers();
 		this.getVisitors(1);
 		this.getSpaceDynamic();
@@ -686,7 +775,7 @@ export default {
 	}
 	.right .threeBtn{
 		width: 100%;
-		height: 220px;
+	    min-height: 220px;
 		background: #FFFFFF;
 		padding: 30px;
 	}

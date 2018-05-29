@@ -21,11 +21,15 @@
      function basicUrl(){
         var basePath='http://'+location.host;
         var pathnameArr=window.location.pathname.split('/');
-        return basePath+"/"+pathnameArr[1];
+        if(pathnameArr[1]!='MySpace'){
+           return basePath+"/"+pathnameArr[1];
+         }else{
+           return basePath+"/";
+         }
+       
     }
     window.UEDITOR_HOME_URL = basicUrl()+"/static/ueditor/";
     var URL = window.UEDITOR_HOME_URL || getUEBasePath();
-    // console.log(URL)
     /**
      * 配置项主体。注意，此处所有涉及到路径的配置别遗漏URL变量。
      */
@@ -36,7 +40,7 @@
 
         // 服务器统一请求接口路径
         ,
-        serverUrl : 'http://192.168.8.251/banxue/ueditor/web/exec'
+        serverUrl : 'http://localhost:8060/banxue/ueditor/exec'
 
         // 工具栏上的所有的功能按钮和下拉框，可以在new编辑器的实例时选择自己需要的重新定义
         ,
@@ -85,7 +89,7 @@
                        'paragraph', //段落格式
                        'fontfamily', //字体
                        'fontsize', //字号
-                       'simpleupload', //单图上传
+                       //'simpleupload', //单图上传
                        'insertimage', //多图上传
                        //'edittable', //表格属性
                        //'edittd', //单元格属性
@@ -352,10 +356,10 @@
 
         // elementPathEnabled
         // 是否启用元素路径，默认是显示
-        // ,elementPathEnabled : true
+        ,elementPathEnabled : false
 
         // wordCount
-        // ,wordCount:true //是否开启字数统计
+        ,wordCount:false //是否开启字数统计
         // ,maximumWords:10000 //允许的最大字符数
         // 字数统计提示，{#count}代表当前字数，{#leave}代表还可以输入多少字符数,留空支持多语言自动切换，否则按此配置显示
         // ,wordCountMsg:'' //当前已输入 {#count} 个字符，您还可以输入{#leave} 个字符

@@ -18,6 +18,14 @@ export default {
 				{title:'已购课程',path:'/MySpace/MinClasses/BuiedClass',id:'buiedClass'}
 			]		
         }
+	},
+	created(){
+		let userType=this.$storage.getStorage('userInfo').type;
+		if(userType==2){
+			this.classList=[
+				{title:'已购课程',path:'/MySpace/MinClasses/BuiedClass',id:'buiedClass'}
+			]
+		}
 	}	
 }
 </script>

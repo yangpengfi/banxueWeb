@@ -172,8 +172,7 @@ export default {
           formatSize:global_.formatSize,
           fileType:global_.setFileType,
           formatTime:global_.formatTime,
-          resourceList:[],
-
+          resourceList:[]
       }
     },
     watch:{
@@ -542,12 +541,10 @@ export default {
         pageChange(page){
             this.filter.pageIndex=page;
             this.getResourceList(this.filter)
-            // let data={pageIndex:page}
-            // this.getResourceList(data)
         } 
     },
     created() {
-        console.log(this.baseData.id)
+        // console.log(this.baseData.id)
         if(this.baseData.id){
             this.filter.periodId=this.baseData.periodId;
             this.filter.token=this.token;

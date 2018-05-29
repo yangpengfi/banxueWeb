@@ -2,7 +2,7 @@
   <div>
       <div id="banner">
         <Carousel autoplay v-model="value1" loop>
-            <CarouselItem v-for="item in bannerList">
+            <CarouselItem v-for="item in bannerList" :key="item.bannerId">
                 <div class="demo-carousel">
                     <img :src="item.imgPath">
                 </div>
@@ -35,7 +35,7 @@
                 <div class="result-content">
                     <div class="img">
                         <Carousel autoplay v-model="value2" loop>
-                            <CarouselItem v-for="item in newsInfoImgList">
+                            <CarouselItem v-for="item in newsInfoImgList" :key="item.newsInfoId">
                                 <div class="demo-carousel" @click="goDetail(item)">
                                     <img :src="item.imgPath">
                                     <span :title="item.title">{{item.title}}</span>

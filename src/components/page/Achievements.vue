@@ -7,7 +7,7 @@
 			<li @click="changeTitle(0)" :class="{active:nowId==0}">
 				<span></span>
 				<a href="javascript:void(0);">全部分类</a>
-				<b @click="modalClick">
+				<b @click="modalClick" v-show="!isHis">
 					<Icon type="ios-medical-outline" color="#999" size="20px" title="设置分类"></Icon>
 				</b>
 			</li>
@@ -21,20 +21,27 @@
 		</ul>
 	</div>
 	<div id="article-content">
-		<p class="article-btn">
+		<p class="article-btn" v-show="!isHis">
 			<button @click="toWrite">写文章</button>
 			<button @click="showBatch" :class="{active:ifBatch==true}">批量管理</button>
 		</p>
 		<div class="batch-modify" v-if="ifBatch">
-			<Checkbox v-model="single">全选</Checkbox>
-			<span>设置权限</span>
-			<span>修改分类</span>
-			<span>删除</span>
+			<input type="checkbox" v-model="single" @change="allSelect()" id="allSelect" />
+			<label for="allSelect">全选</label>
+			<span @click="clickSetOpen()">设置权限</span>
+			<span @click="clickUploadType()">修改分类</span>
+			<Poptip
+		        confirm
+		        title="是否要删除选中的文章?"
+		        @on-ok="sureDel"
+		        @on-cancel="cancelDel">
+				<span class="modifySpan">删除</span>
+			</Poptip>
 		</div>			
 		<ul class="content-list">
 			<li v-for="item of articleList">					
 				<p class="left contLink">
-					<Checkbox v-model="single" :value="item.articleId" v-if="ifBatch"></Checkbox>
+					<input type="checkbox" @change="singleSelect()" v-model="item.check" :value="item.articleId" v-if="ifBatch"/>
 					<span v-html="item.title" @click="goArticleId(item)"></span>
 				</p>
 				<div class="right">
@@ -42,14 +49,20 @@
 					<span>{{formatTime(item.createTime)}}</span>
 					<!-- <span class="nums">{{item.num}}/{{item.total}}</span>	 -->
 				</div>
-				<div class="edit">
+				<div class="edit" v-show="!isHis">
 					<p class="edit-title">
 						<span>编辑</span> 
 						<Icon type="arrow-down-b" color="#1caaf1"></Icon>
 					</p>
 					<div class="edit-content">
 						<span @click="clickSetOpen(item)">设置权限</span>
-						<span @click="delAtcal(item.articleId)">删除文章</span>
+						<Poptip
+					        confirm
+					        title="是否要删除这篇文章?"
+					        @on-ok="sureDel(item.articleId)"
+					        @on-cancel="cancelDel">
+							<span class="editSpan">删除文章</span>
+						</Poptip>
 						<span @click="clickUploadType(item)">修改分类</span>
 						<span @click="toTop(item.articleId)">置顶</span>
 					</div>
@@ -101,7 +114,7 @@
         @on-cancel="cancel3" width="300px">
         <div class="selBox">
         	<Select v-model="selTypeId" filterable>
-				<Option v-for="item in achList" :value="item.typeId">{{item.typeName}}</Option>
+				<Option v-for="item in achList" :value="item.typeId" :key="item.typeId">{{item.typeName}}</Option>
 			</Select>
         </div>
         <div slot="footer" style="text-align:center">
@@ -118,6 +131,7 @@ export default {
         return {
         	token:this.$storage.getStorage("token"),
 			achList:[],
+			selArticalId:[],
 			nowId:0,
 			articleList:[
 				{title:'《素书》相传为秦末黄石公作。民间视为奇书、天书。《素书》以道家思想为宗旨。',"createTime": 1525500298000,"articleId": 2,total:'20',num:'8'},
@@ -133,7 +147,8 @@ export default {
 			modal1: false,			
 			modal2: false,			
 			modal3: false,
-			userId:''			
+			userId:'',
+            isHis:true			
         }
 	},
 	methods:{
@@ -233,15 +248,52 @@ export default {
         modalClick(){
         	this.modal1=true;
         },
-		showBatch(){
+        sureDel(item){
+        	if(item){
+        		this.delAtcal(item);
+        	}else{
+        		this.delAtcal();
+        	}
+        },
+        cancelDel(){
+
+        },
+		showBatch(){//批量操作按钮
+			let vm=this;	
 			if(!this.ifBatch){
 				this.ifBatch = true;
-				this.single = false;				
+				this.single = false;
+				vm.selArticalId=[];
+				vm.articleList.forEach(item => {
+		            item.check = vm.single
+		        })		
 			}else{
 				this.ifBatch = false;
-				
 			}
 		},
+		allSelect(){//全选
+			let vm = this;
+			vm.selArticalId=[];
+	        vm.articleList.forEach(item => {
+	            item.check = vm.single
+	            if(vm.single){
+	            	vm.selArticalId.push(item.articleId)
+	            }
+	        })
+		},
+	    singleSelect() {//单选
+	        let vm = this;
+	        vm.selArticalId=[];
+	        let selectData = vm.articleList.filter(item => {
+	            return item.check == true
+	        })
+	        vm.articleList.forEach(item => {
+	        	if(item.check == true){
+	        		vm.selArticalId.push(item.articleId);
+	        	}
+	        })
+	        selectData.length == vm.articleList.length ? vm.single = true : vm.single = false;
+	    },
 		toWrite(){
 			this.$router.push('/MySpace/WriteArticle');
 		},
@@ -255,15 +307,19 @@ export default {
 			this.getArticleList(this.nowId); 			
 		},
 		clickSetOpen(item){
-			this.openStatus=item.openStatus;
-			this.articleId=item.articleId;
 			this.modal2 = true;
+			if(item){
+				this.openStatus=item.openStatus;
+				this.articleId=item.articleId;
+				this.selArticalId=[];
+				this.selArticalId.push(item.articleId);
+			}
 		},
         setOpen (openStatus) {
         	this.$http.post("/web/space/article/a/updateOpenStatus.do",this.$qs.stringify({
               token:this.token,
               openStatus:openStatus,
-              articleId:this.articleId
+              articleIds:JSON.stringify(this.selArticalId)
             }))
             .then((res)=>{
             if(res.status != 200){
@@ -272,9 +328,10 @@ export default {
               let result = res.data;
               if(result.status == 0){
               	this.getArticleList(this.nowId);
+              	this.$Message.success(result.message);  
               }else{ 
-                this.$Message.error('操作失败，请重试');      
-              }
+                this.$Message.error(result.message);      
+              }      
             } 
             })
             .catch((err)=>{
@@ -282,15 +339,19 @@ export default {
             })
         },
 		clickUploadType(item){
-			this.selTypeId=item.typeId;
-			this.articleId=item.articleId;
 			this.modal3 = true;
+			if(item){
+				this.selTypeId=item.typeId;
+				this.articleId=item.articleId;
+				this.selArticalId=[];
+				this.selArticalId.push(item.articleId);
+			}
 		},
         uploadType (typeId) {
         	this.$http.post("/web/space/article/a/updateTypeId.do",this.$qs.stringify({
               token:this.token,
               typeId:typeId,
-              articleId:this.articleId
+              articleIds:JSON.stringify(this.selArticalId)
             }))
             .then((res)=>{
             if(res.status != 200){
@@ -299,8 +360,9 @@ export default {
               let result = res.data;
               if(result.status == 0){
               	this.getArticleList(this.nowId);
+              	this.$Message.success(result.message);  
               }else{ 
-                this.$Message.error('操作失败，请重试');      
+                this.$Message.error(result.message);      
               }
             } 
             })
@@ -309,9 +371,13 @@ export default {
             })
         },
         delAtcal (articleId) {
+        	if(articleId){
+				this.selArticalId=[];
+				this.selArticalId.push(articleId);
+			}
         	this.$http.post("/web/space/article/a/deleteArticle.do",this.$qs.stringify({
               token:this.token,
-              articleId:articleId
+              articleIds:JSON.stringify(this.selArticalId)
             }))
             .then((res)=>{
             if(res.status != 200){
@@ -320,8 +386,9 @@ export default {
               let result = res.data;
               if(result.status == 0){
               	this.getArticleList(this.nowId);
+              	this.$Message.success(result.message);  
               }else{ 
-                this.$Message.error('操作失败，请重试');      
+                this.$Message.error(result.message);      
               }
             } 
             })
@@ -341,8 +408,9 @@ export default {
               let result = res.data;
               if(result.status == 0){
               	this.getArticleList(this.nowId);
+              	this.$Message.success(result.message);  
               }else{ 
-                this.$Message.error('操作失败，请重试');      
+                this.$Message.error(result.message);      
               }
             } 
             })
@@ -352,6 +420,7 @@ export default {
         },
 		getAchList(){
 			this.$http.post('/web/space/article/listArticleType.do',this.$qs.stringify({
+		      token:this.token,
               userId:this.userId
             }))
             .then((res)=>{
@@ -382,6 +451,7 @@ export default {
 			this.$http.post('web/space/article/listArticle.do',this.$qs.stringify({
 			  typeId:tId||0,
 			  pageSize:10,
+			  token:this.token,
               userId:this.userId
             }))
             .then((res)=>{
@@ -415,6 +485,12 @@ export default {
 		}
 	},
 	created(){
+        let whoSpace=window.location.hash.split('/')[1];
+        if(whoSpace=='ShowSpace'){
+            this.isHis=true;
+        }else{
+            this.isHis=false;
+        }
 		this.userId=this.$router.history.current.query.userId;
 		if(!this.userId){
 			this.userId=this.$storage.getStorage("userInfo").id;
@@ -554,9 +630,9 @@ export default {
 	.authorityInput input{
 		margin-left: 100px;
 	}
-	/*修改文章分类*/
-	.selBox{
-
+	input[type="checkbox"]{
+		margin:5px 10px;    
+		vertical-align: middle;
 	}
 </style>
 

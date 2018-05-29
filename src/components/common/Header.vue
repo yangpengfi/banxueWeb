@@ -3,12 +3,13 @@
     <div id="header" class="w-1200">    
       <div class="left">
           <div class="logo">
-            <img src="../../assets/imgs/index/webtitlelogo.png" alt="这是logo图片">
+            <!-- <img src="../../assets/imgs/index/webtitlelogo.png" alt="这是logo图片"> -->
+            <img :src="logoUrl" alt="这是logo图片">
           </div>        
-          <div class="title">
+          <!-- <div class="title">
             <div>伴学网教育云平台</div>
             <p>专注中小学个性化教育</p>
-          </div>
+          </div> -->
           <div class="address">
             <!-- <span href="#">运营千城计划</span>
             <p>
@@ -45,10 +46,24 @@ export default {
       ],
       isLogin:false,
       nowId:'',
-      userInfo:''
+      userInfo:'',
+      logoUrl:''
     }
   },
   methods:{
+    getLogo(){
+      this.$http.post('web/space/logo.do')
+        .then((res)=>{
+        if(res.data.status==0){
+            this.logoUrl=res.data.data.logoPath
+        }else{
+            this.$Message.error(res.data.message);
+        }
+        })
+        .catch((err)=>{
+            alert(err);
+        })
+    },
     toBanxue(){
       this.$router.push('/DownLoadApp');
     },
@@ -123,6 +138,7 @@ export default {
      }
   },
   created(){
+    this.getLogo();
     if(!this.$storage.getStorage("userInfo")){
       this.isLogin=false;
     }else{
@@ -149,20 +165,25 @@ export default {
   height:120px;
   margin: auto;  
   overflow: hidden;
-  padding-top: 34px; 
+  padding-top: 25px; 
 }
 #header>div.left{
   overflow: hidden;  
-	height: 53px;
+	height: 80px;
 }
 #header>.left>div{
   float: left;
 }
 .logo{
   margin-right: 10px;
+  width: 240px;
+  position: relative;
 }
 .logo img{
-  height: 53px;
+  position: absolute;
+  height: 120px;
+  z-index: 120;
+  top: -25px;
 }
 .title{
   text-align: center;

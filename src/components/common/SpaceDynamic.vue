@@ -12,7 +12,7 @@
                   <span class="right"><Icon type="ios-time-outline"></Icon> {{new Date(item.createTime).Format("yyyy-M-d hh:mm:ss")}}</span>
                   <!-- <span class="right"><Icon type="ios-time-outline"></Icon> {{new Date(item.createTime).getMinutes()}}分钟</span> -->
                 </p>
-                <p>{{item.title}} <span @click="toInfo(item)" :title="item.name">{{item.name}}</span></p>
+                <p>{{item.title}} <span @click="toInfo(item)" :title="item.name" v-html="item.name"></span></p>
             </div>
         </li>
     </ul>

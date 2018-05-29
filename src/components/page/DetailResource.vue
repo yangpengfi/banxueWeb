@@ -9,9 +9,9 @@
                     <div class="viewBox" v-show="!isMember"></div>
                     <!-- <div id="reader" v-show="isPfd"></div> -->
                     <iframe src="http://ow365.cn/?i=15549&furl=http://www.mybanxue.com:86/resource/zxxk/6940294.doc" v-show="isPfd" frameborder="0" width="100%" height="500" id="reader"></iframe>
-                    <video :src="resourceUrl" controls="controls" controlslist="nodownload" v-show="isVideo"></video>
-                    <audio :src="resourceUrl" controls="controls" controlslist="nodownload" v-show="isAudio"></audio>
-                    <img :src="resourceUrl" v-show="isImg">
+                    <video :src="resourcePreviewUrl" controls="controls" controlslist="nodownload" v-show="isVideo"></video>
+                    <audio :src="resourcePreviewUrl" controls="controls" controlslist="nodownload" v-show="isAudio"></audio>
+                    <img :src="resourcePreviewUrl" v-show="isImg">
                     <div class="noMember" v-if="!isMember">
                         <b>如需阅读或下载完整版，请登录APP</b>
                         <span>开通会员</span>
@@ -87,6 +87,7 @@ export default {
             resourceLocalId:0,
             resourceDetail:{},
             resourceUrl:'',
+            resourcePreviewUrl:'',
             articleStar:5,
             recommendStar:0,
             recommendSearch:[],
@@ -153,6 +154,7 @@ export default {
                 this.isCollect=this.resourceDetail.isCollect;
                 if(this.isMember){
                   this.getResourceLocalUrl(rId);
+                  this.getResourceLocalPreviewUrl(rId);
                   this.viewInit(res.data.data);  
                 }
             }else{
@@ -175,7 +177,7 @@ export default {
                 this.isAudio=0;
                 this.isPfd=0;
                 this.getListResourceComment();
-                this.resourceUrl=res.data.data.server+res.data.data.videoUrl;
+                this.resourcePreviewUrl=res.data.data.server+res.data.data.videoUrl;
                 this.resourceDetail=res.data.data;
                 this.isCollect=res.data.data.isCollect;
             }else{
@@ -261,6 +263,22 @@ export default {
             alert(err);
             }) 
         },
+        getResourceLocalPreviewUrl(){
+            this.$http.post('/web/coursebook/a/getResourceLocalPreView4Web.do',this.$qs.stringify({
+                token:this.token,
+                resourceLocalId:this.resourceLocalId
+            }))
+            .then((res)=>{
+            if(res.data.status==0){
+               this.resourcePreviewUrl=res.data.data;
+            }else{
+              this.$Message.info(res.data.message);
+            }
+            })
+            .catch((err)=>{
+            alert(err);
+            }) 
+        },
         getBceDocumentPreView(){//百度预览
             this.$http.post('/web/coursebook/a/getBceDocumentPreView.do',this.$qs.stringify({
                 token:this.token,
@@ -286,7 +304,7 @@ export default {
                     enviroment: 'online'
                 };*/
                 // new Document('reader', option);
-               document.getElementById('reader').src="http://ow365.cn/?i=15549&furl="+res.data.data.viewUrl;
+               document.getElementById('reader').src=this.$previewURL+res.data.data.viewUrl;
             }else{
               this.$Message.info(res.data.message);
             }

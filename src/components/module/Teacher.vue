@@ -113,7 +113,7 @@ export default {
 	        fr.readAsDataURL(obj);
 
         },
-        submit(){
+        submit(event){
         	event.preventDefault();//取消默认行为
   			let formdata = new FormData();
 
@@ -157,6 +157,7 @@ export default {
               let result = res.data;
               if(result.status == 0){
           	  	this.$Message.success(result.message);
+          	  	this.getTeacherInfo();
               }else{ 
                 this.$Message.error(result.message);      
               }

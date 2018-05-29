@@ -21,7 +21,18 @@ export default {
                 {title:'访问权限',path:'/MySpace/PersonalCenter/Authority',id:'authority'}
             ]
         }
-    }   
+    },
+    created(){
+        let userType=this.$storage.getStorage('userInfo').type;
+        if(userType==2){
+            this.personInfoList=[
+                {title:'个人资料',path:'/MySpace/PersonalCenter/PersonInfoStudent',id:'personInfo'},   
+                {title:'班级信息',path:'/MySpace/PersonalCenter/ClassInfo',id:'classInfo'},   
+                {title:'修改密码',path:'/MySpace/PersonalCenter/ChangePassword',id:'changePassword'},   
+                {title:'访问权限',path:'/MySpace/PersonalCenter/Authority',id:'authority'}
+            ]
+        }
+    }    
 }
 </script>
 <style scoped>

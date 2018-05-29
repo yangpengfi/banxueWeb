@@ -8,10 +8,10 @@
 			<div class="articleForm">
 				<p>
 					<span>标题：</span>
-					<input type="text" v-model="title" class="titleTxt"/>
+					<input type="text" v-model="title" class="titleTxt" maxlength="80px" title="长度不超过80"/>
 				</p>
 				<p>
-					<span>内容：</span>
+					<span class="vtop">内容：</span>
 					 <UE :defaultMsg="defaultMsg" :config="config" ref="ue"></UE>
 				</p>
 				<p>
@@ -44,7 +44,7 @@ export default {
   		title:"",
   		typeId:0,
   		openStatus:1,
-  		defaultMsg: '文章内容',
+  		defaultMsg: '',
         config: {
           initialFrameWidth: null,
           initialFrameHeight: 200
@@ -64,9 +64,7 @@ export default {
               let result = res.data;
               if(result.status == 0){
               	this.achList = result.data; 
-              }else if(result.status == 9){
-              	global_.login();
-              	return;
+              	this.typeId=this.achList.filter(item => {return item.type == 'no_type'})[0].typeId
               }else{ 
                 this.$Message.error(result.message);      
               }
@@ -77,6 +75,19 @@ export default {
             })
 		},
 		creatAtcal(){
+			if(!this.title){
+				this.$Message.warning({
+                    content: '标题不能为空！',
+                    duration: 2
+                });
+                return;
+			}else if(!this.$refs.ue.getUEContent()){
+				this.$Message.warning({
+                    content: '内容不能为空！',
+                    duration: 2
+                });
+                return;
+			}
 			this.$http.post('/web/space/article/a/createArticle.do',this.$qs.stringify({
               typeId:this.typeId,
               content:this.$refs.ue.getUEContent(),
@@ -147,6 +158,8 @@ export default {
 		display: inline-block;
 		width: 70px;
 		text-align: right;
+	}
+	.vtop{
 		vertical-align: top;
 	}
 	.articleForm .titleTxt{
@@ -160,8 +173,8 @@ export default {
 		margin-top: 20px;
 	}
 	.articleTyep{
-		width: 360px;
-		height: 40px;
+		width: 350px;
+		height: 30px;
 		border: 1px solid #e9e9e9;
 		outline: none;
 		color: #666666;

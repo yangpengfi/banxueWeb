@@ -9,7 +9,7 @@
             <a href="http://www.ncet.edu.cn/">中央电化教育馆</a>
             <a href="http://www.ict.edu.cn/">中国教育信息化网</a>
           </p>
-          <p class="call">平台提供：深圳市异度信息产业有限公司 <br/>
+          <p class="call">平台提供：福建广电网络集团&nbsp;&nbsp;深圳市异度信息产业有限公司 <br/>
           服务热线：0755-26606739 
           <span></span>联系邮箱：partners@eddue.com
           </p>
@@ -23,7 +23,7 @@
       <div class="copy">
           <p class="w-1200">
             <span>Copyright@ 2016</span>
-            <span>深圳市异度信息产业有限公司</span>
+            <span> 深圳市异度信息产业有限公司</span>
             <span>保留所有版权（测试版）</span>   
             <span class="icp">ICP备15117359号</span>
           </p>

@@ -493,7 +493,7 @@ a:hover,a:active {
     padding: 10px;
     border: 1px solid #e9e9e9;
 }
-#article-content .batch-modify>span{
+#article-content .batch-modify>span,.modifySpan{
     margin-left: 20px;
     color: #50a7ff;
     cursor: pointer;
@@ -529,12 +529,16 @@ a:hover,a:active {
     color: #50a7ff;	
     display: none;
 }
-#article-content .edit-content span{
+#article-content .edit-content .ivu-poptip{
+    text-align: left;
+}
+#article-content .edit-content>span,.editSpan{
     display: block;
     height: 36px;
     line-height: 36px;
     cursor: pointer;
-    border-bottom:1px solid #e9e9e9;		
+    padding: 0px 20px;
+    border-bottom:1px solid #e9e9e9!important;		
 }
 #article-content .edit-content span:last-child{
     border:none;		

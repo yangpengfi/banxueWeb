@@ -4,8 +4,10 @@
 				<ul>
 					<li v-for="item of focusList">
 						<img :src="item.logo" @click="goSpaceShow(item)"/>						
-						<p @click="goSpaceShow(item)">{{item.userName}}</p>						
-						<button class="out" @click="unFollow(item)">取消关注</button>
+						<p @click="goSpaceShow(item)">{{item.userName}}</p>	
+            <div v-show="!isHis"> 					
+						    <button class="out" @click="unFollow(item)">取消关注</button>
+            </div>
 					</li>					
 				</ul>
 			</div>
@@ -16,7 +18,9 @@ export default {
     name:'FocusLink',
     data(){
         return {
-            focusList:[]
+            focusList:[],
+            isHis:true,
+            userId:0
         }
     },
     methods:{
@@ -26,7 +30,7 @@ export default {
         getFollowers(){//获取关注列表
             this.$http.post('/web/space/followers.do',this.$qs.stringify({
               pageSize:9,
-              userId:this.$storage.getStorage("userInfo").id
+              userId:this.userId
             }))
             .then((res)=>{
             if(res.status != 200){
@@ -75,6 +79,16 @@ export default {
         }
     },
     created(){
+        this.userId=this.$router.history.current.query.userId;
+        if(!this.userId){
+            this.userId=this.$storage.getStorage("userInfo").id
+        }
+        let whoSpace=window.location.hash.split('/')[1];
+        if(whoSpace=='ShowSpace'){
+            this.isHis=true;
+        }else{
+            this.isHis=false;
+        }
     	this.getFollowers();
     }
 }

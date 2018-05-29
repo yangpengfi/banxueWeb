@@ -4,7 +4,7 @@
 			<a href="javascript:void(0);">访问权限</a> 
 		</p>
 		<div class="boderImg">
-			<img src="../../assets/imgs/space/headImg.png"/>
+			<img src="../../assets/imgs/space/AccessPermissions.png"/>
 		</div>
 		<p class="authority">设置谁可以访问我的空间</p>
 			
@@ -23,11 +23,12 @@ export default {
 	name:'Authority',
 	data(){
 		return {
-			openStatus:1	
+			openStatus:1,
+			myInfo:this.$storage.getStorage("userInfo") ,	
 		}
 	},
 	methods:{
-		update(status){
+		update(status,flag){
 			this.$http.post('/web/space/a/updateOpenStatus.do',this.$qs.stringify({
               openStatus:status,
               token:this.$storage.getStorage("token")
@@ -37,10 +38,12 @@ export default {
               this.$Message.error('请求失败请重试');
             }else{
               let result = res.data;
-              if(result.status != 0){
-                this.$Message.error('请求资源失败，请重试');
+              if(result.status == 0){
+              	if(!flag){
+                	this.$Message.success(result.message); 
+                }  
               }else{ 
-                // this.$Message.info(result.message);         
+                this.$Message.error(result.message);         
               }
             } 
             })
@@ -50,7 +53,7 @@ export default {
 		}
 	},
 	created(){
-		this.update(1);
+		this.update(1,true);
 	}
 }
 </script>

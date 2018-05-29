@@ -2,7 +2,8 @@
   <div id="login">
       <header id="login-header">
         <div class="logo-top">
-          <img src="../../assets/imgs/login/loginlogo.png" @click="goIndex"/>         
+          <!-- <img src="../../assets/imgs/login/loginlogo.png" @click="goIndex"/>          -->
+          <img :src="logoUrl" alt="这是logo图片" @click="goIndex">      
         </div>
       </header>
       <section id="section">
@@ -56,9 +57,23 @@ export default {
           errorMsg:'',
           mobile:'',
           pwd:'',
+          logoUrl:'',
       }
     },
     methods:{
+      getLogo(){
+        this.$http.post('web/space/logo.do')
+          .then((res)=>{
+          if(res.data.status==0){
+              this.logoUrl=res.data.data.logoPath
+          }else{
+              this.$Message.error(res.data.message);
+          }
+          })
+          .catch((err)=>{
+              alert(err);
+          })
+      },
       goIndex(){
         this.$router.push({path:'/'});
       },
@@ -91,6 +106,9 @@ export default {
         // console.log(111)
         this.error=false;
       }
+    },
+    created(){
+      this.getLogo();
     }
 }
 </script>
@@ -107,12 +125,12 @@ export default {
 .logo-top{
     width: 1200px;
     margin: 0 auto;    
-    padding-top: 10px;
+    /*padding-top: 10px;*/
     padding-left: 20px;
 }
 #section{
   position: absolute;
-  top: 100px;
+  top: 120px;
   right: 0;
   left: 0;
   bottom: 80px;

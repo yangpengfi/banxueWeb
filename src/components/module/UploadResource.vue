@@ -38,7 +38,7 @@
 				<button class="left" @click="searchResource">搜索</button>
 			</div>
 		</div>
-		<div class="operator">			
+		<div class="operator" v-show="!isHis">			
 			<button @click="toLoadResource">上传</button>
 			<button v-if="resourceList.length>1" @click="showBatch" :class="{active:ifBatch==true}">批量设置</button>
 		</div>		
@@ -75,7 +75,7 @@
 							<span>{{item.bname3 = item.bname3 == "无"?'':item.bname3}}</span>
 							<span class="upTime">上传时间：{{item.createTime | formatTime}}</span>
 						</div>
-						<div class="set">
+						<div class="set" v-show="!isHis">
 							<span @click="setClassify(item.resourceLocalId)">设置类别</span>
 							<span @click="moveResource(item)">移动</span>
 							<span @click="shareResource(item.resourceLocalId)" v-if="item.uploadUserShareStatus == 0">分享</span>
@@ -240,7 +240,9 @@ export default {
 				shareInfo:'分享资源成功',
 				pushInfo:'推送资源成功',
 				setInfo:'设置类别成功'
-			}
+			},
+            isHis:true,
+            userId:0
 	  	}
 	},
 	filters: {
@@ -419,7 +421,8 @@ export default {
 				textbookId:this.textBookId,
 				pageIndex:this.params.pageIndex,
 				pageSize:this.params.pageSize,
-				token:this.params.token
+				token:this.params.token,
+				userId:this.userId
 			})).then(res => {	
 				if(res.status != 200){
 					this.$Message.error(this.msg.reqError);
@@ -952,7 +955,14 @@ export default {
 		}
 		
 	},
-	created:function(){  		
+	created:function(){
+		this.userId=this.$router.history.current.query.userId;
+		let whoSpace=window.location.hash.split('/')[1];
+        if(whoSpace=='ShowSpace'){
+            this.isHis=true;
+        }else{
+            this.isHis=false;
+        }  		
 		this.getResourceList();
     },	
 }

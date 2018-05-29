@@ -28,7 +28,7 @@
                 <textarea  rows="8" v-model="comment" placeholder="发表你的精彩评论啦"></textarea>
             </div>
             <div class="res-quality">
-                <span>资源质量：</span> <Rate v-model="recommendStar"></Rate><br>
+                <span>App质量：</span> <Rate v-model="recommendStar"></Rate><br>
                 <button @click="createResourceComment" class="myButton">发表评论</button>
             </div>
             

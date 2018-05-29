@@ -197,7 +197,7 @@ export default {
             .then((res)=>{
             if(res.data.status==0){
                this.resourceUrl=res.data.data.url;
-               document.getElementById('reader').src="http://ow365.cn/?i=15549&furl="+res.data.data.viewUrl;
+               document.getElementById('reader').src=this.$previewURL+res.data.data.viewUrl;
             }else{
               this.$Message.info(res.data.message);
             }

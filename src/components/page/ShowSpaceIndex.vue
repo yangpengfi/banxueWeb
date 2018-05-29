@@ -19,7 +19,7 @@
 			<div class="myView">
 				<p class="viewTitle total-visitor">
 					最近访客
-					<span>{{vTotal}}次</span>
+					<span>总浏览：{{vTotal}}次</span>
 				</p>
 				<ul class="viewCont">
 					<li class="marginTop" v-for="item of visitorList">
@@ -106,7 +106,8 @@
                         </p>
                         <div>
                             <Rate v-model="item.score"></Rate>
-                            <span>{{item.collectNum}}/{{item.browseNum}}</span>
+                            <!-- <span>{{item.collectNum}}/{{item.browseNum}}</span> -->
+                            <span>{{item.commentNum}}/{{item.browseNum}}</span>
                         </div>
                     </li>
                 </ul>
@@ -132,9 +133,14 @@
                             </p>
                         </div>
                         <div class="dynamic-operate">
-                            <p>
-                                <span>赞</span><!-- <span class="color9">已赞</span> -->{{item.likeCount}}
-                                <span>转发</span><!-- <span class="color9">已转发</span> -->{{item.reprintCount}}
+                            <p v-if="item==2">
+                                <span>赞</span>{{item.likeCount}}
+                                <span>转发</span>{{item.reprintCount}}
+                                <span>评论</span> {{item.commentCount}}
+                            </p>
+                            <p v-else>
+                                <span>浏览</span>{{item.readCount}}
+                                <span>收藏</span>{{item.collectCount}}
                                 <span>评论</span> {{item.commentCount}}
                             </p>
                             <p class="time">
@@ -157,28 +163,28 @@ export default {
     data () {
         return {
         	token:this.$storage.getStorage("token"),
-            userId:0,
-            peopleList:[],
-            visitorList:[],
-            vTotalCount:0,
-            vTotal:25,
-            currPage:1,
-            visitorCount:{
-            	"todayCount": 10,
-      			    "totalCount": 154
-      			},
-            score:5,
-            newAchList:[],
-            resourceList:[],
-            latestNews:[],
-            messageList:[],
-            comment:'',
-            commentTotalCount:0,
-            commentCurrPage:1,
-            pidx:1,
-            isLogin:false,
-            hasMore:false,
-            formatTime:global_.formatTime
+          userId:0,
+          peopleList:[],
+          visitorList:[],
+          vTotalCount:0,
+          vTotal:25,
+          currPage:1,
+          visitorCount:{
+          	"todayCount": 10,
+  			    "totalCount": 154
+    			},
+          score:5,
+          newAchList:[],
+          resourceList:[],
+          latestNews:[],
+          messageList:[],
+          comment:'',
+          commentTotalCount:0,
+          commentCurrPage:1,
+          pidx:1,
+          isLogin:false,
+          hasMore:false,
+          formatTime:global_.formatTime
         } 
     },
     methods:{
@@ -237,29 +243,6 @@ export default {
           this.$router.replace({
              name:"Login",
              query: {redirect: this.$router.currentRoute.fullPath}
-            })
-        },
-        getSpaceInfo(){
-            this.$http.post('web/space/spaceInfo.do',this.$qs.stringify({
-              userId:this.userId
-            }))
-            .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
-              let result = res.data;
-              if(result.status == 0){
-                this.spaceInfo = result.data; 
-              }else if(result.status == 9){
-                this.login();
-                return;
-              }else{ 
-                this.$Message.error(result.message);      
-              }
-            } 
-            })
-            .catch((err)=>{
-                alert(err);
             })
         },
         getFollowers(){//获取关注列表
@@ -426,7 +409,8 @@ export default {
     			this.$http.post('web/space/article/listArticle.do',this.$qs.stringify({
     			  typeId:tId||0,
     			  pageSize:5,
-                  userId:this.userId
+                  userId:this.userId,
+                   token:this.token
                 }))
                 .then((res)=>{
                 if(res.status != 200){
@@ -451,30 +435,55 @@ export default {
                     alert(err);
                 })
     		},
-    		getResource(){//获取资源列表
-    			this.$http.post('/web/coursebook/listUserUploadResource.do',this.$qs.stringify({
-    			  pageSize:5,
-                  userId:this.userId
-                }))
-                .then((res)=>{
-                if(res.status != 200){
-                  this.$Message.error('请求失败请重试');
-                }else{
-                  let result = res.data;
-                  if(result.status == 0){
-                  	if(result.data.list instanceof Array && result.data.list.length>0){
-                  	  this.resourceList = result.data.list;
-                    }else{
-                      this.resourceList = [];
-                    };
-                  }else{ 
-                    this.$Message.error(result.message);      
-                  }
-                } 
-                })
-                .catch((err)=>{
-                    alert(err);
-                })
+        getResource(){//获取资源列表
+          this.$http.post('/web/coursebook/listUserUploadResource.do',this.$qs.stringify({
+            pageSize:5,
+            userId:this.userId
+          }))
+          .then((res)=>{
+          if(res.status != 200){
+            this.$Message.error('请求失败请重试');
+          }else{
+            let result = res.data;
+            if(result.status == 0){
+              if(result.data.list instanceof Array && result.data.list.length>0){
+                this.resourceList = result.data.list;
+              }else{
+                this.resourceList = [];
+              };
+            }else{ 
+              this.$Message.error(result.message);      
+            }
+          } 
+          })
+          .catch((err)=>{
+              alert(err);
+          })
+        },
+    		getResourceStudent(){//获取资源列表
+    			this.$http.post('/web/coursebook/listUserCollectResource.do',this.$qs.stringify({
+		        pageSize:5,
+            userId:this.userId
+          }))
+          .then((res)=>{
+          if(res.status != 200){
+            this.$Message.error('请求失败请重试');
+          }else{
+            let result = res.data;
+            if(result.status == 0){
+            	if(result.data.list instanceof Array && result.data.list.length>0){
+            	  this.resourceList = result.data.list;
+              }else{
+                this.resourceList = [];
+              };
+            }else{ 
+              this.$Message.error(result.message);      
+            }
+          } 
+          })
+          .catch((err)=>{
+              alert(err);
+          })
     		},
         getSpaceDynamic(pidx,more){//获取最新动态
             this.$http.post('web/space/listUserSpaceDynamic.do',this.$qs.stringify({
@@ -531,21 +540,25 @@ export default {
         }
     },
     created(){
-        this.userId=this.$router.history.current.query.userId;
-        if(!this.userId){
-            this.userId=this.$storage.getStorage("userInfo").id
-        }
+      this.userId=this.$router.history.current.query.userId;
+      let userType=this.$storage.getStorage("spaceInfo").userType;
+      if(userType==2){
+        this.getResourceStudent();
+      }else{
+        this.getResource();
+      }
 	    if(!this.$storage.getStorage("userInfo")){
 	      this.isLogin=false;
 	    }else{
 	      this.isLogin=true;
 	    }
+
         this.getFollowers();
         this.getVisitorCount();
         this.getVisitors(1);
         this.getSpaceComment(1);
         this.getArticleList(0);
-        this.getResource();
+        
         this.getSpaceDynamic();
     }
 }

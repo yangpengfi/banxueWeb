@@ -7,7 +7,7 @@
                 <div>
                     <h2 @click="goDetail(item)">{{item.appName}}</h2>
                     <p><Rate v-model="item.score" disabled></Rate></p>
-                    <p class="file-size">大小：{{item.appSize}}M</p>
+                    <!-- <p class="file-size">大小：{{item.appSize}}M</p> -->
                     <p v-if="item.isCharge==0"><Button type="success">免费</Button></p>
                     <p v-if="item.isCharge==1"><Button type="success">收费</Button></p>
                 </div>

@@ -107,7 +107,10 @@ export default {
                     this.toLogin();
                 }, 3000);
             }else{
-
+                this.$Message.error({
+                    content: res.data.message,
+                    duration: 2
+                });
             }
             })
             .catch((err)=>{

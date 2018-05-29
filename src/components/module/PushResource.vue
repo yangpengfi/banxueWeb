@@ -21,8 +21,9 @@
 						<div class="sub-title">
 							<span>{{item.periodName}}</span>
 							<span>{{item.subjectName}}</span>
-							<span>{{item.toClassName}}</span>
-							<span class="upTime">上传时间：{{item.createTime | formatTime}}</span>
+							<span v-show="userType==1">{{item.toClassName}}</span>
+							<span v-show="userType==2">{{item.userName}}</span>
+							<span class="upTime">推送时间：{{item.createTime | formatTime}}</span>
 						</div>						
 					</div>	
 				</div>									
@@ -54,7 +55,10 @@ export default {
 			msg:{
 				reqError:'请求失败请重试',
 				resError:'请求资源失败，请重试'
-			}
+			},
+            isHis:true,
+            userId:0,
+            userType:1
 	  	}
 	},
 	filters: {
@@ -92,10 +96,6 @@ export default {
 			var year = d.getFullYear();
 			var month = d.getMonth() + 1;
 			var day = d.getDate();
-			// var day = d.getDate() <10 ? '0' + d.getDate() : '' + d.getDate();
-			// var hour = d.getHours();
-			// var minutes = d.getMinutes();
-			// var seconds = d.getSeconds();
 			return  year+ '-' + month + '-' + day;
 		}
 	},
@@ -122,6 +122,7 @@ export default {
 		getResourceList(){
 			this.$http.post('/web/coursebook/a/listResourcePushToMe.do',qs.stringify({
 				name:this.name,
+				userId:this.userId,
 				classId:this.models.parentClass,
 				pageIndex:this.params.pageIndex,
 				pageSize:this.params.pageSize,
@@ -164,7 +165,17 @@ export default {
 			this.getResourceList();
 		}
 	},
-	created:function(){  	
+	created:function(){ 
+		this.userId=this.$router.history.current.query.userId;
+		let whoSpace=window.location.hash.split('/')[1];
+		
+        if(whoSpace=='ShowSpace'){
+        	this.userType=this.$storage.getStorage("spaceInfo").userType
+            this.isHis=true;
+        }else{
+			this.userType=this.$storage.getStorage("userInfo").type
+            this.isHis=false;
+        } 	
 		this.getPushResource();	
 		this.getResourceList();
     },
