@@ -13,10 +13,10 @@
 		<ul class="resourceCont" v-if="resourceList.length>0">
 			<li v-for="item of resourceList">
 				<div>
-					<img :src="item.fileSuffix | fillType"/>				
+					<img :src="item.fileSuffix | fillType" @click="toDetailResource(item)"/>				
 					<div class="doc-content">
 						<p class="doc-title">
-							<span>{{item.resourceName}}</span> 							
+							<span @click="toDetailResource(item)">{{item.resourceName}}</span> 	
 						</p>
 						<div class="sub-title">
 							<span>{{item.periodName}}</span>
@@ -62,7 +62,8 @@ export default {
 	  	}
 	},
 	filters: {
-		fillType: function (value) {
+		fillType: function (val) {
+			let value=val.toLowerCase()
 			if (!value){ return ''}
 			if(value == 'doc'|| value == 'docx'){
 				value = './static/imgs/resource/fileDoc.png'
@@ -100,8 +101,18 @@ export default {
 		}
 	},
 	methods:{
+        toDetailResource(item){
+    		this.$router.push({
+              path:'/DetailResource',
+              query:{
+                resourceLocalId:item.resourceId,
+	            push:1                    
+              }
+            }); 
+        },
 		getPushResource(){
-			this.$http.post('/web/class/a/listJoinClassInfo.do',qs.stringify({
+			this.$http.post('/web/class/listJoinClassInfo.do',qs.stringify({
+				userId:this.userId,
 				token:this.params.token
 			})).then(res => {	
 				if(res.status != 200){
@@ -115,12 +126,10 @@ export default {
 					}
 				}			
 				
-			}).catch(function (error) {
-				alert(error);
-			});
+			}) 
 		},
 		getResourceList(){
-			this.$http.post('/web/coursebook/a/listResourcePushToMe.do',qs.stringify({
+			this.$http.post('/web/coursebook/listResourcePushToMe.do',qs.stringify({
 				name:this.name,
 				userId:this.userId,
 				classId:this.models.parentClass,
@@ -144,9 +153,7 @@ export default {
 					}
 				}			
 				
-			}).catch(function (error) {
-				alert(error);
-			});
+			}) 
 		},
 		searchResource(){	
 			if(this.name.trim() == ''){

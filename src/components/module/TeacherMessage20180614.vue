@@ -65,9 +65,9 @@
 		        	<p>
 			        	<span class="absolute"><i style="color:red">*</i> 任教学科:</span>
 			        	<ul>
-			        		<li v-for="item in classSubjectList">
+			        		<li v-for="item in classNameAndSubject.subjects">
 			        			<span>{{item.subjectName}}</span>&nbsp;
-			        			<span @click="delSubject(item)">
+			        			<span @click="delSubject(item.subjectId)">
 			        				<Icon type="ios-minus" size="20px" color="red"></Icon>
 			        			</span>
 			        		</li>
@@ -104,9 +104,9 @@
 		        	<p>
 			        	<span class="absolute">任教学科:</span>
 			        	<ul>
-			        		<li v-for="item in classSubjectList">
+			        		<li v-for="item in classNameAndSubject.subjects">
 			        			<span>{{item.subjectName}}</span>&nbsp;
-			        			<span @click="delSubject(item)">
+			        			<span @click="delSubject(item.subjectId)">
 			        				<Icon type="ios-minus" size="20px" color="red"></Icon>
 			        			</span>
 			        		</li>
@@ -126,13 +126,13 @@
 		        <div class="modalBox">
 		        	<p class="marginB">
 		        		<span>所授学科</span>
-		        		<select v-model="subjectId" id="sub">
+		        		<select v-model="subjectId">
 		        			<option v-for="item in subjectList" :value="item.subjectId">{{item.subjectName}}</option>
 		        		</select>
 		        	</p>
 		        	<p class="marginB">
 		        		<span>任教教材</span>
-		        		<select v-model="versionId" id="ver">
+		        		<select v-model="versionId">
 		        			<option v-for="item in versionList" :value="item.id">{{item.name}}</option>
 		        		</select>
 		        	</p>
@@ -195,17 +195,17 @@
 	    	<p class="groupTitle">
 	    		<span>所授学科：</span>
 	    		<select v-model="subjectsTaughtId">
-	    			<option v-for="item in classNameAndSubject.subjects" :value="item.id">{{item.subjectName}}</option>
+	    			<option v-for="item in classNameAndSubject.subjects" :value="item.subjectId">{{item.subjectName}}</option>
 	    		</select>
 	    		<span @click="back" class="backBtn">返回</span>
 	    	</p>
     		<span class="addGroupBtn" @click="addClassGroup">添加分组</span>
 	    	
-	    	<table class="groupList" border="1">
-	    		<tr v-for="item in groupList" v-if="item.groupId!='-1'">
-	    			<td :title="item.groupName">{{item.groupName}}</td>
-	    			<td>{{item.userName}}&nbsp;</td>
-	    			<td class="groupBtn">
+	    	<ul class="groupList">
+	    		<li v-for="item in groupList">
+	    			<span :title="item.groupName">{{item.groupName}}</span>
+	    			<span>{{item.userName}}&nbsp;</span>
+	    			<span class="groupBtn">
 	    				<span class="mr20" @click="editClassGroup(item.groupId)">编辑</span>
 	    				<Poptip
 				        confirm
@@ -214,9 +214,9 @@
 				        @on-cancel="cancelDel">
 	    				<span>删除</span>
 	    				</Poptip>
-    				</td>
-	    		</tr>
-	    	</table>
+	    			</span>
+	    		</li>
+	    	</ul>
 	    	<Modal
 	        v-model="addGroupModal"
 	        title="添加分组"
@@ -314,7 +314,6 @@ export default {
             userIds:[],
             classGroupInfo:{},
             subjectsTaughtId:0,
-            mySubjectId:0,
             addGroupModal:false,
             editGroupModal:false,
             groupId:0,
@@ -348,27 +347,26 @@ export default {
             this.getClassGroupList();
 		},
 		clearList(news,olds){
-			this.classSubjectList = [];
+			this.classNameAndSubject={};
 		},
-		ok(){//加入班级
+		ok(){
 			if(!this.classCode){
                 this.$Message.warning({
                     content: '请输入班级邀请码！',
                     duration: 2
                 });
                 return;
-            }else if(this.classSubjectList.length<1){
+            }else if(!this.classNameAndSubject.subjects){
             	this.$Message.warning({
                     content: '请选择所授学科！',
                     duration: 2
                 });
                 return;
             }
-            // console.log(this.classNameAndSubject)
+            console.log(this.classNameAndSubject)
             this.$http.post('/web/class/a/inviteToClass.do',this.$qs.stringify({
             	token:this.token,
             	classCode:this.classCode,
-            	pushDetailJson:JSON.stringify(this.classSubjectList),
             }))
             .then((res)=>{
 	            if(res.data.status==0){
@@ -409,16 +407,10 @@ export default {
 	            }
             }) 
 		},
-		editOk(){//编辑
+		editOk(){
 			if(!this.classNameAndSubject.className){
                 this.$Message.warning({
                     content: '请输入班级名称！',
-                    duration: 2
-                });
-                return;
-            }else if(this.classSubjectList.length<1){
-            	this.$Message.warning({
-                    content: '请选择所授学科！',
                     duration: 2
                 });
                 return;
@@ -426,7 +418,6 @@ export default {
             this.$http.post('web/class/a/updateClassName.do',this.$qs.stringify({
             	token:this.token,
             	classId:this.classId,
-            	pushDetailJson:JSON.stringify(this.classSubjectList),
             	className:this.classNameAndSubject.className,
             }))
             .then((res)=>{
@@ -442,11 +433,6 @@ export default {
 	            }
             }) 
 		},
-        getSelText(id){
-            let myselect=document.getElementById(id);
-            let index=myselect.selectedIndex; 
-            return myselect.options[index].text; 
-        },
 		addOk(){
 			if(!this.subjectId){
                 this.$Message.warning({
@@ -467,27 +453,25 @@ export default {
                 });
                 return;
             }
-            let mySubjectName=this.getSelText('sub')+'('+this.getSelText('ver')+')';
-
-            // console.log(mySubjectName)
-            for(let i=0,len=this.classSubjectList.length;i<len;i++){
-            	console.log(this.classSubjectList[i].subjectName.indexOf(this.getSelText('sub')))
-            	if(this.classSubjectList[i].subjectName.indexOf(this.getSelText('sub'))>'-1'){
-            		this.$Message.warning({
-	                    content: '您已添加过该学科！',
-	                    duration: 2
-	                });
-	                return;
-            	} 
-            }
-            this.classSubjectList.push({
+            this.$http.post('web/class/a/addTeachSubject.do',this.$qs.stringify({
+            	token:this.token,
+            	classId:this.classId,
             	subjectId:this.subjectId,
             	versionId:this.versionId,
-            	textbookId:this.textbookId,
-				subjectName:mySubjectName
-            })
-            console.log(this.classSubjectList)
-            this.add = false;
+            	textbookId:this.textbookId
+            }))
+            .then((res)=>{
+	            if(res.data.status==0){
+	                this.$Message.success({
+	                    content: res.data.message,
+	                    duration: 2
+	                });
+	                this.getClassNameAndSubject(this.classId);
+	                this.add = false;
+	            }else{
+	            	this.$Message.error(res.data.message);
+	            }
+            }) 
 		},
 		upgradeOk(){
             this.$http.post('web/class/a/upgradeClass.do',this.$qs.stringify({
@@ -552,13 +536,12 @@ export default {
                 });
                 return;
             }
-            let _subjectId=this.classNameAndSubject.svtJson[this.subjectsTaughtId].subjectId;
-            let _versionId=this.classNameAndSubject.svtJson[this.subjectsTaughtId].versionId;
-            let _textbookId=this.classNameAndSubject.svtJson[this.subjectsTaughtId].textbookId;
+            var _versionId=this.classNameAndSubject.svtJson[this.subjectsTaughtId].versionId;
+            var _textbookId=this.classNameAndSubject.svtJson[this.subjectsTaughtId].textbookId;
             this.$http.post('web/class/a/createClassGroup.do',this.$qs.stringify({
             	token:this.token,
             	classId:this.classId,
-            	subjectId:_subjectId,
+            	subjectId:this.subjectsTaughtId,
             	versionId:_versionId,
             	textbookId:_textbookId,
             	groupName:this.classGroupInfo.groupName,
@@ -614,7 +597,7 @@ export default {
         addClass(){
         	this.modal = true;
         	this.classCode = "";
-        	this.classSubjectList = [];
+        	this.classNameAndSubject={}
         },
         updatePwd(classId){//修改班级密码
         	this.classId=classId;
@@ -753,6 +736,9 @@ export default {
               classId:cId
             }))
             .then((res)=>{
+            if(res.status != 200){
+              this.$Message.error('请求失败请重试');
+            }else{
               let result = res.data;
               if(result.status == 0){
               	  if(result.data.list instanceof Array && result.data.list.length>0){
@@ -762,10 +748,11 @@ export default {
                     }
               }else{ 
                 this.$Message.error(result.message);      
-              } 
+              }
+            } 
             }) 
 		}, 
-		getClassNameAndSubject(cId,falg){
+		getClassNameAndSubject(cId){
 			this.$http.post('web/class/a/getClassNameAndSubject.do',this.$qs.stringify({
               token:this.token,
               classId:cId
@@ -778,11 +765,7 @@ export default {
               if(result.status == 0){
                 this.classNameAndSubject = result.data;
                 if(result.data.subjects instanceof Array && result.data.subjects.length>0){
-                    this.subjectsTaughtId=result.data.subjects[0].id;
-                    this.classSubjectList=result.data.subjects;
-                    if(falg){
-                    	this.getClassGroupList(cId);
-                    }
+                    this.subjectsTaughtId=result.data.subjects[0].subjectId;
                 }else{
                     this.subjectsTaughtId = 0;
                 }
@@ -811,20 +794,34 @@ export default {
               }
             }) 
         },
-        delSubject(item){
-        	const index = this.classSubjectList.indexOf(item);
-            this.classSubjectList.splice(index, 1);
+        delSubject(sId){
+        	this.$http.post('web/class/a/removeTeachSubject.do',this.$qs.stringify({
+            	token:this.token,
+            	classId:this.classId,
+            	id:sId
+            }))
+            .then((res)=>{
+	            if(res.data.status==0){
+	                this.$Message.success({
+	                    content: res.data.message,
+	                    duration: 2
+	                });
+	                this.getClassNameAndSubject(this.classId);
+	            }else{
+	            	this.$Message.error(res.data.message);
+	            }
+            }) 
         },
         addGroupFun(classId){
         	this.classId=classId;
         	this.addGroup=true;
-        	this.getClassNameAndSubject(classId,true);
+        	this.getClassGroupList(classId);
+        	this.getClassNameAndSubject(classId);
         },
         getClassGroupList(cId){
-        	let _subjectId=this.classNameAndSubject.svtJson[this.subjectsTaughtId].subjectId;
 			this.$http.post('/web/class/a/listClassGroup.do',this.$qs.stringify({
               token:this.token,
-              subjectId:_subjectId,
+              subjectId:this.subjectsTaughtId,
               classId:cId||this.classId,
             }))
             .then((res)=>{
@@ -845,12 +842,11 @@ export default {
             }) 
 		},
         getNotInGroupList(cId,gId){
-        	var _subjectId=this.classNameAndSubject.svtJson[this.subjectsTaughtId].subjectId;
         	var _versionId=this.classNameAndSubject.svtJson[this.subjectsTaughtId].versionId;
             var _textbookId=this.classNameAndSubject.svtJson[this.subjectsTaughtId].textbookId;
 			this.$http.post('web/class/classUserNotInGroup.do',this.$qs.stringify({
               classId:cId,
-              subjectId:_subjectId,
+              subjectId:this.subjectsTaughtId,
               versionId:_versionId,
               textbookId:_textbookId,
               groupId:gId||0,
@@ -1123,14 +1119,22 @@ export default {
 		font-size: 16px;
 	}
 	.groupList{
+		border:1px solid #e9e9e9;
+	}
+	.groupList li{
 		width: 100%;
-		border-collapse: collapse;
+		border-bottom: 1px solid #e9e9e9;
 	}
-	table,th,td{
-		border: 1px solid #e9e9e9;
+	.groupList li:last-child{
+		border-bottom-width: 0;
+	}
+	.groupList li>span{
+		display: inline-block;
+		box-sizing: border-box;
 		line-height: 40px;
+		border-right:1px solid #e9e9e9;
 	}
-	.groupList tr>td:first-child{
+	.groupList li>span:first-child{
 		width: 10%;
 		text-align: center;
 		overflow: hidden;
@@ -1138,12 +1142,12 @@ export default {
 	    white-space: nowrap;
 	    vertical-align: middle;
 	}
-	.groupList tr>td:nth-child(2){
+	.groupList li>span:nth-child(2){
 		width: 79%;
-		padding:0 5px;
 	}
-	.groupList tr>td:last-child{
+	.groupList li>span:last-child{
 		width: 10%;
+		border-right-width:0;
 		text-align: center;
 	}
 	.groupList .groupBtn{

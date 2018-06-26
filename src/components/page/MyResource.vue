@@ -18,9 +18,9 @@ export default {
         	userInfo:this.$storage.getStorage('userInfo'),
 			resourceList:[
 				{title:'我的上传',path:'/MySpace/MyResource/',id:'upload'},
-				{title:'我的收藏',path:'/MySpace/MyResource/CollectResource',id:'collect'},				
-				{title:'我的下载',path:'/MySpace/MyResource/DownloadResource',id:'download'},
-				{title:'推送记录',path:'/MySpace/MyResource/PushResource',id:'push'},
+				{title:'我的收藏',path:'/MySpace/MyResource/CollectResource',id:'CollectResource'},	
+				{title:'我的下载',path:'/MySpace/MyResource/DownloadResource',id:'DownloadResource'},
+				{title:'推送记录',path:'/MySpace/MyResource/PushResource',id:'PushResource'},
 				{title:'更多资源',path:'/Resource',id:'more'}
 			]
         }
@@ -29,9 +29,9 @@ export default {
 		let userType=this.$storage.getStorage('userInfo').type;
 		if(userType==2){
 			this.resourceList=[
-				{title:'老师推送',path:'/MySpace/MyResource/PushResource',id:'push'},
-				{title:'我的收藏',path:'/MySpace/MyResource/CollectResource',id:'collect'},				
-				{title:'我的下载',path:'/MySpace/MyResource/DownloadResource',id:'download'},
+				{title:'老师推送',path:'/MySpace/MyResource/PushResource',id:'PushResource'},
+				{title:'我的收藏',path:'/MySpace/MyResource/CollectResource',id:'CollectResource'},
+				{title:'我的下载',path:'/MySpace/MyResource/DownloadResource',id:'DownloadResource'},
 				{title:'更多资源',path:'/Resource',id:'more'}
 			]
 		}

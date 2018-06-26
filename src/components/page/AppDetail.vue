@@ -6,10 +6,12 @@
     <div class="left pageRight">
         <div class="head">
             <span class="headOne">{{appInfo.appName}}</span>
-            <span class="headOne">{{appInfo.appFormStr}}</span>
-            <span class="goBtn right" @click="toAppUrl(appInfo.appHref)">进入应用</span>
+            <!-- <span class="headOne">22M</span> -->
+            <span class="goBtn right" @click="getApp()" v-if="!appInfo.myApp">获取应用</span>
+            <span class="goBtn right" @click="toAppUrl(appInfo.appHref)" v-else>进入应用</span>
             <br>
-            <Rate v-model="appInfo.score"></Rate>
+            <Rate v-model="appInfo.score" allow-half disabled></Rate>
+            <span style="margin:0 20px;" v-show="appInfo.appSize>0">{{appSize(appInfo.appSize*1024)}}</span>
             <span class="charBtn">{{appInfo.isChargeStr}}</span>
         </div>
         <p>{{appInfo.appDesc}}</p>
@@ -25,16 +27,17 @@
         </div>
         <div class="comment-box">
             <div class="comment">
-                <textarea  rows="8" v-model="comment" placeholder="发表你的精彩评论啦"></textarea>
+                <textarea  rows="8" v-model="comment" placeholder="发表你的精彩评论啦" maxlength="120"></textarea>
+                <p>已输入{{comment.length}}/120字</p>
             </div>
             <div class="res-quality">
-                <span>App质量：</span> <Rate v-model="recommendStar"></Rate><br>
+                <span>App质量：</span> <Rate allow-half v-model="recommendStar"></Rate><br>
                 <button @click="createResourceComment" class="myButton">发表评论</button>
             </div>
             
             <div class="comment-list">
                 <div>
-                    <p>评论<span> （{{commentNum}}条）</span></p>
+                    <p>评论<span> （{{commentTotalCount}}条）</span></p>
                 </div>
                 <ul>
                     <li v-for="item of commentList">
@@ -46,11 +49,17 @@
                             </div>
                             <p class="comment-content">{{item.comment}}</p>
                             <p>
-                                <Rate v-model="item.score"></Rate>
+                                <Rate v-model="item.score" disabled  allow-half></Rate>
                             </p>
                         </div>
                     </li>
                 </ul>
+            </div>
+            <div class="pageBox">
+                <Page :total="commentTotalCount" 
+                :current="commentCurrPage" 
+                :pageSize="pageSize" 
+                class="page-box" @on-change="pageChange"></Page> 
             </div>
         </div>
     </div>
@@ -67,11 +76,14 @@ export default {
             appId:this.$router.history.current.query.appId,
             appInfo:{},
             commentList:[],
-            commentNum:5,
             comment:'',
+            commentTotalCount:0,
+            commentCurrPage:1,
+            pageSize:10,
             recommendStar:0,
             left:'0px',
             hoverImg:false,
+            appSize:global_.formatSize,
         }
     } ,
     methods:{
@@ -87,33 +99,78 @@ export default {
             }else{
               this.$Message.info(res.data.message);
             }
-            })
-            .catch((err)=>{
-            alert(err);
-            })
+            }) 
         },
-        toAppUrl(href){
-            window.open(href);
-        },
-        getListResourceComment(){//评论列表
-            let url='/web/appInfo/listComments.do';
-            this.$http.post(url,this.$qs.stringify({
+        getApp(){
+            if(!this.token){
+              this.login();
+              return;
+            }
+            this.$http.post('/web/appInfo/a/obtainAppInfo.do',this.$qs.stringify({
                 token:this.token,
                 appId:this.appId
             }))
             .then((res)=>{
-            if(res.data.status==0){
-               this.commentList=res.data.data.list;
-               this.commentNum=res.data.data.totalCount;
-            }else{
-              this.$Message.info(res.data.message);
+                if(res.data.status==0){
+                   this.$Message.success({
+                        content: res.data.message,
+                        duration: 2
+                    });
+                   this.getInfo();
+                }else{
+                  this.$Message.error({
+                    content: res.data.message,
+                    duration: 2
+                  });
+                }
+            }) 
+        },
+        toAppUrl(href){
+            if(!this.token){
+              this.login();
+              return;
             }
-            })
-            .catch((err)=>{
-            alert(err);
-            })
+            window.open(href);
+        },
+        getListResourceComment(page){//评论列表
+            let url='/web/appInfo/listComments.do';
+            this.$http.post(url,this.$qs.stringify({
+                token:this.token,
+                pageIndex:page||1,
+                appId:this.appId
+            }))
+            .then((res)=>{
+                if(res.status != 200){
+                  this.$Message.error('请求失败请重试');
+                }else{
+                    let result = res.data;
+                    if(result.status == 0){ 
+                        if(result.data.list instanceof Array && result.data.list.length>0){
+                          this.commentList = result.data.list;
+                          this.commentTotalCount = result.data.totalCount;
+                          this.commentCurrPage = result.data.currPage;
+                          this.pageSize = result.data.pageSize;
+                        }else{
+                          this.commentList = [];
+                        } 
+                    }else{ 
+                        this.$Message.error(result.message);         
+                    }
+                }
+            }) 
         },
         createResourceComment(){//创建评论
+            if(!this.token){
+              this.login();
+              return;
+            }
+            if(!this.comment){             
+                this.$Message.error('请输入评论');
+                return;
+            }else if(!this.recommendStar){
+                this.$Message.error('请对资源质量评分');
+                return;
+            }
             let url='web/appInfo/a/createComment.do';
             this.$http.post(url,this.$qs.stringify({
                 token:this.token,
@@ -123,20 +180,28 @@ export default {
             }))
             .then((res)=>{
             if(res.data.status==0){
+               this.comment=''
+               this.recommendStar=0
                this.getListResourceComment();
             }else{
               this.$Message.info(res.data.message);
             }
-            })
-            .catch((err)=>{
-            alert(err);
-            })
+            }) 
         },
         toLeft(){
             this.left='0px';
         },
         toRight(){
             this.left='-406px';
+        },
+        login(){
+          this.$router.replace({
+             name:"Login",
+             query: {redirect: this.$router.currentRoute.fullPath}
+            })
+        },
+        pageChange(page){
+            this.getListResourceComment(page);
         }
     },
     created(){
@@ -326,6 +391,11 @@ export default {
     .comment-content{
         line-height: 28px;
         font-size: 14px;
+    }
+    .pageBox{
+        text-align: center;
+        font-size: 14px;
+        padding: 20px 0;
     }
 </style>
 

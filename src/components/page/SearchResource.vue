@@ -26,7 +26,7 @@
                             <p>贡献时间：{{formatTime(item.createTime)}}</p>
                         </div>
                         <div class="file-star">
-                            <Rate allow-half v-model="item.score"></Rate>
+                            <Rate allow-half disabled v-model="item.score"></Rate>
                         </div>
                     </li>                
                 </ul>
@@ -62,7 +62,7 @@
                             <img :src="fileType(item.fileSuffix,0)" alt="资源图标" @click="toDetailResource(item)">
                             <div>
                                 <p @click="toDetailResource(item)">{{item.recourceLocalName}}</p>
-                                <Rate allow-half v-model="item.score"></Rate>
+                                <Rate allow-half disabled  v-model="item.score"></Rate>
                             </div>
                         </li>
                    </ul>
@@ -108,6 +108,10 @@ export default {
             if(item.id==1){
                 this.postUrl="/web/coursebook/listResourceLocal.do";
             }else if(item.id==2){
+                if(!this.postData.token){
+                  this.login();
+                  return;
+                }
                 this.postUrl='/web/coursebook/a/listResourceLocalSchool.do';
             }else if(item.id==3){
                 this.postUrl='/web/microcourse/listResource.do';
@@ -116,31 +120,26 @@ export default {
             }
             this.getResourceList(this.postUrl,this.postData);
         },
+        login(){
+          this.$router.replace({
+             name:"Login",
+             query: {redirect: this.$router.currentRoute.fullPath}
+            })
+        },
         toDetailResource(item){
             if(!this.postData.token){
               this.login();
               return;
             }
             this.increaseSearchViewNum(item.resourceLocalId);
-            this.$router.push({
-				path:'/DetailResource',
-				query:{
-					resourceLocalId:item.resourceLocalId					
-				}
-			});		
+            window.open('#/DetailResource?resourceLocalId='+item.resourceLocalId)		
         },
         toDetailResource1(item){
             if(!this.postData.token){
                   this.login();
                   return;
             }
-            this.$router.push({
-              path:'/DetailResource',
-              query:{
-                resourceId:item.resourceId,
-                microcourse:1          
-              }
-            });   
+            window.open('#/DetailResource?resourceId='+item.resourceId+'&microcourse=1')  
         },
         getResourceList(url,posData){
         this.$http.post(url,this.$qs.stringify(posData))
@@ -158,9 +157,7 @@ export default {
               this.$Message.info(res.data.message);
             }
           })
-          .catch((err)=>{
-            alert(err);
-          })
+           
         },
         increaseSearchViewNum(rId){
             this.$http.post('/web/coursebook/increaseSearchViewNum.do',this.$qs.stringify({
@@ -174,9 +171,7 @@ export default {
               this.$Message.info(res.data.message);
             }
           })
-          .catch((err)=>{
-            alert(err);
-          })
+           
         },
         pageChange(page){
             this.postData.pageIndex=page;
@@ -193,9 +188,6 @@ export default {
             }else{
               this.$Message.info(res.data.message);
             }
-            })
-            .catch((err)=>{
-            alert(err);
             }) 
         }
     },

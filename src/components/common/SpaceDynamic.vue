@@ -104,7 +104,7 @@ import global_ from '@/components/Global';
   white-space: nowrap;
 }
 .dynamic-content li>div p{
-	line-height: 30px;
+	line-height: 26px;
   width:195px;
 }
 .dynamic-content li>div p span{

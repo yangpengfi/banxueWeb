@@ -41,8 +41,9 @@
 						</RadioGroup>						
 					</p>
 					<p v-if="nofree !='免费'">
-						<span><Icon type="asterisk" color="#ed3f14" size=5 v-if="price == ''"></Icon>收费预期：</span>
-						<Input  v-model="price" placeholder="请输入价格：例如：199" style="width: 300px"></Input>
+						<span><Icon type="asterisk" color="#ed3f14" size=5></Icon> 收费预期：</span>
+						<input type="text" v-model="price" placeholder="请输入价格：例如：199" 
+						maxlength="5" onKeyUp="value=value.replace(/[^\d]/g,'')" class="myInpt" />
 						<b>元</b>						
 					</p>
 				</div>				
@@ -128,9 +129,7 @@ export default {
 						this.price = '';
 					}
 				}	
-			}).catch(function (error) {
-				alert(error);
-			});
+			})
 		},
 		del(){
 			this.$router.push('/MySpace/minClasses');
@@ -140,7 +139,7 @@ export default {
             //     this.modal2 = false;
             //     this.$router.push('/MySpace/minClasses');
             // }, 2000);
-        }	
+        } 	
 	},
 	mounted(){
 		if(this.$route.query.price != 0){
@@ -198,5 +197,21 @@ export default {
 		border: none;	
 		font-size: 16px;
 		color: #fff;
+	}
+	.myInpt{
+		display: inline-block;
+	    width: 300px;
+	    height: 32px;
+	    line-height: 1.5;
+	    padding: 4px 7px;
+	    font-size: 12px;
+	    border: 1px solid #dddee1;
+	    border-radius: 4px;
+	    color: #495060;
+	    background-color: #fff;
+	    background-image: none;
+	    position: relative;
+	    cursor: text;
+	    transition: border .2s ease-in-out,background .2s ease-in-out,box-shadow .2s ease-in-out;
 	}
 </style>

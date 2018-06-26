@@ -70,9 +70,6 @@ export default {
               this.$Message.error(res.data.message);
           }
           })
-          .catch((err)=>{
-              alert(err);
-          })
       },
       goIndex(){
         this.$router.push({path:'/'});
@@ -98,9 +95,7 @@ export default {
               this.errorMsg=res.data.message;
             }
           })
-          .catch((err)=>{
-            alert(err);
-          })
+           
       },
       hideErrorBox(){
         // console.log(111)

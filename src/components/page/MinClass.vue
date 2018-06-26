@@ -15,7 +15,7 @@ export default {
         return {
 			classList:[
 				{title:'创建课程',path:'/MySpace/MinClasses/',id:'createClass'},
-				{title:'已购课程',path:'/MySpace/MinClasses/BuiedClass',id:'buiedClass'}
+				{title:'已购课程',path:'/MySpace/MinClasses/BuiedClass',id:'BuiedClass'}
 			]		
         }
 	},
@@ -23,7 +23,7 @@ export default {
 		let userType=this.$storage.getStorage('userInfo').type;
 		if(userType==2){
 			this.classList=[
-				{title:'已购课程',path:'/MySpace/MinClasses/BuiedClass',id:'buiedClass'}
+				{title:'已购课程',path:'/MySpace/MinClasses/BuiedClass',id:'BuiedClass'}
 			]
 		}
 	}	

@@ -12,18 +12,24 @@
             </div>
         </div>
 			
-			<div class="rightCont">
-				<ul>
-					<li v-for="item of classMemeberList">
-						<img :src="item.logo" @click="goSpaceShow(item)"/>						
-						<p @click="goSpaceShow(item)">{{item.userName}}</p>	
-                        <div v-show="!isHis">				
-    						<button class="out" @click="unFollow(item)" v-show="item.follow">取消关注</button>
-                            <button class="out" @click="follow(item)" v-show="!item.follow">关注</button>
-                        </div>  
-					</li>					
-				</ul>
-			</div>
+		<div class="rightCont">
+			<ul>
+				<li v-for="item of classMemeberList">
+					<img :src="item.logo" @click="goSpaceShow(item)"/>						
+					<p @click="goSpaceShow(item)" :title="item.userName">{{item.userName}}</p>	
+                    <div v-show="!isHis && !item.mySelf">				
+						<button class="out" @click="unFollow(item)" v-show="item.follow">取消关注</button>
+                        <button class="out" @click="follow(item)" v-show="!item.follow">关注</button>
+                    </div>  
+				</li>					
+			</ul>
+		</div>
+        <div class="pageBox">
+          <Page :total="totalCount" 
+          :current="currPage" 
+          :pageSize="pageSize" 
+          class="page-box" @on-change="pageChange"></Page> 
+      </div>
 	</div>
 </template>
 <script>
@@ -31,10 +37,14 @@ export default {
     name:'ClassLink',
     data(){
         return {
+            token:this.$storage.getStorage("token"),
             classMemeberList:[],
             classList:[],
             selId:0,
             selType:1,
+            totalCount:0,
+            currPage:1,
+            pageSize:12,
             isHis:true
         }
     },
@@ -45,9 +55,9 @@ export default {
         goSpaceShow(item){
           window.open('#/ShowSpace/?userId='+item.userId);
         },
-        getClasses(){//获取所在班级
+        getClasses(page){//获取所在班级
             this.$http.post('web/class/a/listJoinClass.do',this.$qs.stringify({
-              token:this.$storage.getStorage("token")
+                token:this.$storage.getStorage("token")
             }))
             .then((res)=>{
             if(res.status != 200){
@@ -69,17 +79,15 @@ export default {
                 this.$Message.error(result.message);            
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
-        getClassMemeber(cId,uType){//获取关注列表
+        getClassMemeber(cId,uType,page){//获取关注列表
             this.$http.post('web/class/a/listClassMemeber.do',this.$qs.stringify({
               token:this.$storage.getStorage("token"),
               classId:cId,
               userType:uType,
-              pageSize:12
+              pageSize:12,
+              pageIndex:page||1,
             }))
             .then((res)=>{
             if(res.status != 200){
@@ -89,6 +97,9 @@ export default {
               if(result.status == 0){
                 if(result.data.list instanceof Array && result.data.list.length>0){
                   this.classMemeberList = result.data.list;
+                  this.totalCount = result.data.totalCount;
+                  this.currPage = result.data.currPage;
+                  this.pageSize = result.data.pageSize;
                 }else{
                   this.classMemeberList = [];
                 }
@@ -99,10 +110,7 @@ export default {
                 this.$Message.error(result.message);            
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
         changeSel(){
             this.getClassMemeber(this.selId,this.selType);
@@ -128,10 +136,7 @@ export default {
                 this.$Message.error(result.message);            
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
         follow(item){//关注
             this.$http.post('/web/space/a/follow.do',this.$qs.stringify({
@@ -150,10 +155,10 @@ export default {
                 this.$Message.error(result.message);            
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
+        },
+        pageChange(page){
+            this.getClassMemeber(this.selId,this.selType,page);
         }
     },
     created(){
@@ -163,7 +168,7 @@ export default {
         }else{
             this.isHis=false;
         }
-        console.log(whoSpace)
+        // console.log(whoSpace)
         this.getClasses();
     }
 }

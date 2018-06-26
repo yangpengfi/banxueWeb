@@ -1,4 +1,5 @@
 <script type="text/javascript">
+import router from '../router'
 const per2gradeList=[
 			      {id:1,name:"高中",gradeList:[{id:10,name:"高一"},{id:11,name:"高二"},{id:12,name:"高三"},]},
             {id:2,name:"初中",gradeList:[{id:7,name:"初一"},{id:8,name:"初二"},{id:9,name:"初三"},]},
@@ -59,7 +60,8 @@ function getBaseUrl() {
             var pathnameArr=window.location.pathname.split('/');
              return 'http://'+host+'/'+pathnameArr[1]; 
         }
-function setFileType(fileType,size){
+function setFileType(fileTypes,size){
+    let fileType=fileTypes.toLowerCase()
     let baseUrl=getBaseUrl();
     let imgUrl=baseUrl;
     switch(fileType){
@@ -158,16 +160,17 @@ function getCoursebgColor () {
   var tem = Math.floor(Math.random() * colorListLength)
   return bgColorList[tem]
 }  
-function formatSize(limit){  
+function formatSize(limit){ 
+            limit=1024*limit; 
             var size = "";  
             if( limit < 0.1 * 1024 ){ //如果小于0.1KB转化成B  
-                size = limit.toFixed(2) + "B";    
+                size = limit.toFixed(2) + " B";    
             }else if(limit < 0.1 * 1024 * 1024 ){//如果小于0.1MB转化成KB  
-                size = (limit / 1024).toFixed(2) + "KB";              
+                size = (limit / 1024).toFixed(2) + " KB";              
             }else if(limit < 0.1 * 1024 * 1024 * 1024){ //如果小于0.1GB转化成MB  
-                size = (limit / (1024 * 1024)).toFixed(2) + "MB";  
+                size = (limit / (1024 * 1024)).toFixed(2) + " MB";  
             }else{ //其他转化成GB  
-                size = (limit / (1024 * 1024 * 1024)).toFixed(2) + "GB";  
+                size = (limit / (1024 * 1024 * 1024)).toFixed(2) + " GB";  
             }  
             
             var sizestr = size + "";   
@@ -209,9 +212,9 @@ Date.prototype.Format = function (fmt) { //author: meizz
 }  		
 
 function login(){
-  this.$router.replace({
+  router.replace({
      name:"Login",
-     query: {redirect: this.$router.currentRoute.fullPath}
+     query: {redirect: router.currentRoute.fullPath}
     })
 }
 export default

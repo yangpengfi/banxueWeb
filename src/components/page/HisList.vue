@@ -14,8 +14,8 @@ export default {
     data () {
         return {
 			linkList:[
-				{title:'他关注的人',path:'/ShowSpace/MyList/',id:'focusLink'},
-				{title:'他的粉丝',path:'/ShowSpace/MyList/FunLink',id:'funLink'},
+				{title:'他关注的人',path:'/ShowSpace/MyList/',id:'FocusLink'},
+				{title:'他的粉丝',path:'/ShowSpace/MyList/FunLink',id:'FunLink'},
 				// {title:'他的班级',path:'/ShowSpace/MyList/ClassLink',id:'classLink'},
 				// {title:'他的同事',path:'/ShowSpace/MyList/MateLink',id:'mateLink'}
 			],
@@ -26,8 +26,8 @@ export default {
 		let userType=this.$storage.getStorage('spaceInfo').userType;
 		if(userType==2){
 			this.linkList=[
-				{title:'他关注的人',path:'/ShowSpace/MyList/',id:'focusLink'},
-				{title:'他的粉丝',path:'/ShowSpace/MyList/FunLink',id:'funLink'},
+				{title:'他关注的人',path:'/ShowSpace/MyList/',id:'FocusLink'},
+				{title:'他的粉丝',path:'/ShowSpace/MyList/FunLink',id:'FunLink'},
 				// {title:'他的班级',path:'/ShowSpace/MyList/ClassLink',id:'classLink'},
 			]
 		}

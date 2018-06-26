@@ -18,13 +18,14 @@ export default {
     },
     data () {
         return {
+            token:this.$storage.getStorage("token"),
             appList:[]
         }
     },
     methods:{
       getAppList(){
-        this.$http.post('web/appInfo/listByType',this.$qs.stringify({
-            pageSize:3
+        this.$http.post('web/appInfo/listByType.do',this.$qs.stringify({
+            token:this.token
         }))
         .then((res)=>{
         if(res.status != 200){
@@ -42,9 +43,6 @@ export default {
             }           
           }
         } 
-        })
-        .catch((err)=>{
-            alert(err);
         })
       }
     },

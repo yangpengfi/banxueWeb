@@ -86,9 +86,6 @@
 
             }
             })
-            .catch((err)=>{
-                alert(err);
-            })
         }
     }
   }

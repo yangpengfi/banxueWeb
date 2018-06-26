@@ -83,9 +83,6 @@
 			  }
 			} 
 			})
-			.catch((err)=>{
-				alert(err);
-			})
 		},
         getNewInfoList(pidx,types,querys){
           this.$http.post('web/newsInfo/list.do',this.$qs.stringify({
@@ -113,9 +110,7 @@
               }
             }
           })
-          .catch((err)=>{
-            alert(err);
-          })
+           
         },
         pageChange(page){
             this.getNewInfoList(page,this.newsTypeSel,this.search)

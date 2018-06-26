@@ -12,17 +12,15 @@
   			<div class="videoList right">
 	            <ul class="treeList">
                 <li v-for="item in courseTree" 
-                v-if="item.children.length!=0" 
-                @click="playVideo(item)">
+                v-if="item.children.length!=0">
                   <span class="font3">{{item.name}}<Icon type="chevron-down"></Icon></span>
                   <ul>
                     <li v-for="itemSub in item.children" 
-                    v-if="itemSub.children.length!=0" 
-                    @click="playVideo(itemSub)">
+                    v-if="itemSub.children.length!=0">
                       <span class="font3">{{itemSub.name}}<Icon type="chevron-down"></Icon></span>
                       <ul>
                         <li v-for="itemSubs in itemSub.children"
-                        @click="playVideo(itemSubs)">
+                        @click.stop="playVideo(itemSubs)">
                           <span :class="{active:itemSubs.id==selId,font6:true,pl60:true}">{{itemSubs.name}}</span>
                         </li> 
                       </ul>
@@ -30,7 +28,7 @@
 
                     <li v-for="itemSub in item.children" 
                     v-if="itemSub.children.length==0" 
-                    @click="playVideo(itemSub)">
+                    @click.stop="playVideo(itemSub)">
                       <span :class="{active:itemSub.id==selId,font6:true,pl40:true}">{{itemSub.name}}</span>
                     </li> 
 
@@ -38,7 +36,7 @@
                 </li> 
                 <li v-for="item in courseTree" 
                 v-if="item.children.length==0" 
-                @click="playVideo(item)">
+                @click.stop="playVideo(item)">
                   <span :class="{active:item.id==selId,font6:true}">{{item.name}}</span>
                 </li> 
               </ul>
@@ -55,8 +53,8 @@
   			</div>
   			<div class="infoRight right" v-show="courseInfo.isMyCourse==0">
           <span class="price" v-show="courseInfo.isFree==0">
-            <!-- <span>￥</span>
-            <span style="font-size: 36px;color: #ff6464;">{{(courseInfo.money)/100}}</span> -->
+            <span>￥</span>
+            <span style="font-size: 36px;color: #ff6464;">{{(courseInfo.money)/100}}</span>
           </span>
   				<span v-show="courseInfo.isFree==1">
 	  				<span style="font-size: 16px;">免费</span>
@@ -122,7 +120,6 @@
       playVideo(item){
         if(item.hasVideo==1){
           this.getCourseVideo(item.courseId,item.id);
-          this.setVideoProgress(item.courseId,item.id);
           document.getElementById("video").setAttribute("controls", "controls");
         }else{
           this.$Message.info('此目录无视频资源！');
@@ -139,15 +136,12 @@
           .then((res)=>{
             // console.log(res.data); 
             if(res.data.status==0){
-              this.$Message.info(res.data.message);
-              this.courseInfo.isMyCourse=1;
+              // this.$Message.info(res.data.message);
+              // this.courseInfo.isMyCourse=1;
             }else{
               alert(res.data.message);
             }
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
       },
       addMycourse(courseId){
       this.$http.post('/web/course/a/add2MyCourse.do',this.$qs.stringify({
@@ -159,13 +153,11 @@
             if(res.data.status==0){
               this.$Message.info(res.data.message);
               this.courseInfo.isMyCourse=1;
+              this.$router.push('/MySpace/MinClasses/BuiedClass');
             }else{
               alert(res.data.message);
             }
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
       },
       getTeacherInfo(userId){
       this.$http.post('/web/user/getTeacherDetail.do',this.$qs.stringify({
@@ -175,10 +167,7 @@
           .then((res)=>{
             // console.log(res.data.data); 
             this.teacherInfo=res.data.data;
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
       },
     	getCourseInfo(courseId){
 			this.$http.post('/web/course/getCourse.do',this.$qs.stringify({
@@ -189,10 +178,7 @@
             // console.log(res.data.data); 
             this.courseInfo=res.data.data;
             this.getTeacherInfo(this.courseInfo.userId);
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
     	},
     	getCourseTree(courseId){
 			this.$http.post('/web/course/getCourseCatalogTree.do',this.$qs.stringify({
@@ -202,10 +188,7 @@
           .then((res)=>{
             // console.log(res.data.data); 
             this.courseTree=res.data.data.children;
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
     	},
       getCourseVideo(courseId,catalogId){
         if(!this.token){
@@ -219,15 +202,19 @@
           }))
           .then((res)=>{
             // console.log(res.data.data); 
+            // console.log(this.courseInfo.isMyCourse); 
             if(res.data.status==0){
               this.videoUrl=res.data.data;
+              if(this.courseInfo.isMyCourse==1){
+                this.setVideoProgress(courseId,catalogId);
+              }
+            }else if(res.data.status==1401){
+              // console.log("当前课程没有权限观看，请先加入学习！")
+              this.$Message.info("当前课程没有权限观看，请先加入学习！")
             }else{
-              alert(res.message);
+              this.$Message.error(res.data.message);
             }
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
       }
     },
     created(){

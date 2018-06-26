@@ -11,9 +11,9 @@
         <!-- 左侧过滤 -->
           <div id="load-resource">
             <div class="left">
-                <div class="leftHead" @click="showSel">
+                <div class="leftHead" @click.self="showSel">
                     <span class="leftTitle">{{per2sub}} <br> <small :title="ver2text" v-show="resourceKindId==1">{{ver2text}}</small></span>
-                    <Icon type="chevron-down"></Icon>
+                    <Icon type="chevron-down" @click.self="showSel"></Icon>
                     <transition name="mybox">
                       <div :class="{selDown:true,top74:resourceKindId==1,top47:resourceKindId==2}" v-show="boxshow">
                           <p>
@@ -56,20 +56,26 @@
                 <ul class="section" v-if="nodeTree.length>0">
                   <li v-for="item of nodeTree">
                     <div>
-                      <b @click="unfold1(item)" class="fold">
+                      <b @click="unfold1(item)" class="fold" v-if="item.id != foldId1">
                         <Icon type="ios-plus-outline" size=20 v-if="item.children.length>0"></Icon>
+                      </b> 
+                      <b @click="unfold1(0)" class="fold" v-else>
+                        <Icon type="ios-minus-outline" size=20 v-if="item.children.length>0"></Icon>
                       </b>                            
                       <span @click="tabLoad1(item)" :class="{active:item.id==loadId1}">{{item.name}}</span>
                     </div>
                     <ul class="joint" v-if="item.children.length>0" :class="{active:item.id == foldId1}">
                       <li v-for="item of item.children">
                         <div>
-                          <b @click="unfold2(item)" class="fold">
+                          <b @click="unfold2(item)" class="fold" v-if="item.id != foldId2">
                             <Icon type="ios-plus-outline" size=20 v-if="item.children.length>0"></Icon>
+                          </b> 
+                          <b @click="unfold2(0)" class="fold" v-else>
+                            <Icon type="ios-minus-outline" size=20 v-if="item.children.length>0"></Icon>
                           </b>  
                           <span @click="tabLoad2(item)" :class="{active:item.id==loadId2}">{{item.name}}</span>
                         </div>
-                        <ul class="bar-line" v-if="item.children.length>0" :class="{active:item.id == foldId2}">
+                        <ul class="bar-line ml20" v-if="item.children.length>0" :class="{active:item.id == foldId2}">
                           <li v-for="item of item.children">                                        
                             <span @click="tabLoad3(item)" :class="{active:item.id==loadId3}">{{item.name}}</span>
                           </li>
@@ -107,7 +113,7 @@
                 <p>贡献时间：{{formatTime(item.createTime)}}</p>
               </div>
               <div>
-                 <Rate v-model="star"></Rate>
+                 <Rate v-model="item.score" disabled allow-half></Rate>
               </div>
             </li>                
           </ul>
@@ -189,20 +195,57 @@ export default {
             })
         },
         changeTitle(item){
+          this.loadId1 = '';  
+          this.loadId2 = '';
+          this.loadId3 = '';
+          this.filter.bid1 = ''; 
+          this.filter.bid2 = ''; 
+          this.filter.bid3 = ''; 
+          this.filter.kid1 = '';          
+          this.filter.kid2 = '';          
+          this.filter.kid3 = '';
+          let data=this.$storage.getSession('baseData');
+          if(data.id){
+            this.filter.periodId=data.periodId;
+            this.filter.subjectId=data.subjectId;
+            this.filter.periodName=data.periodName;
+            this.filter.subjectName=data.subjectName; 
+            this.per2sub=this.filter.periodName+this.filter.subjectName;
+            this.getSubjectList(this.filter.periodId,this.filter.subjectId); 
+          }else{
+            this.filter={
+              periodId:2,
+              periodName:"初中",
+              subjectId:2,
+              subjectName:"数学",
+              versionId:293,
+              versionName:"人教版",
+              textbookId:1343,
+              textbookName:"七年级上册",
+              withDisabledNode:1
+            };
+            this.per2sub='初中数学';
+            this.ver2text='人教版七年级上册';
+          } 
           this.selTitle=item.id;      
           this.resourceKindId=item.id; 
           this.filter.resourceKindId=this.resourceKindId;
-          this.baseData.resourceKindId=this.resourceKindId; 
+          this.baseData.resourceKindId=this.resourceKindId;
           this.getResourceLocalTypeList()
+          this.filter.resourceTypeId=0;
           if(item.id==1){
-            this.getNodeTree(this.baseData)
+            if(!data.id){
+              this.getSubjectList(2,2);
+            }
+            this.getNodeTree(this.filter)
           }else{
-            this.getKnowTree(this.baseData)
+            this.getKnowTree(this.filter)
           }     
         },
         changeType(item){
           this.type=item.id; 
           this.filter.resourceTypeId=this.type;
+          this.filter.pageIndex=1;
           this.getResourceList(this.filter)
         },
         toDetailResource(item){
@@ -210,12 +253,7 @@ export default {
               this.login();
               return;
             }
-            this.$router.push({
-              path:'/DetailResource',
-              query:{
-                resourceLocalId:item.resourceLocalId          
-              }
-            });   
+            window.open('#/DetailResource?resourceLocalId='+item.resourceLocalId) 
         },
         filterPer:function () {
             this.filter.subjectId=0;
@@ -253,9 +291,6 @@ export default {
         getResourceList(data){
             this.$http.post('/web/coursebook/listResourceLocal.do',this.$qs.stringify(data))
             .then(res => { 
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
               let result = res.data;
               if(result.status != 0){
                 this.$Message.error('请求资源失败，请重试');
@@ -268,14 +303,11 @@ export default {
                 }else{
                   this.resourceList = [];
                 }           
-              }
-            }  
-          }).catch(function (error) {
-            alert(error);
-          });
+              } 
+          }) 
         },
         showSel:function () {
-          this.boxshow = true;
+          this.boxshow = !this.boxshow;
         },
         getSelText(id){
             let myselect=document.getElementById(id);
@@ -283,6 +315,15 @@ export default {
             return myselect.options[index].text; 
         },
         mySure:function () {
+          this.loadId1 = '';  
+          this.loadId2 = '';
+          this.loadId3 = '';
+          this.filter.bid1 = ''; 
+          this.filter.bid2 = ''; 
+          this.filter.bid3 = ''; 
+          this.filter.kid1 = '';          
+          this.filter.kid2 = '';          
+          this.filter.kid3 = '';
           if(this.resourceKindId==1){
             if(this.filter.textbookId){
                 this.boxshow = false;
@@ -303,11 +344,19 @@ export default {
           this.loadId2 = '';
           this.loadId3 = '';
           if(this.resourceKindId == 1){
-            this.filter.bid1 = item.id; 
+            this.filter.bid1 = item.bid1; 
+            this.filter.bid2 = item.bid2; 
+            this.filter.bid3 = item.bid3; 
             this.filter.kid1 = '';          
+            this.filter.kid2 = '';          
+            this.filter.kid3 = '';          
           }else if(this.resourceKindId == 2){
-            this.filter.kid1 = item.id;
+            this.filter.kid1 = item.kid1;
+            this.filter.kid2 = item.kid2;
+            this.filter.kid3 = item.kid3;
             this.filter.bid1 = '';
+            this.filter.bid2 = '';
+            this.filter.bid3 = '';
           }
           this.getResourceList(this.filter)
         },
@@ -316,11 +365,19 @@ export default {
           this.loadId1 = '';
           this.loadId3 = ''; 
           if(this.resourceKindId == 1){
-            this.filter.bid2 = item.id;
-            this.filter.kid1 = '';               
+            this.filter.bid1 = item.bid1; 
+            this.filter.bid2 = item.bid2; 
+            this.filter.bid3 = item.bid3; 
+            this.filter.kid1 = '';          
+            this.filter.kid2 = '';          
+            this.filter.kid3 = '';          
           }else if(this.resourceKindId == 2){
-            this.filter.kid2 = item.id;
+            this.filter.kid1 = item.kid1;
+            this.filter.kid2 = item.kid2;
+            this.filter.kid3 = item.kid3;
             this.filter.bid1 = '';
+            this.filter.bid2 = '';
+            this.filter.bid3 = '';
           }
           this.getResourceList(this.filter)
         },
@@ -329,19 +386,36 @@ export default {
           this.loadId1 = '';
           this.loadId2 = ''; 
           if(this.resourceKindId == 1){
-            this.filter.bid3 = item.id;  
-            this.filter.kid1 = '';            
+            this.filter.bid1 = item.bid1; 
+            this.filter.bid2 = item.bid2; 
+            this.filter.bid3 = item.bid3; 
+            this.filter.kid1 = '';          
+            this.filter.kid2 = '';          
+            this.filter.kid3 = '';          
           }else if(this.resourceKindId == 2){
-            this.filter.kid3 = item.id;
+            this.filter.kid1 = item.kid1;
+            this.filter.kid2 = item.kid2;
+            this.filter.kid3 = item.kid3;
             this.filter.bid1 = '';
+            this.filter.bid2 = '';
+            this.filter.bid3 = '';
           }
           this.getResourceList(this.filter)
         },
-        unfold1(item){              
-          this.foldId1 = item.id;
+        unfold1(item){ 
+          if(item==0){
+            this.foldId1 ='';
+            this.foldId2 ='';
+          }else{
+            this.foldId1 = item.id;
+          }             
         },
-        unfold2(item){              
-          this.foldId2 = item.id;
+        unfold2(item){ 
+          if(item==0){
+            this.foldId2 ='';
+          }else{
+            this.foldId2 = item.id;
+          }              
         },
         getKnowTree(data){
             this.$http.post('/web/coursebook/getKnowledgePointTree.do',qs.stringify(data))
@@ -362,34 +436,23 @@ export default {
                     }
                 }     
 
-            })
-            .catch(function (error) {
-                alert(error);
-            });
+            }) 
         },
         getNodeTree(data){
             this.$http.post('/web/coursebook/getBookNodeTree.do',qs.stringify(data))
             .then(res => { 
-                if(res.status != 200){
-                    this.$Message.error('请求失败请重试');
-                }else{
-                    let result = res.data;
-                    if(result.status != 0){
-                        this.$Message.error('请求资源失败，请重试');
-                    }else{  
-                        if(result.data.children instanceof Array && result.data.children.length>0){
-                            this.nodeTree = result.data.children;
-                            this.getResourceList(data)
-                        }else{
-                            this.nodeTree = [];
-                        }           
-                    }
-                }     
-
-            })
-            .catch(function (error) {
-                alert(error);
-            });
+                let result = res.data;
+                if(result.status != 0){
+                    this.$Message.error('请求资源失败，请重试');
+                }else{  
+                    if(result.data.children instanceof Array && result.data.children.length>0){
+                        this.nodeTree = result.data.children;
+                        this.getResourceList(data)
+                    }else{
+                        this.nodeTree = [];
+                    }           
+                }    
+            }) 
         },
         getSubjectList(pId,sId){
             this.$http.post('/web/coursebook/listPeriod2Subject.do',qs.stringify({        
@@ -399,34 +462,26 @@ export default {
                 pageSize:100
             }))
             .then(res => { 
-                if(res.status != 200){
-                    this.$Message.error('请求失败请重试');
-                }else{
-                    let result = res.data;
-                    if(result.status != 0){
-                        this.$Message.error('请求资源失败，请重试');
-                    }else{  
-                        if(result.data.list instanceof Array && result.data.list.length>0){
-                            this.subList = result.data.list;
-                            if(sId){
-                                this.filter.subjectId=sId;
-                                if(this.baseData.id){
-                                  this.getVersionList(this.baseData.periodId,this.baseData.subjectId,this.baseData.id);  
-                                }else{
-                                    this.getVersionList(2,2,293);
-                                }
+                let result = res.data;
+                if(result.status != 0){
+                    this.$Message.error('请求资源失败，请重试');
+                }else{  
+                    if(result.data.list instanceof Array && result.data.list.length>0){
+                        this.subList = result.data.list;
+                        if(sId){
+                            this.filter.subjectId=sId;
+                            if(this.baseData.id){
+                              this.getVersionList(this.baseData.periodId,this.baseData.subjectId,this.baseData.id);  
+                            }else{
+                                this.getVersionList(2,2,293);
                             }
-                        }else{
-                            this.subList = [];
-                            this.nodeTree = []
-                        }           
-                    }
-                }     
-
-            })
-            .catch(function (error) {
-                alert(error);
-            });
+                        }
+                    }else{
+                        this.subList = [];
+                        this.nodeTree = []
+                    }           
+                }
+            }) 
         },  
         getVersionList(pId,sId,vId){
             this.$http.post('/web/coursebook/listBookVersion.do',qs.stringify({       
@@ -437,35 +492,27 @@ export default {
                 pageIndex:1,
                 pageSize:100
             }))
-            .then(res => { 
-                if(res.status != 200){
-                  this.$Message.error('请求失败请重试');
-                }else{
-                  let result = res.data;
-                  if(result.status != 0){
-                    this.$Message.error('请求资源失败，请重试');
-                  }else{  
-                    if(result.data.list instanceof Array && result.data.list.length>0){
-                        this.verList = result.data.list; 
-                        if(vId){
-                            this.filter.versionId=vId;
-                            if(this.baseData.id){
-                                  this.getTextBookList(this.baseData.periodId,this.baseData.subjectId,this.baseData.id,true); 
-                                }else{
-                                    this.getTextBookList(2,2,293,true);
-                                }
-                            
-                        }             
-                    }else{
-                        this.verList = [];
-                        this.nodeTree = []
-                    }
+            .then(res => {
+                let result = res.data;
+                if(result.status != 0){
+                  this.$Message.error('请求资源失败，请重试');
+                }else{  
+                  if(result.data.list instanceof Array && result.data.list.length>0){
+                      this.verList = result.data.list; 
+                      if(vId){
+                          this.filter.versionId=vId;
+                          if(this.baseData.id){
+                                this.getTextBookList(this.baseData.periodId,this.baseData.subjectId,this.baseData.id,true); 
+                              }else{
+                                  this.getTextBookList(2,2,293,true);
+                              }
+                      }             
+                  }else{
+                      this.verList = [];
+                      this.nodeTree = []
                   }
-                }     
-            })
-            .catch(function (error) {
-                alert(error);
-            });
+                }    
+            }) 
         },
         getTextBookList(pId,sId,vId,tId){
             this.$http.post('/web/coursebook/listTextbook.do',qs.stringify({        
@@ -478,38 +525,31 @@ export default {
                 pageSize:100
             }))
             .then(res => { 
-                if(res.status != 200){
-                    this.$Message.error('请求失败请重试');
-                }else{
-                    let result = res.data;
-                    if(result.status != 0){
-                        this.$Message.error('请求资源失败，请重试');
-                    }else{              
-                        if(result.data.list instanceof Array && result.data.list.length>0){
-                            this.textList = result.data.list;
-                            this.baseData.textbookId=result.data.list[0].textbookId;            
-                            this.baseData.textbookName=result.data.list[0].textbookName;  
-                            
-                            if(tId){
-                                this.filter.textbookId=this.baseData.textbookId;
-                                if(result.data.list[0].textbookId!=1343){
-                                  this.ver2text=this.baseData.name+this.baseData.textbookName;
-                                }
-                                this.getNodeTree(this.baseData);
-                                this.getResourceList(this.filter) 
-                            }        
-                        }else{
-                            this.textList = [{textbookId:0,textbookName:'无'}];
-                            this.nodeTree = []
-                            this.baseData.textbookId=0;            
-                            this.baseData.textbookName='无';
-                        }
+                let result = res.data;
+                if(result.status != 0){
+                    this.$Message.error('请求资源失败，请重试');
+                }else{              
+                    if(result.data.list instanceof Array && result.data.list.length>0){
+                        this.textList = result.data.list;
+                        this.baseData.textbookId=result.data.list[0].textbookId;            
+                        this.baseData.textbookName=result.data.list[0].textbookName;  
+                        
+                        if(tId){
+                            this.filter.textbookId=this.baseData.textbookId;
+                            if(result.data.list[0].textbookId!=1343){
+                              this.ver2text=this.baseData.name+this.baseData.textbookName;
+                            }
+                            this.getNodeTree(this.filter);
+                            this.getResourceList(this.filter) 
+                        }        
+                    }else{
+                        this.textList = [{textbookId:0,textbookName:'无'}];
+                        this.nodeTree = []
+                        this.baseData.textbookId=0;            
+                        this.baseData.textbookName='无';
                     }
-                }  
-            })
-            .catch(function (error) {
-                alert(error);
-            });
+                }
+            }) 
         }, 
         getResourceLocalTypeList(){
             this.$http.post('/web/coursebook/listResourceLocalType.do',qs.stringify({        
@@ -526,17 +566,18 @@ export default {
                     }else{              
                         if(result.data.list instanceof Array && result.data.list.length>0){
                             this.typeList = result.data.list;
+                            if(this.resourceKindId==2){
+                              this.typeList=[result.data.list[0],result.data.list[2]];
+                            }
                             this.typeList.unshift({id: 0, name: "不限", type: 1}); 
-                            this.type=result.data.list[0].id;         
+                            this.type=this.typeList[0].id;  
+
                         }else{
                             this.typeList = [];
                         }
                     }
                 }  
-            })
-            .catch(function (error) {
-                alert(error);
-            });
+            }) 
         },  
         pageChange(page){
             this.filter.pageIndex=page;
@@ -544,9 +585,10 @@ export default {
         } 
     },
     created() {
-        // console.log(this.baseData.id)
         if(this.baseData.id){
             this.filter.periodId=this.baseData.periodId;
+            this.filter.subjectId=this.baseData.subjectId;
+            this.filter.versionId=this.baseData.versionId;
             this.filter.token=this.token;
             this.filter.resourceKindId=this.resourceKindId;
             this.baseData.resourceKindId=this.resourceKindId;
@@ -556,6 +598,10 @@ export default {
             this.per2sub=this.baseData.periodName+this.baseData.subjectName;
             this.getSubjectList(this.baseData.periodId,this.baseData.subjectId);
         }else{
+            this.filter.token=this.token;
+            this.filter.resourceKindId=this.resourceKindId;
+            this.baseData.resourceKindId=this.resourceKindId;
+            this.baseData.token=this.token;
             this.per2sub=this.filter.periodName+this.filter.subjectName;
             this.getSubjectList(2,2);
         }
@@ -692,6 +738,9 @@ export default {
 }
 .joint,.bar-line{
     display: none;
+}
+.ml20{
+    margin-left: 20px;
 }
 .joint.active,.bar-line.active{
     display: block;

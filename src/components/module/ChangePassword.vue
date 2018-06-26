@@ -78,9 +78,6 @@ export default {
             this.$Message.error(res.data.message);
         }
         })
-        .catch((err)=>{
-            alert(err);
-        })
     }
   }
 }

@@ -2,8 +2,8 @@
   <div>
       <div id="banner">
         <Carousel autoplay v-model="value1" loop>
-            <CarouselItem v-for="item in bannerList" :key="item.bannerId">
-                <div class="demo-carousel">
+            <CarouselItem v-for="(item,index) in bannerList" :key="item.bannerId" v-if="index<3">
+                <div class="demo-carousel"  @click="goBannerUrl(item)">
                     <img :src="item.imgPath">
                 </div>
             </CarouselItem>  
@@ -46,9 +46,9 @@
                     <div class="rightBox">
                         <h1>{{infoOne.title}}</h1>
                         <p>{{infoOne.summary}}</p>
-                        <a href="javascript:void(0);" class="msg-detail" @click="goDetail(infoOne)">[详情]</a>
+                        <a href="javascript:void(0);" v-if="infoOne.summary" class="msg-detail" @click="goDetail(infoOne)">[详情]</a>
                         <ul>
-                            <li  v-for="item in newsInfoTitleList" @click="goDetail(item)">
+                            <li  v-for="(item,index) in newsInfoTitleList" v-if="index>0" @click="goDetail(item)">
                                 <span>{{item.title}}</span>
                                 <span class="date">{{formatTime(item.createTime)}}</span>
                             </li>                       
@@ -72,7 +72,7 @@
       </div>      
       <div id="classes" class="w-1200">
             <div class="section-box">
-                <span class="section-title">免费课程</span>
+                <span class="section-title">热门课程</span>
                 <span class="right more" @click="gotoSub(1,0)">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
             </div>
             <ClassList :classList="recomClasses"></ClassList>          
@@ -181,6 +181,12 @@ export default {
                 path:'/OpenSchool'
           });   
         },
+        goBannerUrl(item){
+          if(!item.href){
+            return false;
+          }
+          window.open(item.href);
+        },
         goDetail(item){
             this.$router.push({
                 path:'/NewsDetail',
@@ -221,10 +227,7 @@ export default {
                 }           
               }
             }  
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
         },
         getBannerList(){
           this.$http.post('web/banner/list.do',this.$qs.stringify({
@@ -245,10 +248,7 @@ export default {
                 }           
               }
             } 
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
         },
         getNewInfoImgList(){
           this.$http.post('web/newsInfo/showList',this.$qs.stringify({
@@ -269,10 +269,7 @@ export default {
                 }           
               }
             } 
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
         },
         getNewInfoList(){
           this.$http.post('web/newsInfo/list.do',this.$qs.stringify({
@@ -294,10 +291,7 @@ export default {
                 }           
               }
             }
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
         },
         getSpaceList(role){//获取优秀空间
             this.$http.post('web/space/listExcellent'+role+'Space.do',this.$qs.stringify({
@@ -318,11 +312,7 @@ export default {
                 }           
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
-        },
+            })         },
         getSpaceDynamic(type){//获取最新动态
             this.$http.post('web/space/listAllSpaceDynamic.do',this.$qs.stringify({
               pageSize:5,
@@ -342,11 +332,7 @@ export default {
                  this.$Message.error(result.message);          
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
-        },
+            })         },
         changeRole(item){
             this.nowId=item.id; 
             this.nowColor=item.color; 

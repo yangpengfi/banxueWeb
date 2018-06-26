@@ -6,7 +6,7 @@
             </div>
             <div class="myView">
 				<p class="viewTitle more-focus">
-					我的关注
+					他的关注
 					<span @click="goMyList">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
 				</p>
 				<ul class="viewCont">
@@ -44,7 +44,7 @@
             <div class="message">
                 <p>留言区</p>
                 <div>
-                    <textarea v-model="comment" placeholder="请写下你的精彩留言……"></textarea>
+                    <textarea v-model="comment" placeholder="请写下你的精彩留言……" maxlength="50" title="长度不超过50"></textarea>
                 </div>
                 <div>
                     <button class="comment" disabled v-if="!isLogin">请登录留言</button>
@@ -63,7 +63,7 @@
                     </li>
                 </ul>
                 <div class="message-page">
-					<Page :total="commentTotalCount" 
+					      <Page :total="commentTotalCount" 
                     :current="commentCurrPage" 
                     @on-change="commentChange" 
                     :page-size="4"
@@ -87,9 +87,9 @@
                         <div class="other-info">
                             <span>{{formatTime(item.createTime)}}</span>
                             <span>阅读</span>
-                            <b>{{item.readCount}}</b>
+                            <b :title="item.readCount">{{item.readCount}}</b>
                             <span>评论</span>
-                            <b>{{item.commentCount}}</b>
+                            <b :title="item.commentCount">{{item.commentCount}}</b>
                         </div>
                     </li>
                 </ul>
@@ -97,7 +97,7 @@
             <div class="his-resource">
                 <p class="common-title">
                     他的资源
-					<span>更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
+					<span @click="goMyResource" >更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
                 </p>
                 <ul>
                     <li v-for="item of resourceList">
@@ -105,8 +105,7 @@
                             {{item.recourceLocalName}}
                         </p>
                         <div>
-                            <Rate v-model="item.score"></Rate>
-                            <!-- <span>{{item.collectNum}}/{{item.browseNum}}</span> -->
+                            <Rate v-model="item.score" allow-half disabled></Rate>
                             <span>{{item.commentNum}}/{{item.browseNum}}</span>
                         </div>
                     </li>
@@ -115,7 +114,7 @@
             <div class="his-dynamic">
                 <p  class="common-title">
                     他的动态
-					<span>更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
+					<!-- <span>更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span> -->
                 </p>
                 <ul>
                     <li v-for="item of latestNews">
@@ -127,13 +126,12 @@
                             </p>
                             <p>
                                 {{item.title}}
-                                <span class="file" @click="toInfo(item)">
-                                    {{item.name}}
+                                <span class="file" @click="toInfo(item)" v-html="item.name">
                                 </span>
                             </p>
                         </div>
                         <div class="dynamic-operate">
-                            <p v-if="item==2">
+                            <p v-if="item.type==2">
                                 <span>赞</span>{{item.likeCount}}
                                 <span>转发</span>{{item.reprintCount}}
                                 <span>评论</span> {{item.commentCount}}
@@ -164,10 +162,11 @@ export default {
         return {
         	token:this.$storage.getStorage("token"),
           userId:0,
+          goResource:'',
           peopleList:[],
           visitorList:[],
           vTotalCount:0,
-          vTotal:25,
+          vTotal:0,
           currPage:1,
           visitorCount:{
           	"todayCount": 10,
@@ -217,27 +216,42 @@ export default {
           }else{
             this.$router.push({
                 path:'/MySpace/ArticalInfo',
-                query:{articleId:item.fromId,userId:this.userId}
+                query:{articleId:item.fromId,userId:this.userId,token:this.token}
             });
           }
       },
         goSpaceShow(item){
             this.$router.push({
                 path:'/ShowSpace',
-                query:{userId:item.userId}
+                query:{userId:item.userId,token:this.token}
             }); 
         },
         goMyList(){
         	this.$router.push({
                 path:'/ShowSpace/MyList',
-                query:{userId:this.userId}
+                query:{userId:this.userId,token:this.token}
             });
+          setTimeout(()=>{
+            this.$router.go(0)
+          },50);
         },
         goAchievement(){
-        	this.$router.push({
+          this.$router.push({
                 path:'/ShowSpace/Achievements',
-                query:{userId:this.userId}
+                query:{userId:this.userId,token:this.token}
             });
+          setTimeout(()=>{
+            this.$router.go(0)
+          },50);
+        },
+        goMyResource(){
+        	this.$router.push({
+                path:this.goResource,
+                query:{userId:this.userId,token:this.token}
+            });
+          setTimeout(()=>{
+            this.$router.go(0)
+          },50);
         },
         login(){
           this.$router.replace({
@@ -248,12 +262,11 @@ export default {
         getFollowers(){//获取关注列表
             this.$http.post('/web/space/followers.do',this.$qs.stringify({
               pageSize:9,
-              userId:this.userId
+              userId:this.userId,
+              token:this.token
+
             }))
-            .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
+            .then((res)=>{ 
               let result = res.data;
               if(result.status == 0){
                 if(result.data.list instanceof Array && result.data.list.length>0){
@@ -267,22 +280,17 @@ export default {
               }else{
                 this.$Message.error(result.message);            
               }
-            } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+             
         },
         getVisitors(page){//获取访客列表
             this.$http.post('web/space/listVisitors.do',this.$qs.stringify({
               pageIndex:page||1,
               pageSize:9,
-              userId:this.userId
+              userId:this.userId,
+              token:this.token
             }))
-            .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
+            .then((res)=>{ 
               let result = res.data;
               if(result.status == 0){ 
                 if(result.data.list instanceof Array && result.data.list.length>0){
@@ -299,64 +307,49 @@ export default {
               }else{ 
                 this.$Message.error(result.message);         
               }
-            } 
+              this.getVisitorCount();
             })
-            .catch((err)=>{
-                alert(err);
-            })
+             
         },
         getVisitorCount(){//获取访客数量
             this.$http.post('/web/space/visitorCount.do',this.$qs.stringify({
-              userId:this.userId
+              userId:this.userId,
+               token:this.token
             }))
-            .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
+            .then((res)=>{ 
               let result = res.data;
               if(result.status == 0){ 
                 this.visitorCount=result.data;
               }else{ 
                 this.$Message.error(result.message);         
               }
-            } 
-            })
-            .catch((err)=>{
-                alert(err);
             })
         }, 
         createComment(){//创建留言
             this.$http.post('/web/space/a/createSpaceComment.do',this.$qs.stringify({
               userId:this.userId,
               token:this.token,
-              content:this.comment,
+              content:this.comment
             }))
-            .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
+            .then((res)=>{ 
               let result = res.data;
               if(result.status == 0){ 
-                this.getSpaceComment(1);
+                this.comment=''
+                this.getSpaceComment(Math.ceil(this.commentTotalCount/4));
               }else{ 
                 this.$Message.error(result.message);         
               }
-            } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+             
         },
         getSpaceComment(page){//获取评论列表
             this.$http.post('web/space/listSpaceComment.do',this.$qs.stringify({
               pageIndex:page||1,
               pageSize:4,
-              userId:this.userId
+              userId:this.userId,
+              token:this.token
             }))
-            .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
+            .then((res)=>{ 
               let result = res.data;
               if(result.status == 0){ 
                 if(result.data.list instanceof Array && result.data.list.length>0){
@@ -366,26 +359,18 @@ export default {
                 }else{
                   this.messageList = [];
                 } 
-              }else if(result.status == 9){
-                this.login();
-                return;
               }else{ 
                 this.$Message.error(result.message);         
               }
-            } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+             
         },
     		like(){//点赞
     			this.$http.post('/web/space/article/a/like.do',this.$qs.stringify({
-                  userId:this.userId
+                  userId:this.userId,
+                  token:this.token
                 }))
                 .then((res)=>{
-                if(res.status != 200){
-                  this.$Message.error('请求失败请重试');
-                }else{
                   let result = res.data;
                   if(result.status == 0){
                   	if(result.data.list instanceof Array && result.data.list.length>0){
@@ -399,10 +384,6 @@ export default {
                   }else{ 
                     this.$Message.error(result.message);      
                   }
-                } 
-                })
-                .catch((err)=>{
-                    alert(err);
                 })
     		},
     		getArticleList(tId){//获取文章列表
@@ -413,9 +394,6 @@ export default {
                    token:this.token
                 }))
                 .then((res)=>{
-                if(res.status != 200){
-                  this.$Message.error('请求失败请重试');
-                }else{
                   let result = res.data;
                   if(result.status == 0){
                   	if(result.data.list instanceof Array && result.data.list.length>0){
@@ -429,11 +407,7 @@ export default {
                   }else{ 
                     this.$Message.error(result.message);      
                   }
-                } 
-                })
-                .catch((err)=>{
-                    alert(err);
-                })
+                }) 
     		},
         getResource(){//获取资源列表
           this.$http.post('/web/coursebook/listUserUploadResource.do',this.$qs.stringify({
@@ -441,9 +415,6 @@ export default {
             userId:this.userId
           }))
           .then((res)=>{
-          if(res.status != 200){
-            this.$Message.error('请求失败请重试');
-          }else{
             let result = res.data;
             if(result.status == 0){
               if(result.data.list instanceof Array && result.data.list.length>0){
@@ -454,21 +425,14 @@ export default {
             }else{ 
               this.$Message.error(result.message);      
             }
-          } 
-          })
-          .catch((err)=>{
-              alert(err);
           })
         },
     		getResourceStudent(){//获取资源列表
     			this.$http.post('/web/coursebook/listUserCollectResource.do',this.$qs.stringify({
-		        pageSize:5,
+		        pageSize:100,
             userId:this.userId
           }))
           .then((res)=>{
-          if(res.status != 200){
-            this.$Message.error('请求失败请重试');
-          }else{
             let result = res.data;
             if(result.status == 0){
             	if(result.data.list instanceof Array && result.data.list.length>0){
@@ -479,22 +443,16 @@ export default {
             }else{ 
               this.$Message.error(result.message);      
             }
-          } 
-          })
-          .catch((err)=>{
-              alert(err);
           })
     		},
         getSpaceDynamic(pidx,more){//获取最新动态
             this.$http.post('web/space/listUserSpaceDynamic.do',this.$qs.stringify({
               pageSize:5,
               userId:this.userId,
+              token:this.token,
               pageIndex:pidx||1,
             }))
-            .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
+            .then((res)=>{ 
               let result = res.data;
               if(result.status == 0){
                 if(result.data.list instanceof Array && result.data.list.length>0){
@@ -520,11 +478,8 @@ export default {
               }else{ 
                  this.$Message.error(result.message);          
               }
-            } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+             
         },
         pageChange(page){
             this.getVisitors(page)
@@ -543,8 +498,10 @@ export default {
       this.userId=this.$router.history.current.query.userId;
       let userType=this.$storage.getStorage("spaceInfo").userType;
       if(userType==2){
+        this.goResource='/ShowSpace/MyResource/PushResource';
         this.getResourceStudent();
       }else{
+        this.goResource='/ShowSpace/MyResource/';
         this.getResource();
       }
 	    if(!this.$storage.getStorage("userInfo")){
@@ -554,11 +511,9 @@ export default {
 	    }
 
         this.getFollowers();
-        this.getVisitorCount();
         this.getVisitors(1);
         this.getSpaceComment(1);
         this.getArticleList(0);
-        
         this.getSpaceDynamic();
     }
 }
@@ -689,7 +644,7 @@ export default {
         padding: 0 20px;
     }
     .message ul li{
-        height: 100px;
+        height: 160px;
         border-bottom: 1px solid #e9e9e9;
         font-size: 14px;
         color: #666;
@@ -719,7 +674,7 @@ export default {
     }
     .message ul li .name{   
     	display: inline-block;
-    	max-width: 80px;     
+    	max-width: 75px;     
         font-size: 16px;
         color: #1cb0ea;
         overflow: hidden;
@@ -733,12 +688,13 @@ export default {
         margin-top: 3px;
     }
     .message ul li .itemCont{   
-        display: -webkit-box;
+        /*display: -webkit-box;
         -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
+        -webkit-line-clamp: 2;*/
         color:#666;
-        overflow: hidden;
-        height: 40px;
+        /*overflow: hidden;*/
+        /*height: 40px;*/
+        font-size: 12px;
     }
     .message-page{
         margin-bottom: 20px;
@@ -810,8 +766,15 @@ export default {
         margin-right: 5px;
     }
     .other-info b{
+        display: inline-block;
         color: #50a6ff;
         font-weight: normal;
+        width: 40px;
+        text-align: center;
+        vertical-align: middle;
+        overflow: hidden;
+        text-overflow:ellipsis;
+        white-space: nowrap;
     }
     .his-resource ul{
         padding: 0 40px;

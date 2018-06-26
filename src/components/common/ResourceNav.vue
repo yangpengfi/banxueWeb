@@ -17,7 +17,7 @@ export default {
         return{
             token:this.$storage.getStorage("token"),
             resourceFilter:[               
-                {text:'学科资源',path:'/FilterResource/SubjectResource?id=SubjectResource',id:'SubjectResource'},   
+                // {text:'学科资源',path:'/FilterResource/SubjectResource?id=SubjectResource',id:'SubjectResource'},   
                 {text:'区域资源',path:'/FilterResource/AreaResource?id=AreaResource',id:'AreaResource'},   
                 {text:'校本资源',path:'/FilterResource/SchoolResource?id=SchoolResource',id:'SchoolResource'},   
                 {text:'特色微课',path:'/FilterResource/SpecialClass?id=SpecialClass',id:'SpecialClass'},   

@@ -28,8 +28,8 @@ export default {
     },
     methods:{
       getAppList(){
-        this.$http.post('web/appInfo/listByType',this.$qs.stringify({
-            pageSize:3
+        this.$http.post('web/appInfo/listByType.do',this.$qs.stringify({
+            createrId:0
         }))
         .then((res)=>{
         if(res.status != 200){
@@ -47,10 +47,7 @@ export default {
             }           
           }
         } 
-        })
-        .catch((err)=>{
-            alert(err);
-        })
+        }) 
       }
     },
     created(){

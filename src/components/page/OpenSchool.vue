@@ -2,7 +2,7 @@
   <div>
   	<div class="w-1200 pageContent">
 		<p>
-			<span>请选择您的学校：</span>
+			<span><i style="color:red;">*</i> 请选择您的学校：</span>
 			<Select v-model="provinceId" filterable style="width:200px;margin-right:20px;">
 				<Option value="">请选择省份</Option>
         <Option v-for="item in provinceList" :value="item.provinceid" :key="item.provinceid">{{ item.provincename }}</Option>
@@ -17,7 +17,7 @@
       </Select>
     </p>
 		<p>
-			<span>学段：</span>
+			<span><i style="color:red;">*</i> 学段：</span>
 			<Select v-model="periodId" filterable style="width:240px">
           <Option value="">请选择学段</Option>
           <Option value="3">小学</Option>
@@ -26,7 +26,7 @@
       </Select>
     </p>
 		<p>
-			<span>学校名称：</span>
+			<span><i style="color:red;">*</i> 学校名称：</span>
 			<Input v-model="name" 
       placeholder="请输入学校名称" 
       style="width: 480px" 
@@ -80,9 +80,6 @@
     	getlistProvince(){
           this.$http.post('/app/location/listProvince')
           .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
               let result = res.data;
               if(result.status != 0){
                 this.$Message.error('请求资源失败，请重试');
@@ -93,20 +90,14 @@
                   this.provinceList = [];
                 }           
               }
-            } 
           })
-          .catch((err)=>{
-            alert(err);
-          })
+           
         },
     	getlistCity(pId){
           this.$http.post('/app/location/listCity',this.$qs.stringify({
             provinceId:pId
           }))
           .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
               let result = res.data;
               if(result.status != 0){
                 this.$Message.error('请求资源失败，请重试');
@@ -117,20 +108,14 @@
                   this.cityList = [];
                 }           
               }
-            }
           })
-          .catch((err)=>{
-            alert(err);
-          })
+           
         },
     	getlistArea(cId){
           this.$http.post('/app/location/listArea',this.$qs.stringify({
             cityId:cId
           }))
           .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
               let result = res.data;
               if(result.status != 0){
                 this.$Message.error('请求资源失败，请重试');
@@ -141,11 +126,8 @@
                   this.areaList = [];
                 }           
               }
-            }  
           })
-          .catch((err)=>{
-            alert(err);
-          })
+           
         },
       goCommitPeople(){
             if(!this.provinceId){
@@ -180,7 +162,7 @@
               periodId:this.periodId,  
               name:this.name
             }
-            console.log(commitData)
+            // console.log(commitData)
             this.$storage.setSession('commitData',commitData)
             this.$router.push({
                 path:'/CommitPeople',

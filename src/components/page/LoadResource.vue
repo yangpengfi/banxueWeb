@@ -5,7 +5,7 @@
             <div class="left resource-lay">
                 <div class="resource-search">
                     <div id="res-select-box">
-                        <div id="select-btn">
+                        <div id="select-btn" :title="selData">
                             <input class="select" v-model="selData" readonly @click="openSel" placeholder="选择上传类别">
                             <Icon type="chevron-down" size=16></Icon>
                         </div>
@@ -39,20 +39,26 @@
 				<ul class="section" v-if="nodeTree.length>0">
 					<li v-for="item of nodeTree">
 						<div>
-							<b @click="unfold1(item)" class="fold">
-								<Icon type="ios-plus-outline" size=20 v-if="item.children.length>0"></Icon>
-							</b>                            
+							<b @click="unfold1(item)" class="fold" v-if="item.id != foldId1">
+                                <Icon type="ios-plus-outline" size=20 v-if="item.children.length>0"></Icon>
+                              </b> 
+                              <b @click="unfold1(0)" class="fold" v-else>
+                                <Icon type="ios-minus-outline" size=20 v-if="item.children.length>0"></Icon>
+                              </b>                            
 							<span @click="tabLoad1(item)" :class="{active:item.id==loadId1}">{{item.name}}</span>								
 						</div>
 						<ul class="joint" v-if="item.children.length>0" :class="{active:item.id == foldId1}">
 							<li v-for="item of item.children">
 								<div>
-									<b @click="unfold2(item)" class="fold">
-										<Icon type="ios-plus-outline" size=20 v-if="item.children.length>0"></Icon>
-									</b>  
+                                    <b @click="unfold2(item)" class="fold" v-if="item.id != foldId2">
+                                        <Icon type="ios-plus-outline" size=20 v-if="item.children.length>0"></Icon>
+                                    </b> 
+                                    <b @click="unfold2(0)" class="fold" v-else>
+                                        <Icon type="ios-minus-outline" size=20 v-if="item.children.length>0"></Icon>
+                                    </b>  
 									<span @click="tabLoad2(item)" :class="{active:item.id==loadId2}">{{item.name}}</span>										                                  
 								</div>
-								<ul class="bar-line" v-if="item.children.length>0" :class="{active:item.id == foldId2}">
+								<ul class="bar-line ml20" v-if="item.children.length>0" :class="{active:item.id == foldId2}">
 									<li v-for="item of item.children">                                        
 										<span @click="tabLoad3(item)" :class="{active:item.id==loadId3}">{{item.name}}</span>											 
 									</li>
@@ -64,11 +70,11 @@
             </div>
             <div class="left">
                 <p>上传说明：</p>
-                <p>1、可上传文件格式为doc、docx、ppt、pptx、xls、xlsx、jpg、png、bmp、pdf、txt、mp3、rmvb、mp4、avi</p>
+                <p>1、可上传文件格式为doc、docx、ppt、pptx、xls、xlsx、jpg、png、bmp、pdf、txt、mp3、mp4</p>
                 <p>2、建议单个文件不要超过1G</p>
                 <p>3、选择课程目录，出现开始上传按钮，上传成功后视频名称会出现在表格中，如果上传的视频错误，请重新上传</p>
-                <uploader :options="options" :file-status-text="statusText" ref="uploader" @file-success="fileSuccess" class="uploader-example">
-                    <uploader-btn :class="{active:bid1 !=''||bid2 !=''||bid3 !=''||kid1 !=''||kid2 !=''||kid3 !=''}">开始上传</uploader-btn>
+                <uploader :options="options" :file-status-text="statusText" ref="uploader" @file-success="fileSuccess" @file-added="fileAdd" class="uploader-example">
+                    <uploader-btn :class="{active:bid1 !=''||bid2 !=''||bid3 !=''||kid1 !=''||kid2 !=''||kid3 !=''}" :attrs="attrs">开始上传</uploader-btn>
                     <uploader-list></uploader-list>
                 </uploader>
                 <Table border :columns="resourceKindId == 1? columns1:columns2" :data="dataLoad"></Table>
@@ -91,6 +97,10 @@ export default {
                      key: 'name'
                 },
                 {
+                    title: '格式',
+                    key: 'type'
+                },
+                {
                     title: '大小',
                     key: 'size'
                 },
@@ -111,48 +121,44 @@ export default {
                     key: 'textbook'
                 },
                 {
-                    title: '章',
+                    title: '章节',
                     key: 'section'
                 },
-                {
-                    title: '节',
-                    key: 'joint'
-                },
-                {
-                    title: '小节',
-                    key: 'barline'
-                },
-                {
-                    title: '操作',
-                    key: 'operator',
-                    render: (h, params) => {
-                            return h('div', [                                
-                                h('Button', {
-                                    props: {
-                                        type: 'error',
-                                        size: 'small'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.$Modal.confirm({
-                                                title: '删除',
-                                                content: '<p>确定删除资源吗？</p>',
-                                                onOk: () => {
-                                                    this.remove(params.index);          
-                                                }
-                                            });
+                // {
+                //     title: '操作',
+                //     key: 'operator',
+                //     render: (h, params) => {
+                //             return h('div', [                                
+                //                 h('Button', {
+                //                     props: {
+                //                         type: 'error',
+                //                         size: 'small'
+                //                     },
+                //                     on: {
+                //                         click: () => {
+                //                             this.$Modal.confirm({
+                //                                 title: '删除',
+                //                                 content: '<p>确定删除资源吗？</p>',
+                //                                 onOk: () => {
+                //                                     this.remove(params.index);          
+                //                                 }
+                //                             });
                                             
-                                        }
-                                    }
-                                }, '删除')
-                            ]);
-                        }
-                }
+                //                         }
+                //                     }
+                //                 }, '删除')
+                //             ]);
+                //         }
+                // }
             ],
             columns2: [
                  {
                      title: '文件名称',
                      key: 'name'
+                },
+                {
+                    title: '格式',
+                    key: 'type'
                 },
                 {
                     title: '大小',
@@ -167,43 +173,35 @@ export default {
                     key: 'subject'
                 },
                 {
-                    title: '1级知识点',
+                    title: '知识点',
                     key: 'firstknow'
                 },
-                {
-                    title: '2级知识点',
-                    key: 'twoknow'
-                },
-                {
-                    title: '3级知识点',
-                    key: 'thirdknow'
-                },
-                {
-                    title: '操作',
-                    key: 'operator',
-                    render: (h, params) => {
-                            return h('div', [                                
-                                h('Button', {
-                                    props: {
-                                        type: 'error',
-                                        size: 'small'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.$Modal.confirm({
-                                                title: '删除',
-                                                content: '<p>确定删除资源吗？</p>',
-                                                onOk: () => {
-                                                    this.remove(params.index);          
-                                                }
-                                            });
+                // {
+                //     title: '操作',
+                //     key: 'operator',
+                //     render: (h, params) => {
+                //             return h('div', [                                
+                //                 h('Button', {
+                //                     props: {
+                //                         type: 'error',
+                //                         size: 'small'
+                //                     },
+                //                     on: {
+                //                         click: () => {
+                //                             this.$Modal.confirm({
+                //                                 title: '删除',
+                //                                 content: '<p>确定删除资源吗？</p>',
+                //                                 onOk: () => {
+                //                                     this.remove(params.index);          
+                //                                 }
+                //                             });
                                             
-                                        }
-                                    }
-                                }, '删除')
-                            ]);
-                        }
-                }
+                //                         }
+                //                     }
+                //                 }, '删除')
+                //             ]);
+                //         }
+                // }
             ],
             dataLoad:[],  
             msg:{				
@@ -244,12 +242,8 @@ export default {
             kid1:'',
             kid2:'',
             kid3:'',
-            bname1:'',
-            bname2:'',
-            bname3:'',
-            kname1:'',
-            kname2:'',
-            kname3:'',
+            bname:'',
+            kname:'',
             fileName:'',
             uniCode:'',
             uniCodeList:[],
@@ -263,7 +257,10 @@ export default {
                     identifier:'',
                     token:this.$storage.getStorage("token")
                 }
-            },           
+            },  
+            attrs:{
+                accept: '.doc,.docx,.ppt,.pptx,.xls,.xlsx,.pdf,.jpg,.png,.bmp,.mp3,.mp4,.txt'
+            },         
             statusText: {  
                 success: '成功了',  
                 error: '出错了',  
@@ -279,11 +276,15 @@ export default {
 			this.loadId2 = '';
 			this.loadId3 = '';
 			if(this.resourceKindId == 1){
-                this.bid1 = item.id; 
-                this.bname1 = item.name;           
+                this.bid1 = item.bid1; 
+                this.bid2 = item.bid2; 
+                this.bid3 = item.bid3;
+                this.bname = item.name;           
 			}else if(this.resourceKindId == 2){
-                this.kid1 = item.id;
-                this.kname1 = item.name; 
+                this.kid1 = item.kid1;
+                this.kid2 = item.kid2;
+                this.kid3 = item.kid3;
+                this.kname = item.name; 
             }
             this.fileName = item.name;
             this.getUniCode();
@@ -293,11 +294,15 @@ export default {
 			this.loadId1 = '';
 			this.loadId3 = ''; 
 			if(this.resourceKindId == 1){
-                this.bid2 = item.id; 
-                this.bname2 = item.name;              
+                this.bid1 = item.bid1; 
+                this.bid2 = item.bid2; 
+                this.bid3 = item.bid3;
+                this.bname = item.name;               
 			}else if(this.resourceKindId == 2){
-                this.kid2 = item.id;
-                this.kname2 = item.name; 
+                this.kid1 = item.kid1;
+                this.kid2 = item.kid2;
+                this.kid3 = item.kid3;
+                this.kname = item.name; 
             }
             this.fileName = item.name;
             this.getUniCode();
@@ -307,21 +312,34 @@ export default {
 			this.loadId1 = '';
 			this.loadId2 = ''; 
 			if(this.resourceKindId == 1){
-                this.bid3 = item.id;
-                this.bname3 = item.name;              
+                this.bid1 = item.bid1; 
+                this.bid2 = item.bid2; 
+                this.bid3 = item.bid3;
+                this.bname = item.name;                
 			}else if(this.resourceKindId == 2){
-                this.kid3 = item.id;
-                this.kname3 = item.name; 
+                this.kid1 = item.kid1;
+                this.kid2 = item.kid2;
+                this.kid3 = item.kid3;
+                this.kname = item.name; 
             }
             this.fileName = item.name;
             this.getUniCode();
         },
-		unfold1(item){              
+        unfold1(item){ 
+          if(item==0){
+            this.foldId1 ='';
+            this.foldId2 ='';
+          }else{
             this.foldId1 = item.id;
+          }             
         },
-        unfold2(item){              
+        unfold2(item){ 
+          if(item==0){
+            this.foldId2 ='';
+          }else{
             this.foldId2 = item.id;
-        },            
+          }              
+        },           
         getKnowTree(){
             this.$http.post('/web/coursebook/getKnowledgePointTree.do',qs.stringify({				
 				periodId:this.periodId,
@@ -343,9 +361,7 @@ export default {
 					}
 				}			
 				
-			}).catch(function (error) {
-				alert(error);
-			});
+			}) 
         },
         getNodeTree(){
             this.$http.post('/web/coursebook/getBookNodeTree.do',qs.stringify({				
@@ -370,9 +386,7 @@ export default {
 					}
 				}			
 				
-			}).catch(function (error) {
-				alert(error);
-			});
+			}) 
         },
         getSubjectList(periodId){
 			this.$http.post('/web/coursebook/listPeriod2Subject.do',qs.stringify({				
@@ -402,9 +416,7 @@ export default {
 					}
 				}			
 				
-			}).catch(function (error) {
-				alert(error);
-			});
+			}) 
 		},	
 		getBookList(subjectId){
 			this.$http.post('/web/coursebook/listBookVersion.do',qs.stringify({				
@@ -433,9 +445,7 @@ export default {
 					}
 				}			
 				
-			}).catch(function (error) {
-				alert(error);
-			});
+			}) 
 		},
 		getTextBookList(versionId){
 			this.$http.post('/web/coursebook/listTextbook.do',qs.stringify({				
@@ -464,9 +474,7 @@ export default {
 					}
 				}			
 				
-			}).catch(function (error) {
-				alert(error);
-			});
+			}) 
         },
         getsubject(id,name){      
 			this.bookList = [];
@@ -544,9 +552,7 @@ export default {
                         this.options.query.identifier = result.data;	
 					}
 				}	
-			}).catch(function (error) {
-				alert(error);
-			});
+			}) 
         },
         addResource(identifier,fileName,fileSize){
             this.$http.post('/web/coursebook/a/createResourceLocal.do',qs.stringify({				
@@ -576,44 +582,55 @@ export default {
                             this.$Message.success(this.msg.addInfo);
                         }
                     }  
-            }).catch(function (error) {
-                        alert(error);
-            });
+            }) 
+        },
+        fileAdd(file){
+            // console.log(file)
+            let idx=file.name.lastIndexOf(".");
+            let fileType=file.name.substr(idx);
+            let typeArr='.doc,.docx,.ppt,.pptx,.xls,.xlsx,.pdf,.jpg,.png,.bmp,.txt,.mp3,.mp4';
+            if(typeArr.indexOf(fileType)=='-1'){
+                this.$Message.error({
+                    content: '请选择'+typeArr+'等类型的文件',
+                    duration: 2
+                });
+                file.ignored=true;
+            }
+            return false;
         },
         //上传成功的事件  
         fileSuccess (rootFile, file, message, chunk) {  
             
             message = JSON.parse(message);
-            
             if(message.data.isFileUploadFinish == 1){
                 let identifier = message.data.identifier,
-                    fileName = file.name,
+                    // fileName = file.name,
                     fileSize = file.size;
-
-                this.addResource(identifier,fileName,fileSize);
+                let idx=file.name.lastIndexOf(".");
+                let fileName=file.name.substr(0,idx);
+                let fileType=file.name.substr(idx);
+                this.addResource(identifier,file.name,fileSize);
                 this.uniCodeList.push(identifier);
                 if(this.resourceKindId == 1){
                     this.dataLoad.push({
                         name: fileName,
+                        type: fileType,
                         size: this.conver(fileSize),
                         period: this.period,
                         subject: this.subject,
                         book: this.book,
                         textbook: this.textbook,
                         textbook:this.texBook,
-                        section: this.bname1,
-                        joint: this.bname2,
-                        barline: this.bname3      
+                        section: this.bname,    
                     })
                 }else if(this.resourceKindId == 2){
                     this.dataLoad.push({
                         name: fileName,
+                        type: fileType,
                         size: this.conver(fileSize),
                         period: this.period,
                         subject: this.subject,                   
-                        firstknow: this.kname1,
-                        twoknow: this.kname2,
-                        thirdknow: this.kname3   
+                        firstknow: this.kname,   
                     })
                 }
 
@@ -621,6 +638,8 @@ export default {
 
                 file.cancel();
                 
+            }else{
+                file.retry()
             }
         },
         remove(index){
@@ -641,9 +660,7 @@ export default {
                             this.$Message.success(this.msg.deleteInfo);
                         }
                     }  
-            }).catch(function (error) {
-                    alert(error);
-            });
+            })
         }
     }
 }
@@ -788,6 +805,7 @@ export default {
 }
 .uploader-example .uploader-btn.active{
     display: block;
+    width: 70px;
     color: #fff;    
     background-color: #f90;
     border-color: #f90;

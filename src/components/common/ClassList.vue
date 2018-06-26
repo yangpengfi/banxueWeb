@@ -10,6 +10,8 @@
                     <p>{{item.name}}</p>
                     <!-- <span>￥</span>
                     <b>{{(item.money)/100}}</b> -->
+                    <span v-show="item.isFree==0">￥<b>{{(item.money)/100}}</b></span>
+                    <span v-show="item.isFree==1" class="free">免费</span>
                 </div> 
                 <div class="classText" v-show="item.imgUrl==''">
                     <div class="classHead" 
@@ -103,10 +105,10 @@ export default {
         color: #666;
     }
     .class-price span{           
-        font-size:14px;        
+        font-size:14px!important;        
         color: #666;
     }
-    .class-price b,.classText b,.free{           
+    .class-price b,.classText b,.class-price .free,.free{           
         font-size:20px;        
         color: #ff4242;
     }  

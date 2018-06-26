@@ -44,10 +44,7 @@ export default {
                 }           
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
         drawPieFour(){
             let pieFour = this.$echarts.init(document.getElementById('pieFour'));
@@ -69,6 +66,10 @@ export default {
                     {
                         type : 'category',
                         data :this.dataName ,
+                        axisLabel:{
+                            interval:0,
+                            rotate:45 
+                        },
                         axisTick: {
                             alignWithLabel: true
                         }

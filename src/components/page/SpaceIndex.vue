@@ -23,10 +23,10 @@
 					</div>
 				</div>
 				
-				<div class="homework" v-show="spaceInfo.userType==1">
+				<!-- <div class="homework" v-show="spaceInfo.userType==1">
 					<img src="../../assets/imgs/space/work.png" alt="头像" align="absmiddle"/>
 					<span>作业</span>
-				</div>
+				</div> -->
 				
 				<div id="code">
 					<div id="title">
@@ -41,17 +41,24 @@
 			<div class="center">
 				<div class="unfishedList">
 					<p class="unfishedTitle">
-						<a href="#">待完成任务</a>
+						<span>待完成任务</span>
 					</p>
 					<ul v-if="unfinishedList.length>0">
 						<li v-for="item of unfinishedList" @click="unfinishClick(item)">
 							{{item.itemName}}
 							<span v-if="item.itemType==2">
-								<span v-show="item.courseWatchProgress">，未开始学习</span>
-								<span v-show="!item.courseWatchProgress">，已学习了{{item.courseWatchProgress}}%</span>
+								<span v-if="item.courseWatchProgress==0">，未开始学习</span>
+								<span v-else>，已学习了{{item.courseWatchProgress}}%</span>
 							</span>
 						</li>
 					</ul>
+					<div>
+						<Page :total="unTotalCount" 
+						:current="unCurrPage" 
+						:page-size="5"
+						@on-change="unPageChange" 
+						></Page>
+					</div>
 				</div>
 				
 				
@@ -110,7 +117,7 @@
 				<div class="myView">
 					<p class="viewTitle more-focus">
 						我的关注
-						<span>更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
+						<span @click="goMyList">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
 					</p>
 					<ul class="viewCont">
 						<li class="marginTop" v-for="item of peopleList">
@@ -134,6 +141,7 @@
 						<Page :total="vTotalCount" 
 						:current="currPage" 
 						@on-change="pageChange" 
+						:page-size="9"
 						size="small"></Page>
 					</div>
 				</div>
@@ -169,8 +177,10 @@ export default {
 				visitorList:[],
 				spaceInfo:{},
 				vTotalCount:0,
+				unTotalCount:0,
 				vTotal:0,
 				currPage:1,
+				unCurrPage:1,
 				pidx:1,
 				hasMore:true,
 		}
@@ -182,6 +192,11 @@ export default {
 		},
 		goSpaceShow(item){
 	        window.open('#/ShowSpace/?userId='+item.userId);
+        },
+        goMyList(){
+        	this.$router.push({
+                path:'/MySpace/MyList'
+            });
         },
 		toInfo(item){
 		  if(!this.token){
@@ -243,12 +258,10 @@ export default {
               }
             } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+             
 		},
         getUnfinishedList(page){//获取待办任务列表
-            this.$http.post('/app/tasktodo/a/listUserTask.do',this.$qs.stringify({
+            this.$http.post('/web/tasktodo/a/listUserTask.do',this.$qs.stringify({
               pageIndex:page||1,
               pageSize:5,
               token:this.token
@@ -259,8 +272,10 @@ export default {
             }else{
               let result = res.data;
               if(result.status == 0){
-                if(result.data instanceof Array && result.data.length>0){
-                  this.unfinishedList = result.data;
+                if(result.data.list instanceof Array && result.data.list.length>0){
+                  this.unfinishedList = result.data.list;
+                  this.unTotalCount = result.data.totalCount;
+                  this.unCurrPage = result.data.currPage;
                 }else{
                   this.unfinishedList = [];
                 }
@@ -272,14 +287,13 @@ export default {
               }
             } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+             
         },
         getFollowers(){//获取关注列表
             this.$http.post('/web/space/followers.do',this.$qs.stringify({
               pageSize:9,
-              userId:this.$storage.getStorage("userInfo").id
+              userId:this.$storage.getStorage("userInfo").id,
+              token:this.token
             }))
             .then((res)=>{
             if(res.status != 200){
@@ -300,14 +314,13 @@ export default {
               }
             } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+             
         },
         getVisitors(page){//获取访客列表
             this.$http.post('web/space/listVisitors.do',this.$qs.stringify({
               pageIndex:page||1,
               pageSize:9,
+              token:this.token,
               userId:this.$storage.getStorage("userInfo").id
             }))
             .then((res)=>{
@@ -332,9 +345,7 @@ export default {
               }
             } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+             
         }, 
         getSpaceDynamic(type,pidx,more){//获取最新动态
             this.$http.post('web/space/listSpaceDynamic.do',this.$qs.stringify({
@@ -371,12 +382,13 @@ export default {
               }
             } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+             
         },
         pageChange(page){
             this.getVisitors(page)
+        },
+        unPageChange(page){
+            this.getUnfinishedList(page)
         },
         deleteTask(tId){//删除待办任务
             this.$http.post('/app/tasktodo/a/deleteTask.do',this.$qs.stringify({
@@ -402,9 +414,7 @@ export default {
               }
             } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+             
         },
         unfinishClick(item){
         	if(item.itemType==1){
@@ -425,7 +435,8 @@ export default {
         		this.$router.push({
 	              path:'/DetailResource',
 	              query:{
-	                resourceLocalId:item.itemId          
+	                resourceLocalId:item.itemId,
+	                push:1          
 	              }
 	            }); 
         	}
@@ -450,7 +461,7 @@ export default {
 		overflow: hidden;
 		margin-bottom: 60px;
 		font-family: MicrosoftYaHeiLight;
-		font-size: 36px;
+		/*font-size: 36px;*/
 		color: #fff;
 	}
 	.bgColor{
@@ -485,6 +496,7 @@ export default {
 	#nameIntroduction{
 		float: left;
 		margin-left: 22px;
+		margin-top: 20px;
 	}
 	#nameIntroduction span:first-child{
 		display: inline-block;
@@ -604,7 +616,7 @@ export default {
 		padding-left: 30px;
 		padding-right: 30px;
 		width: 100%;
-		height: 280px;
+		height: 380px;
 		border: 1px solid rgb(223, 228, 232);
 		background: rgb(255, 255, 255);
 		overflow: hidden;
@@ -617,14 +629,17 @@ export default {
 		text-align: left;
 		font-size: 16px;
 	}
-	.unfishedTitle a{
+	.unfishedTitle span{
 		display: inline-block;
 		width: 100px;
 		height: 40px;
 		border-bottom: 1px solid rgb(87, 165, 248);
 		color: #000000;
 	}
-	.unfishedList ul li{
+	.unfishedList>ul{
+		min-height: 250px;
+	}
+	.unfishedList>ul>li{
 		height: 50px;
 		line-height: 50px;
 		text-align: left;
@@ -632,10 +647,10 @@ export default {
 		color: #a4a7ac;
 		cursor: pointer;
 	}
-	.unfishedList ul li:hover{
+	.unfishedList>ul>li:hover{
 		color: #008fd5;
 	}
-	.unfishedList ul li.active{
+	.unfishedList>ul>li.active{
 		color: #008fd5;
 	}
 	.spaceInfo{

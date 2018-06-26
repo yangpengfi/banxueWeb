@@ -21,7 +21,7 @@
                       v-for="(version,index) in item.versions" 
                       @click="toAreaResource(version)" v-if="index<6">{{version.name}}</a>
                       <a href="javascript:void(0);" v-if="item.versions.length>6" 
-                        @click="toAreaResource(version)" class="active">更多</a> 
+                        @click="toAreaResource(0)" class="active">更多</a> 
                       </p>                      
                     </li>                   
                   </ul>
@@ -159,9 +159,7 @@ export default {
               
             }
           })
-          .catch((err)=>{
-            alert(err);
-          })
+           
         },
         getVersionList(sId){//版本列表
           this.$http.post('/web/coursebook/getVersionsGroupByPeriod.do',this.$qs.stringify({
@@ -175,9 +173,7 @@ export default {
               
             }
           })
-          .catch((err)=>{
-            alert(err);
-          })
+           
         },
         getSpecialClassesList(){//微课
           this.$http.post('/web/microcourse/listResource.do',this.$qs.stringify({
@@ -194,9 +190,7 @@ export default {
               this.$Message.info(res.data.message);
             }
           })
-          .catch((err)=>{
-            alert(err);
-          })
+           
         },
         getHightClassesList(){//优课
           this.$http.post('/web/coursebook/listExcellentResource.do',this.$qs.stringify({
@@ -212,9 +206,7 @@ export default {
               this.$Message.info(res.data.message);
             }
           })
-          .catch((err)=>{
-            alert(err);
-          })
+           
         },
         getFamousLecture(){//名师推荐
           this.$http.post('/web/coursebook/listTeacherHostResource.do',this.$qs.stringify({
@@ -228,13 +220,11 @@ export default {
               this.$Message.info(res.data.message);
             } 
           })
-          .catch((err)=>{
-            alert(err);
-          })
+           
         },
         getLatestNews(){//名师推荐
           this.$http.post('/web/coursebook/listTeacherLastResource.do',this.$qs.stringify({
-            pageSize:6
+            pageSize:8
           }))
           .then((res)=>{
             // console.log(res.data.classesList);
@@ -244,9 +234,7 @@ export default {
               this.$Message.info(res.data.message);
             } 
           })
-          .catch((err)=>{
-            alert(err);
-          })
+           
         },
         getNewResourceList(){//最新资源
           this.$http.post('/web/coursebook/listRegionLastResource.do',this.$qs.stringify({
@@ -259,9 +247,6 @@ export default {
             }else{
               this.$Message.info(res.data.message);
             } 
-          })
-          .catch((err)=>{
-            alert(err);
           })
         },
         getHotResourceList(){//最热资源
@@ -276,9 +261,6 @@ export default {
               this.$Message.info(res.data.message);
             } 
           })
-          .catch((err)=>{
-            alert(err);
-          })
         },
         login(){
           this.$router.replace({
@@ -287,12 +269,20 @@ export default {
             })
         },
         toAreaResource(item){
-          this.$storage.setSession('baseData',item)
+          if(item==0){
+            this.$storage.setSession('baseData',{id:0})
+          }else{
+            this.$storage.setSession('baseData',item)
+          }
           this.$router.push({
-							path:'/FilterResource/SubjectResource?id=SubjectResource'
+							path:'/FilterResource/AreaResource?id=AreaResource'
           });		
         },
         goMyResource(){
+          if(!this.token){
+              this.login();
+              return;
+            }
           this.$router.push({
               path:'/MySpace/MyResource'
           }); 
@@ -454,6 +444,8 @@ export default {
   box-shadow: inset 0px -2px 0px 0px 
     #149fd6;
   border-radius: 5px;
+  outline: none;
+  border:none;
   font-size: 14px;
   text-align: center;
   line-height: 32px;
@@ -482,7 +474,7 @@ export default {
 #famous-lecture ul{
   overflow: hidden;
   width: 880px;
-  padding: 30px 20px 0 20px;
+  padding: 30px 20px 3px 20px;
   border: solid 1px #dfe4e9;
   background-color: #fff;
 }

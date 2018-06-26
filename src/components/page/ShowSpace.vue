@@ -16,8 +16,10 @@
                         <b>{{spaceInfo.articleCount}}</b>
                         <span>文章</span>
                     </p>
-                    <button v-show="!theFollow" @click="follow">关注</button>
-                    <button v-show="theFollow"  @click="unFollow">取消关注</button>
+                    <span v-show="!theFollow.isSelf">
+                        <button v-show="!theFollow.isFollow" @click="follow">关注</button>
+                        <button v-show="theFollow.isFollow"  @click="unFollow">取消关注</button>
+                    </span>
                 </div>
             </div>
             <ul class="title-list">
@@ -44,44 +46,44 @@ export default {
             token:this.$storage.getStorage("token"),
             userId:0,
             spaceInfo:{},
-            theFollow:false,
+            theFollow:{},
             titleList:[
-                {id:'showSpace',title:'主页',path:'/ShowSpace/'},
-                {id:'myResource',title:'资源中心',path:'/ShowSpace/MyResource?'},
-                {id:'achievements',title:'学习成果',path:'/ShowSpace/Achievements'},
-                {id:'myList',title:'通讯录',path:'/ShowSpace/MyList'}
+                {id:'ShowSpaceIndex',title:'主页',path:'/ShowSpace/'},
+                {id:'MyResource',title:'资源中心',path:'/ShowSpace/MyResource'},
+                {id:'Achievements',title:'学习成果',path:'/ShowSpace/Achievements'},
+                {id:'MyList',title:'通讯录',path:'/ShowSpace/MyList'}
             ],
-            localTitle:'showSpace',
+            localTitle:'ShowSpaceIndex',
         } 
     },
     methods:{
-        login(){
-          this.$router.replace({
-             name:"Login",
-             query: {redirect: this.$router.currentRoute.fullPath}
-            })
-        },
         getSpaceInfo(){
             this.$http.post('web/space/spaceInfo.do',this.$qs.stringify({
               userId:this.userId,
               token:this.token
             }))
             .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
               let result = res.data;
               if(result.status == 0){
                 this.spaceInfo = result.data;
+                this.isFollowers();
                 this.$storage.setStorage("spaceInfo",this.spaceInfo); 
+                if(result.data.userType==2){
+                    this.titleList=[
+                        {id:'ShowSpaceIndex',title:'主页',path:'/ShowSpace/'},
+                        {id:'MyResource',title:'资源中心',path:'/ShowSpace/MyResource/PushResource'},
+                        {id:'Achievements',title:'学习成果',path:'/ShowSpace/Achievements'},
+                        {id:'MyList',title:'通讯录',path:'/ShowSpace/MyList'}
+                    ]
+                    for(let i=0,len=this.titleList.length;i<len;i++){
+                        this.titleList[i].path=this.titleList[i].path+'?userId='+this.userId
+                    }
+                }
               }else{ 
                 this.$Message.error(result.message);
               }
-            } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+            
         },
         isFollowers(){//是否关注
             this.$http.post('/web/space/isFollow.do',this.$qs.stringify({
@@ -89,23 +91,14 @@ export default {
               userId:this.userId
             }))
             .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
               let result = res.data;
               if(result.status == 0){
                 this.theFollow=result.data;
-              }else if(result.status == 9){
-                this.login();
-                return;
               }else{
                 this.$Message.error(result.message);            
               }
-            } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+            
         },
         unFollow(){//取消关注
             this.$http.post('/web/space/a/unFollow.do',this.$qs.stringify({
@@ -113,9 +106,6 @@ export default {
               userId:this.userId
             }))
             .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
               let result = res.data;
               if(result.status == 0){
                 this.isFollowers();
@@ -123,21 +113,25 @@ export default {
               }else{
                 this.$Message.error(result.message);            
               }
-            } 
             })
-            .catch((err)=>{
-                alert(err);
+            
+        },
+        login(){
+          this.$router.replace({
+             name:"Login",
+             query: {redirect: this.$router.currentRoute.fullPath}
             })
         },
         follow(){//关注
+            if(!this.token){
+              this.login();
+              return;
+            }
             this.$http.post('/web/space/a/follow.do',this.$qs.stringify({
               token:this.$storage.getStorage("token"),
               userId:this.userId
             }))
             .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
               let result = res.data;
               if(result.status == 0){
                 this.isFollowers();
@@ -145,13 +139,13 @@ export default {
               }else{
                 this.$Message.error(result.message);            
               }
-            } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+            
         },
         changeTitle(item){
+            if(item.id==this.localTitle){
+                this.$router.go(0)
+            }
             this.localTitle=item.id;
         }
     },
@@ -162,12 +156,15 @@ export default {
         }
         let pageId=this.$router.history.current.path.split('/')[2];
         if(!pageId){
-           this.localTitle="showSpace" 
+           this.localTitle="ShowSpaceIndex" 
         }else{
           this.localTitle=pageId;  
         }
         this.getSpaceInfo();
-        this.isFollowers();
+        const that=this;
+        window.addEventListener('hashchange',function(e) { 
+            that.$router.go(0)
+        },false);
     }
 }
 </script>

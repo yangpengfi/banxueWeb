@@ -90,9 +90,11 @@
                             <h5 @click="toDetailResource(item)" :title="item.knowledgePoint">{{item.knowledgePoint}} </h5>
                             <p>
                             <span>{{item.periodName}}</span>
-                            <span>{{item.gradeName}}</span>
-                            <span>{{item.subjectName}}</span>
-                            <span>专辑名称：{{item.topic}}</span>
+                            <span v-if="selType ==1">{{item.gradeName}}</span>
+                            <span v-if="selType ==2">{{item.columnName}}</span>
+                            <span v-if="selType ==1">{{item.subjectName}}</span>
+                            <span v-if="selType ==2">{{item.themeName}}</span>
+                            <!-- <span>专辑名称：{{item.topic}}</span> -->
                             </p>
                         </div>
                         <div class="file-star">
@@ -128,9 +130,9 @@ export default {
             ],
             selType:1,
             periodList:global_.per2gradeList,
-            selPeriod:2,
-            gradeList:global_.per2gradeList[1].gradeList,
-            selGrade:7,
+            selPeriod:1,
+            gradeList:global_.per2gradeList[0].gradeList,
+            selGrade:10,
             subjectList:global_.subjectList,
             selSubject:1,
             specialList:[],
@@ -151,10 +153,14 @@ export default {
     },
     changeType(item){
       this.selType=item.id; 
+      this.selSubject=1;
+      this.selSpecial=1;
       if(this.selType==2){
         this.getColumnList(0)
         this.getThemeList(0,0,1)
         this.getResourceList(0,0,2,this.selTheme);
+      }else{
+        this.getTitleList(this.selPeriod,this.selGrade,this.selSubject);
       }
     },
     changePeriod(item){
@@ -164,14 +170,15 @@ export default {
       }else{
         this.selGrade=item.gradeList[0].id;
       }
+      this.selSubject=1;
       this.gradeList=item.gradeList;
       this.getSubjectList(this.selGrade);
-      this.getTitleList(this.selPeriod,this.selGrade,1);
+      this.getTitleList(this.selPeriod,this.selGrade,this.selSubject);
     },
     changeGrade(item){
       this.selGrade=item.id;
       this.getSubjectList(this.selGrade);
-      this.getTitleList(this.selPeriod,this.selGrade,1); 
+      this.getTitleList(this.selPeriod,this.selGrade,this.selSubject); 
     },
     changeSubject(item){
       this.selSubject=item.id; 
@@ -205,10 +212,7 @@ export default {
         }else{
           this.$Message.info(res.data.message);
         }
-      })
-      .catch((err)=>{
-        alert(err);
-      })
+      }) 
     },
     getThemeList(pId,gId,cId){
     this.$http.post('/web/microcourse/listTheme.do',this.$qs.stringify({
@@ -230,10 +234,7 @@ export default {
         }else{
           this.$Message.info(res.data.message);
         }
-      })
-      .catch((err)=>{
-        alert(err);
-      })
+      }) 
     },
     getSubjectList(gId){
     this.$http.post('/web/microcourse/listSubjcectByGradeId.do',this.$qs.stringify({
@@ -249,10 +250,7 @@ export default {
         }else{
           this.$Message.info(res.data.message);
         }
-      })
-      .catch((err)=>{
-        alert(err);
-      })
+      }) 
     },
     getTitleList(pId,gId,sId){
     this.$http.post('/web/microcourse/getTopicList.do',this.$qs.stringify({
@@ -273,10 +271,7 @@ export default {
         }else{
           this.$Message.info(res.data.message);
         }
-      })
-      .catch((err)=>{
-        alert(err);
-      })
+      }) 
     }, 
     getResourceList(pId,gId,sId,themId,topicId,pIdx){
     this.$http.post('/web/microcourse/listResource.do',this.$qs.stringify({
@@ -302,23 +297,14 @@ export default {
         }else{
           this.$Message.info(res.data.message);
         }
-      })
-      .catch((err)=>{
-        alert(err);
-      })
+      }) 
     }, 
     toDetailResource(item){
         if(!this.token){
               this.login();
               return;
         }
-        this.$router.push({
-          path:'/DetailResource',
-          query:{
-            resourceId:item.resourceId,
-            microcourse:1          
-          }
-        });   
+        window.open('#/DetailResource?resourceId='+item.resourceId+'&microcourse=1')  
     },
     pageChange(page){
         if(this.selType==2){
@@ -329,6 +315,7 @@ export default {
     }
   },
   created(){
+    this.getSubjectList(7);
     this.getTitleList(this.selPeriod,this.selGrade,this.selSubject);
     this.getResourceList(this.selPeriod,this.selGrade,this.selSubject,0,this.selTopic);
   }
@@ -404,7 +391,7 @@ export default {
      height: 60px;
      line-height: 60px;
      border-bottom: 1px solid #f3f3f3;
-     font-size: 20px;
+     font-size: 18px;
      color: #1caaf1;
      position: relative;
    }

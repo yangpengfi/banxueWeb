@@ -32,8 +32,8 @@
 					</li>
 				</ul>				
 				<div class="fontsStyle">
-					<span><Icon type="asterisk" color="#ed3f14" size=5 v-if="name == ''"></Icon>课程名称：</span> 
-					<input type="text" v-model="name" class="number" placeholder="高考集合"/>
+					<span><Icon type="asterisk" color="#ed3f14" size=5></Icon>课程名称：</span> 
+					<input type="text" v-model="name" class="number" maxlength="30" title="长度不超过30"/>
 				</div>
 				<!-- <div class="fontsStyle">
 					<span>上传图片：</span> 
@@ -51,36 +51,36 @@
 					</div>					
 				</div>				 -->				
 				<div class="fontsStyle">
-					<span><Icon type="asterisk" color="#ed3f14" size=5 v-if="localPeriodId == ''"></Icon>分类：</span>
+					<span><Icon type="asterisk" color="#ed3f14" size=5></Icon>分类：</span>
 					<div>
 						<Button type="ghost" class="com-btn" v-for="period in periodList" :key="period.id" @click='changePeriod(period)' :class="{active: period.id == localPeriodId}">{{period.name}}</Button>
 					</div>					
 				</div>
 				<div class="fontsStyle com-width" v-if="localPeriodId != ''">
-					<span><Icon type="asterisk" color="#ed3f14" size=5 v-if="localScopeId == ''"></Icon>年级/专题：</span>
+					<span><Icon type="asterisk" color="#ed3f14" size=5></Icon>年级/专题：</span>
 					<div>
 						<Button type="ghost" class="com-btn" v-for="scope in scopeList" :key="scope.id"  @click='changeScope(scope)' :class="{active:scope.id == localScopeId}">{{scope.name}}</Button>
 					</div>					
 				</div>
 				<div class="fontsStyle com-width" v-if="localScopeId != ''">
-					<span><Icon type="asterisk" color="#ed3f14" size=5 v-if="localSubjectId == ''"></Icon>学科：</span>
+					<span><Icon type="asterisk" color="#ed3f14" size=5></Icon>学科：</span>
 					<div>
-						<Button type="ghost" class="com-btn" v-for="subject in selSubjectList" :key="subject.id"  @click='changeSubject(subject)' :class="{active: subject.id == localSubjectId}">{{subject.name}}</Button>
+						<Button type="ghost" class="com-btn" v-for="item in selSubjectList" :key="item.subjectId"  @click='changeSubject(item)' :class="{active:item.subjectId == localSubjectId}">{{item.subjectName}}</Button>
 					</div>
 				</div>				
 				<div class="fontsStyle">
-					<span><Icon type="asterisk" color="#ed3f14" size=5 v-if="version ==''"></Icon>教材版本：</span>	
+					<span><Icon type="asterisk" color="#ed3f14" size=5></Icon>教材版本：</span>	
 					<div>
-						<Select v-model="version" size="large" style="width:200px">
-							<Option value="0" selected>通用版</Option>
-							<Option value="1">人教版</Option>							
-						</Select>
+						<select v-model="version" class="mySelect">
+							<option value="">请选择</option>
+							<option v-for="item in versionList" :value="item.id">{{item.name}}</option>							
+						</select>
 					</div>	
 				</div>				
 				<div class="fontsStyle">
-					<span><Icon type="asterisk" color="#ed3f14" size=5 v-if="description==''"></Icon>课程介绍：</span> 
+					<span><Icon type="asterisk" color="#ed3f14" size=5></Icon>课程介绍：</span> 
 					<div>
-						<textarea v-model="description" name="" id="" cols="60" rows="5"></textarea>					
+						<textarea v-model="description" name="" id="" cols="60" rows="5" maxlength="1000" title="长度不超过1000"></textarea>		
 					</div>					
 				</div>				
 				<div class="fontsStyle">
@@ -114,23 +114,24 @@ export default {
 					{id:4,name:'专题'}
 				],				
 				subjectList:{					
-					1:[{id:1,name:'语文'},{id:2,name:'数学'},{id:3,name:'英语'},{id:4,name:'物理'},{id:5,name:'化学'},{id:6,name:'地理'},{id:7,name:'历史'},{id:8,name:'政治'},{id:9,name:'生物'}],
-					2:[{id:1,name:'语文'},{id:2,name:'数学'},{id:3,name:'英语'}]
+					1:[{subjectId:1,subjectName:'语文'},{subjectId:2,subjectName:'数学'},{subjectId:3,subjectName:'英语'},{subjectId:4,subjectName:'物理'},{subjectId:5,subjectName:'化学'},{subjectId:6,subjectName:'地理'},{subjectId:7,subjectName:'历史'},{subjectId:8,subjectName:'政治'},{subjectId:9,subjectName:'生物'}],
+					2:[{subjectId:1,subjectName:'语文'},{subjectId:2,subjectName:'数学'},{subjectId:3,subjectName:'英语'}]
 				},
 				scopeAll:{					
-					1:[{id:1,name:'高一',subjectId:1},{id:2,name:'高二',subjectId:1},{id:3,name:'高三',subjectId:1}],
-					2:[{id:1,name:'初一',subjectId:1},{id:2,name:'初二',subjectId:1},{id:3,name:'初三',subjectId:1}],
-					3:[{id:1,name:'一年级',subjectId:2},{id:2,name:'二年级',subjectId:2},{id:3,name:'三年级',subjectId:2},{id:4,name:'四年级',subjectId:2},{id:5,name:'五年级',subjectId:2},{id:6,name:'六年级',subjectId:2}],
-					4:[{id:1,name:'高考',subjectId:1},{id:2,name:'中考',subjectId:1},{id:3,name:'小升初',subjectId:2}]
+					1:[{id:10,name:'高一',greadId:10},{id:11,name:'高二',greadId:11},{id:12,name:'高三',greadId:12}],
+					2:[{id:7,name:'初一',greadId:7},{id:8,name:'初二',greadId:8},{id:9,name:'初三',greadId:9}],
+					3:[{id:1,name:'一年级',greadId:1},{id:2,name:'二年级',greadId:2},{id:3,name:'三年级',greadId:3},{id:4,name:'四年级',greadId:4},{id:5,name:'五年级',greadId:5},{id:6,name:'六年级',greadId:6}],
+					4:[{id:15,name:'高考'},{id:14,name:'中考'},{id:13,name:'小升初'}]
 				},				
 				scopeList:[],
 				selSubjectList:[],				
+				versionList:[],				
 				courseId:'',
 				localPeriodId:'',
 				localSubjectId:'',
 				localScopeId:'',
 				name:'',
-				version:'0',
+				version:'',
 				description:'',
 				price:''
 		}
@@ -144,11 +145,12 @@ export default {
 			this.scopeList = this.scopeAll[item.id];
 			this.localSubjectId = '';
 			this.localScopeId = '';
+			this.version='';
 		},
-	  	getSubjectList(periodId){
-			this.$http.post('/web/coursebook/listPeriod2Subject.do',qs.stringify({				
-				periodId:periodId,
-				name:'',
+	  	getversionList(pId,sId,vId){
+			this.$http.post('/web/coursebook/listBookVersion.do',qs.stringify({				
+				periodId:pId,
+				subjectId:sId,
 				status:1,
 				pageIndex:1,
 				pageSize:100
@@ -161,31 +163,96 @@ export default {
 						this.$Message.error(this.msg.resError);
 					}else{	
 						if(result.data.list instanceof Array && result.data.list.length>0){
-							this.subjectList = result.data.list;
+							this.versionList = result.data.list;
+							this.versionList.unshift({id:0,name:"通用版"})
+							if(vId||vId===0){
+								this.version=vId;
+							}
 						}else{
-							this.subjectList = [];
+							this.versionList = [];
 						}						
 					}
 				}	
-			}).catch(function (error) {
-				alert(error);
-			});
+			}) 
+		},
+	  	getlistSubject(pId,gId,sId){
+			this.$http.post('/web/coursebook/listSubjectByGrade.do',qs.stringify({				
+				periodId:pId,
+				gradeId:gId
+			})).then(res => {	
+				if(res.status != 200){
+					this.$Message.error(this.msg.reqError);
+				}else{
+					let result = res.data;
+					if(result.status != 0){
+						this.$Message.error(this.msg.resError);
+					}else{	
+						if(result.data instanceof Array && result.data.length>0){
+							this.selSubjectList = result.data;
+							if(sId){
+								this.localSubjectId=sId;
+							}
+						}else{
+							this.selSubjectList = [];
+						}						
+					}
+				}	
+			}) 
 		},
 		changeScope(item){
 			this.localScopeId = item.id;
-			this.selSubjectList	= this.subjectList[item.subjectId];	
 			this.localSubjectId = '';
+			this.version='';
+			if(this.localPeriodId==4){
+				if(this.localScopeId==13){
+					this.selSubjectList=this.subjectList[2];
+				}else{
+					this.selSubjectList=this.subjectList[1];
+				}
+			}else{
+				this.getlistSubject(this.localPeriodId,this.localScopeId)
+			}
 		},
 		changeSubject(item){
-			this.localSubjectId = item.id;
+			this.localSubjectId = item.subjectId;
+			this.version='';
+			if(this.localScopeId==13){
+				this.getversionList(3,this.localSubjectId)
+			}else if(this.localScopeId==14){
+				this.getversionList(2,this.localSubjectId)
+			}else if(this.localScopeId==15){
+				this.getversionList(1,this.localSubjectId)
+			}else{
+				this.getversionList(this.localPeriodId,this.localSubjectId)
+			}
 		},
 		createCource(){
-			if(this.name == ''||this.localPeriodId == ''||this.localScopeId.length == ''||this.localSubjectId == ''||this.version == ''||this.description == ''){				
-				this.$Message.error(this.msg.emptyInfo);
+			if(!this.name){				
+				this.$Message.error('请输入课程名称');
+				return;
+			}else if(!this.localPeriodId){
+				this.$Message.error('请选择分类');
+				return;
+			}else if(!this.localScopeId){
+				this.$Message.error('请选择年级/专题');
+				return;
+			}else if(!this.localSubjectId){
+				this.$Message.error('请选择学科');
+				return;
+			}else if(this.version===''){
+				this.$Message.error('请选择版本');
+				return;
+			}else if(!this.description){
+				this.$Message.error('请输入课程简介');
+				return;
+			}else if(this.description.length<200){
+				this.$Message.error('课程简介长度不少于200字');
 				return;
 			}
+
 			this.$http.post('/web/course/a/createCourse.do',qs.stringify({				
 				name:this.name,
+				progress:1,
 				periodId:this.localPeriodId,
 				gradeIds:this.localScopeId,
 				subjectId:this.localSubjectId,
@@ -215,17 +282,34 @@ export default {
 						});					
 					}
 				}	
-			}).catch(function (error) {
-				alert(error);
-			});
+			}) 
 		},
-		updateCource(){			
-			if(this.name == ''||this.localPeriodId == ''||this.localScopeId == ''||this.localSubjectId == ''||this.version == ''||this.description == ''){				
-				this.$Message.error(this.msg.emptyInfo);
+		updateCource(pro){			
+			if(!this.name){				
+				this.$Message.error('请输入课程名称');
+				return;
+			}else if(!this.localPeriodId){
+				this.$Message.error('请选择分类');
+				return;
+			}else if(!this.localScopeId){
+				this.$Message.error('请选择年级/专题');
+				return;
+			}else if(!this.localSubjectId){
+				this.$Message.error('请选择学科');
+				return;
+			}else if(this.version===''){
+				this.$Message.error('请选择版本');
+				return;
+			}else if(!this.description){
+				this.$Message.error('请输入课程简介');
+				return;
+			}else if(this.description.length<200){
+				this.$Message.error('课程简介长度不少于200字');
 				return;
 			}
 			this.$http.post('/web/course/a/updateCourse.do',qs.stringify({
-				courseId:this.courseId,				
+				courseId:this.courseId,	
+				progress:pro,			
 				name:this.name,
 				periodId:this.localPeriodId,
 				gradeIds:this.localScopeId,
@@ -234,35 +318,29 @@ export default {
 				introduction:this.description,
 				token:this.params.token
 			})).then(res => {	
-				if(res.status != 200){
-					this.$Message.error(this.msg.reqError);
-				}else{
-					let result = res.data;
-					if(result.status != 0){
-						this.$Message.error(this.msg.resError);
-					}else{	
-						this.$router.push({
-							path:'/MySpace/CreateClassTwo',
-							query:{
-								name:result.data.name,
-								courseId:result.data.id,
-								price:this.price,							
-								periodId:this.localPeriodId,
-								subjectId:this.localSubjectId,
-								versionId:this.version,
-								introduction:this.description,
-								gradeIds:this.localScopeId				
-							}
-						});					
-					}
+				let result = res.data;
+				if(result.status != 0){
+					this.$Message.error(result.message);
+				}else{	
+					this.$router.push({
+						path:'/MySpace/CreateClassTwo',
+						query:{
+							name:result.data.name,
+							courseId:result.data.id,
+							price:this.price,							
+							periodId:this.localPeriodId,
+							subjectId:this.localSubjectId,
+							versionId:this.version,
+							introduction:this.description,
+							gradeIds:this.localScopeId				
+						}
+					});					
 				}	
-			}).catch(function (error) {
-				alert(error);
-			});
+			}) 
 		},
 		toNext(){
 			if(this.$route.query.courseId != undefined){
-				this.updateCource();
+				this.updateCource(1);
 			}else{
 				this.createCource();
 			}
@@ -274,18 +352,28 @@ export default {
 			this.localPeriodId=this.$route.query.periodId,			
 			this.localSubjectId=this.$route.query.subjectId;
 			this.localScopeId=this.$route.query.gradeIds;
+			this.getlistSubject(this.localPeriodId,this.localScopeId,this.localSubjectId)
 			this.name=this.$route.query.name;
-			this.version=String(this.$route.query.versionId);
+			this.version=this.$route.query.versionId;
+			if(this.localScopeId==13){
+				this.getversionList(3,this.localSubjectId,this.version)
+			}else if(this.localScopeId==14){
+				this.getversionList(2,this.localSubjectId,this.version)
+			}else if(this.localScopeId==15){
+				this.getversionList(1,this.localSubjectId,this.version)
+			}else{
+				this.getversionList(this.localPeriodId,this.localSubjectId,this.version)
+			}
+			// this.getversionList(this.localPeriodId,this.localSubjectId,this.version)
 			this.description=this.$route.query.introduction;
 			this.price = this.$route.query.price;
-
 			this.scopeList = this.scopeAll[this.localPeriodId];
 
-			for(var i in this.scopeList){				
-				if(this.scopeList[i].id == this.localScopeId){
-					this.selSubjectList = this.subjectList[this.scopeList[i].subjectId];
-				}
-			}
+			// for(var i in this.scopeList){				
+			// 	if(this.scopeList[i].id == this.localScopeId){
+			// 		this.selSubjectList = this.subjectList[this.scopeList[i].subjectId];
+			// 	}
+			// }
 		}
 	}
 	  
@@ -384,13 +472,18 @@ export default {
 		border-radius: 5px;
 		color: #fff;
 		cursor: pointer;
+		font-size: 16px;
 	}	
 	.back{
-		border:none;
-		margin-left: 50px;
-		font-size: 14px;
-		color: #666666;
-		background-color: #fff;
+		width: 160px;
+		height: 40px;
+		background-color: #cbcbcb;
+		border-radius: 5px;		
+		color: #fff;
+		border: none;		
+		margin-left: 80px;
+		font-size: 16px;	
+		margin:  0 40px;
 		cursor: pointer;
 	}
 	.cancle{
@@ -400,5 +493,20 @@ export default {
 	.ivu-icon-asterisk{
 		margin-right: 3px;
 		vertical-align: middle;
+	}
+	.mySelect{
+		display: block;
+        height: 40px;
+        width: 300px;
+	    line-height: 40px;
+	    font-size: 14px;
+	    overflow: hidden;
+	    text-overflow: ellipsis;
+	    white-space: nowrap;
+	    padding-left: 8px;
+	    padding-right: 24px;
+	    color: #999;
+	    border-radius: 5px;
+	    border:1px solid #ddd;
 	}
 </style>

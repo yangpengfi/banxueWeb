@@ -98,7 +98,7 @@
             </p>
             <p class="level">
                 <span class="itemTitle">个性签名：</span>
-                <textarea placeholder="个性签名" v-model="myInfo.motto" maxlength="80" title="长度不超过80位"></textarea> 
+                <textarea placeholder="个性签名" v-model="myInfo.mottoEdit" maxlength="80" title="长度不超过80位"></textarea> 
             </p>
             <p class="level">
                 <span class="itemTitle">学历：</span>
@@ -122,7 +122,7 @@
             </p>
             <p>
                 <span class="itemTitle">地址：</span> 
-                <input type="text" placeholder="请输入地址" v-model="myInfo.address" maxlength="80" title="长度不超过80位">
+                <input type="text" placeholder="请输入地址" v-model="myInfo.addressEdit" maxlength="80" title="长度不超过80位">
             </p>
         </form>
         <div slot="footer" style="text-align:center">
@@ -161,21 +161,16 @@ export default {
               token:this.token
             }))
             .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
               let result = res.data;
               if(result.status == 0){
               	  this.myInfo = result.data;
+              	  this.myInfo.mottoEdit = result.data.motto;
+              	  this.myInfo.addressEdit = result.data.address;
               	  this.defaultList[0].name=result.data.userName;
               	  this.defaultList[0].url=result.data.logo;
               }else{ 
                 this.$Message.error(result.message);      
               }
-            } 
-            })
-            .catch((err)=>{
-                alert(err);
             })
 		}, 
         ok(){
@@ -187,6 +182,8 @@ export default {
                 return;
             }
             this.myInfo.token=this.token;
+            this.myInfo.motto = this.myInfo.mottoEdit;
+            this.myInfo.address = this.myInfo.addressEdit;
             this.$http.post('/web/user/a/updateTeacherInfo.do',this.$qs.stringify(this.myInfo))
             .then((res)=>{
 	            if(res.data.status==0){
@@ -199,9 +196,6 @@ export default {
 	            }else{
 	            	this.$Message.error(res.data.message);
 	            }
-            })
-            .catch((err)=>{
-                alert(err);
             })
         },
         handleSuccess (res, file) {

@@ -4,7 +4,7 @@
                 <div id="header" class="w-1200">    
                     <div class="left">
                         <div class="logo">
-                            <img src="../../assets/imgs/index/u124.png" alt="这是logo图片">
+                            <img :src="logoUrl" alt="这是logo图片"  @click="toLogin">
                         </div>        
                         <div class="title">
                             <div>伴学网教育云平台</div>
@@ -72,21 +72,36 @@ export default {
            messgaeCode:'',
            newPwd:'',
            surePwd:'',
+           logoUrl:'',
            imgUrl:require('../../assets/imgs/login/imgCode.png')
         }
     },
     methods:{
         ok () {
                 this.getValidateCode();
-            },
+        },
+        cancel () {
+                
+        },
         openModal(){
             this.getImageCode();
-            this.modal=true;
+            this.imageCode=''
         },
         toLogin(){
             this.$router.push({
                 path:'/Login'
             });
+        },
+        getLogo(){
+            this.$http.post('web/space/logo.do')
+            .then((res)=>{
+            if(res.data.status==0){
+              this.logoUrl=res.data.data.logoPath
+            }else{
+              this.$Message.error(res.data.message);
+            }
+            })
+             
         },
         resetPwd(){
             let telReg=/^1[0-9]{10}$/;
@@ -143,12 +158,12 @@ export default {
                     this.toLogin();
                 }, 3000);
             }else{
-
+                this.$Message.error({
+                    content: res.data.message,
+                    duration: 2
+                });
             }
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            })         
         },
         getValidateCode(){
             let telReg=/^1[0-9]{10}$/;
@@ -157,19 +172,19 @@ export default {
                     content: '手机号码不能为空！',
                     duration: 2
                 });
-                return;
+                return false;
             }else if(!telReg.test(this.mobile)){
                 this.$Message.warning({
                     content: '请输入正确的手机号码！',
                     duration: 2
                 });
-                return;
+                return false;
             }else if(!this.imageCode){
                 this.$Message.warning({
                     content: '请输入图片验证码！',
                     duration: 2
                 });
-                return;
+                return false;
             }
             this.$http.post('/web/code/getValidateCode.do',this.$qs.stringify({
                 skey:new Date().getTime(),
@@ -177,17 +192,16 @@ export default {
                 imageCode:this.imageCode
             }))
             .then((res)=>{
-            // console.log(res.data); 
             if(res.data.status==0){
 
             }else{
-
+                this.$Message.error({
+                    content: res.data.message,
+                    duration: 2
+                });
             }
-            })
-            .catch((err)=>{
-                alert(err);
-            })
-        },
+            })        
+             },
         getImageCode(){
             let telReg=/^1[0-9]{10}$/;
             if(!this.mobile){
@@ -195,13 +209,13 @@ export default {
                     content: '手机号码不能为空！',
                     duration: 2
                 });
-                return;
+                return false;
             }else if(!telReg.test(this.mobile)){
                 this.$Message.warning({
                     content: '请输入正确的手机号码！',
                     duration: 2
                 });
-                return;
+                return false;
             }
            this.$http.post('/web/code/getImageCode.do',this.$qs.stringify({
             skey:new Date().getTime(),
@@ -209,15 +223,19 @@ export default {
           }))
           .then((res)=>{ 
             if(res.data.status==0){
+                this.modal=true;
                 this.imgUrl='data:image/jpg;base64,'+res.data.data;
             }else{
-                this.$Message.info(res.data.message)
+                this.$Message.error({
+                    content: res.data.message,
+                    duration: 2
+                });
             }
-          })
-          .catch((err)=>{
-            alert(err);
-          })  
+          })   
         } 
+    },
+    created(){
+      this.getLogo();
     }
 }
 </script>
@@ -230,11 +248,11 @@ export default {
     height:120px;
     margin: auto;  
     overflow: hidden;
-    padding-top: 34px; 
+    /*padding-top: 34px; */
     }
     #header>div.left{
     overflow: hidden;  
-    height: 53px;
+    /*height: 53px;*/
     }
     #header>.left>div{
     float: left;
@@ -243,11 +261,12 @@ export default {
     margin-right: 10px;
     }
     .logo img{
-    height: 53px;
+    height: 120px;
     }
     .title{
     text-align: center;
     padding-right: 25px;
+    margin-top: 34px;
     }
     .title div{
     font-family: FZZXHJW--GB1-0;
@@ -264,7 +283,7 @@ export default {
         height: 40px;
         padding-left: 20px;
         margin-left: 55px;
-        margin-top: 10px;
+        margin-top: 44px;
         font-weight: normal;
         border-left:1px solid #e9e9e9;
         font-size: 20px;

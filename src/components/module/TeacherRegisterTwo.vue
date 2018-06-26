@@ -93,7 +93,7 @@ export default {
                 skey:new Date().getTime(),
                 mobile:this.datas.mobile,
                 validateCode:this.datas.validateCode,
-                pwd:this.$md5(this.datas.pwd),
+                pwd:this.datas.pwd,
                 trueName:this.trueName,
                 teachAge:this.teachAge,
                 sex:this.sex,
@@ -119,10 +119,7 @@ export default {
                     duration: 2
                 });
             }
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         }
     }
 }

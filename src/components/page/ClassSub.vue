@@ -117,10 +117,7 @@ import ClassList from '@/components/common/ClassList';
             }else{
               this.$Message.info(res.data.message);
             }
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
       }, 
       getClassesList(pId,gId,sId){
         let periodId=pId||0;
@@ -138,10 +135,7 @@ import ClassList from '@/components/common/ClassList';
             }else{
               this.$Message.info(res.data.message);
             }
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
         },    
     },
     created:function(){

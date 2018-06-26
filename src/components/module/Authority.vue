@@ -25,6 +25,7 @@ export default {
 		return {
 			openStatus:1,
 			myInfo:this.$storage.getStorage("userInfo") ,	
+			token:this.$storage.getStorage("token")
 		}
 	},
 	methods:{
@@ -46,9 +47,6 @@ export default {
                 this.$Message.error(result.message);         
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
             })
 		}
 	},

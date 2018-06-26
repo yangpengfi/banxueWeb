@@ -6,7 +6,7 @@
                 <img :src="item.img0"  @click="goDetail(item)">
                 <div>
                     <h2 @click="goDetail(item)">{{item.appName}}</h2>
-                    <p><Rate v-model="item.score" disabled></Rate></p>
+                    <p><Rate allow-half v-model="item.score" disabled></Rate></p>
                     <!-- <p class="file-size">大小：{{item.appSize}}M</p> -->
                     <p v-if="item.isCharge==0"><Button type="success">免费</Button></p>
                     <p v-if="item.isCharge==1"><Button type="success">收费</Button></p>
@@ -22,7 +22,7 @@ export default {
     name:'ApplicationInfo',
     data(){
         return {
-
+            token:this.$storage.getStorage("token"),
         }
     },
     props:{
@@ -39,7 +39,13 @@ export default {
                 appId:item.appId          
               }
             });   
-        }
+        },
+        login(){
+          this.$router.replace({
+             name:"Login",
+             query: {redirect: this.$router.currentRoute.fullPath}
+            })
+        },
     } 
 }
 </script>
@@ -95,6 +101,9 @@ export default {
         line-height: 24px;
         font-size: 14px;
         color:#333;
+    }
+    .ivu-btn-success{
+        cursor: default;
     }
 </style>
 

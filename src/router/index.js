@@ -79,6 +79,10 @@ export default new Router({
           component: resolve => require(['../components/page/Space.vue'], resolve)
         },
         {
+          path: 'SpaceMore',
+          component: resolve => require(['../components/page/SpaceMore.vue'], resolve)
+        },
+        {
           path: 'Application',
           component: resolve => require(['../components/page/Application.vue'], resolve)
         },
@@ -124,6 +128,11 @@ export default new Router({
       path: '/Login',
       name: 'Login',      
       component: resolve => require(['../components/page/Login.vue'], resolve)      
+    },
+    {
+      path: '/SpaceAuthority', 
+      name: 'SpaceAuthority',          
+      component: resolve => require(['../components/module/SpaceAuthority.vue'], resolve)
     },
     {
       path:'/Register',
@@ -211,18 +220,6 @@ export default new Router({
             {
               path: '/',          
               component: resolve => require(['../components/module/AllClassify.vue'], resolve)
-            },
-            {
-              path: 'ClassifyOne',          
-              component: resolve => require(['../components/module/ClassifyOne.vue'], resolve)
-            },
-            {
-              path: 'ClassifyTwo',          
-              component: resolve => require(['../components/module/ClassifyTwo.vue'], resolve)
-            },
-            {
-              path: 'ClassifyThree',          
-              component: resolve => require(['../components/module/ClassifyThree.vue'], resolve)
             }
           ]
         }, 
@@ -315,7 +312,7 @@ export default new Router({
         {
           path: '/',          
           component: resolve => require(['../components/page/ShowSpaceIndex.vue'], resolve)
-        }, 
+        },  
         {
           path: 'MyResource',
           component: resolve => require(['../components/page/HisResource.vue'], resolve),

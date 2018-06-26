@@ -58,7 +58,7 @@ export default {
         },
         openModal(){
             this.getImageCode();
-            this.modal=true;
+            this.imageCode='';
         },
         toTeacherRegisterTwo(){
             let telReg=/^1[0-9]{10}$/;
@@ -90,13 +90,27 @@ export default {
             let register={
               mobile:this.mobile,  
               validateCode:this.messgaeCode,  
-              pwd:this.pwd
+              pwd:this.$md5(this.pwd)
             }
             // console.log(register)
-            this.$storage.setSession('postData',register)
-            this.$router.push({
-                path:'/Register/TeacherRegisterTwo'
-            });
+            this.$http.post('/web/user/checkRegisterInfo.do',this.$qs.stringify(register))
+            .then((res)=>{
+            if(res.data.status==0){
+                this.$storage.setSession('postData',register)
+                this.$router.push({
+                    path:'/Register/TeacherRegisterTwo'
+                });
+            }else{
+                this.$Message.error({
+                    content: res.data.message,
+                    duration: 2
+                });
+            }
+            }) 
+            // this.$storage.setSession('postData',register)
+            // this.$router.push({
+            //     path:'/Register/TeacherRegisterTwo'
+            // });
         },
         getValidateCode(){
             let telReg=/^1[0-9]{10}$/;
@@ -128,12 +142,12 @@ export default {
             if(res.data.status==0){
 
             }else{
-
+                this.$Message.error({
+                    content: res.data.message,
+                    duration: 2
+                });
             }
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
         getImageCode(){
             let telReg=/^1[0-9]{10}$/;
@@ -157,13 +171,11 @@ export default {
           .then((res)=>{ 
             if(res.data.status==0){
                 this.imgUrl='data:image/jpg;base64,'+res.data.data;
+                this.modal=true;
             }else{
                 this.$Message.info(res.data.message)
             }
-          })
-          .catch((err)=>{
-            alert(err);
-          })  
+          }) 
         } 
     }
 }

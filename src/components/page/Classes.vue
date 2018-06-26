@@ -82,10 +82,7 @@ export default {
           .then((res)=>{
             // console.log(res.data.data.list); 
             this.newClasses=res.data.data.list;
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
         },
         getRecomClassesList(){
           this.$http.post('/web/course/listCourse.do',this.$qs.stringify({
@@ -95,10 +92,7 @@ export default {
           .then((res)=>{
             // console.log(res.data.data.list); 
             this.recomClasses=res.data.data.list;
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
         },
         getHotClassesList(){
           this.$http.post('/web/course/listCourse.do',this.$qs.stringify({
@@ -108,10 +102,7 @@ export default {
           .then((res)=>{
             // console.log(res.data.data.list); 
             this.hotClasses=res.data.data.list;
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
         }           
     },
     created:function(){

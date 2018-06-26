@@ -53,14 +53,11 @@
 					<p>
 						<input type="checkbox" :value="item.resourceLocalId" v-model="selectArr" v-show="ifBatch" @click="selectOne"/>
 					</p>
-					<img :src="item.fileSuffix | fillType"/>				
+					<img :src="item.fileSuffix | fillType" @click="toDetailResource(item)"/>				
 					<div class="doc-content">
 						<p class="doc-title">
-							<span>{{item.recourceLocalName}}</span> 
-							<button v-if="item.resourceType == 1">课件</button>
-							<button v-if="item.resourceType == 2">试卷</button>
-							<button v-if="item.resourceType == 3">教案</button>
-							<button v-if="item.resourceType == 4">学案</button>
+							<span @click="toDetailResource(item)">{{item.recourceLocalName}}</span> 
+							<button v-if="item.resourceTypeId != 0">{{item.resourceTypeName}}</button>
 						</p>
 						<div class="sub-title">
 							<span>{{item.periodName}}</span>
@@ -69,10 +66,17 @@
 							<span>{{item.textbookName}}</span>							
 							<span>{{item.bname1 = item.bname1 == "无"?'':item.bname1}}</span>
 							<span>{{item.bname2 = item.bname2 == "无"?'':item.bname2}}</span>
-							<span>{{item.bname3 = item.bname3 == "无"?'':item.bname3}}</span>
+							<span>{{item.bname3 = item.bname3 == "无"?'':item.bname3}}</span>	
+							<span>{{item.kname1 = item.kname1 == "无"?'':item.kname1}}</span>
+							<span>{{item.kname2 = item.kname2 == "无"?'':item.kname2}}</span>
+							<span>{{item.kname3 = item.kname3 == "无"?'':item.kname3}}</span>
 							<span class="upTime">下载时间：{{item.createTime | formatTime}}</span>
 						</div>
-						<div class="edit" v-show="!isHis">
+						<div class="set" v-show="!isHis">
+							<span @click="pushResource(item)">推送</span>
+							<span @click="deleteResource(item.resourceLocalId)">删除</span>
+						</div>
+						<!-- <div class="edit" v-show="!isHis">
 							<p class="edit-title">
 								<span>编辑</span> 
 								<Icon type="arrow-down-b" color="#1caaf1"></Icon>
@@ -81,7 +85,7 @@
 								<span @click="pushResource(item)">推送</span>
 								<span @click="deleteResource(item.resourceLocalId)">删除</span>
 							</div>			
-						</div>								
+						</div> -->								
 					</div>	
 				</div>									
 			</li>
@@ -89,6 +93,7 @@
 		<Modal
 			v-model="model.pushModel"
 			title="推送"
+        	:loading="loading"
 			@on-ok="confirmPushResource"
 			@on-cancel="cancelPush"
 			>
@@ -101,6 +106,16 @@
 					<ul class="grade-content" v-if="currentGradeList.length>0">
 						<li v-for="item of currentGradeList" @click="changeClass(item)" :class="{active:item.classId == currentClassId}">{{item.className}}</li>
 					</ul>
+				</div>
+				<p class="mt20 clear">选择分组</p>
+				<div class="mt20">
+					<ul class="grade-title">
+						<li v-for="item of groupList" @click="clickGroup(item)" :class="{active:item.groupId === selGroup}">{{item.groupName}}</li>
+					</ul>
+				</div>
+				<p class="mt20 clear">已选</p>
+				<div class="mt20">
+					<Tag v-for="item in tagArr" :key="item.classId+'_'+item.groupId" closable @on-close="handleClose2($event,item)">{{item.className+item.groupName}}</Tag>
 				</div>
 			</div>			
 		</Modal>
@@ -115,6 +130,8 @@ export default {
   	data(){
 	  	return {
 			selectArr: [],
+			tagArr: [],
+			arr: [],
 			model:{							
 				pushModel:false
 			},
@@ -124,6 +141,7 @@ export default {
 			],
 			selTitle:1,				  	
 			ifBatch:false, 			
+			loading:true,  				
 			resourceList:[],
 			totalCount:'',
 			name:'',
@@ -152,6 +170,14 @@ export default {
 			],			
 			selData:'',
 			gradeList:[],
+			groupList:[],
+			currentSubject:'',
+			selGroup:'',
+			selGroupName:'',
+			selGroupArr:[],
+			currentClassId:'',
+			currentClassName:'',
+			currentClassArr:[],
 			currentGrade:'',
 			currentGradeList:[],
 			currentClassId:'',
@@ -170,7 +196,8 @@ export default {
 	  	}
   	},
 	filters: {
-		fillType: function (value) {
+		fillType: function (val) {
+			let value=val.toLowerCase()
 			if (!value){ return ''}
 			if(value == 'doc'|| value == 'docx'){
 				value = './static/imgs/resource/fileDoc.png'
@@ -208,6 +235,14 @@ export default {
 		}
 	},
 	methods:{
+        toDetailResource(item){
+        	this.$router.push({
+	              path:'/DetailResource',
+	              query:{
+	                resourceLocalId:item.resourceLocalId          
+	              }
+	            });
+        },
 		changeTitle(item){
 			this.ifBatch = false;	
 			this.selectArr = [];	
@@ -261,9 +296,7 @@ export default {
 					}
 				}			
 				
-			}).catch(function (error) {
-				alert(error);
-			});
+			}) 
 		},	
 		getBookList(subjectId){
 			this.$http.post('/web/coursebook/listBookVersion.do',qs.stringify({				
@@ -293,9 +326,7 @@ export default {
 					}
 				}			
 				
-			}).catch(function (error) {
-				alert(error);
-			});
+			}) 
 		},
 		getTextBookList(versionId){
 			this.$http.post('/web/coursebook/listTextbook.do',qs.stringify({				
@@ -322,12 +353,10 @@ export default {
 					}
 				}			
 				
-			}).catch(function (error) {
-				alert(error);
-			});
+			}) 
 		},		
 		getResourceList(){
-			this.$http.post('/web/coursebook/a/listMyDownloadResource.do',qs.stringify({				
+			this.$http.post('/web/coursebook/listMyDownloadResource.do',qs.stringify({				
 				resourceKindId:this.selTitle,
 				name:this.name,
 				userId:this.userId,
@@ -355,9 +384,7 @@ export default {
 					}
 				}			
 				
-			}).catch(function (error) {
-				alert(error);
-			});
+			}) 
 		},
 		searchResource(){	
 			if(this.name.trim() == ''){
@@ -482,26 +509,35 @@ export default {
 							}
 						}			
 						
-					}).catch(function (error) {
-						alert(error);
-					});                    
+					})                     
                 }
             });
 		},
 		pushResource(item){
+			this.currentSubject='';
+			this.selGroup='';
+			this.selGroupName = '';
+			this.currentClassId = '';
+			this.currentClassName = '';
 			this.pushArr = [];
+			this.arr = [];
+			this.tagArr = [];
+			this.selGroupArr = [];
+			this.currentClassArr = [];
+			this.groupList=[];
+			this.currentSubject = item.subjectId;
 			this.model.pushModel = true;
 			this.pushArr.push({
 				periodId: item.periodId,
 				subjectId: item.subjectId,
 				resourceId: item.resourceLocalId,
-				labelId: 4
+				labelId: item.lableId
 			});			
 			this.getClassList(); 
 		},
 		getClassList(){
 			this.$http.post('/web/class/a/listJoinClassGroupByGrade.do',qs.stringify({				
-					subjectId:0,
+					subjectId:this.currentSubject,
 					token:this.params.token
 				})).then(res => {	
 					if(res.status != 200){
@@ -518,46 +554,106 @@ export default {
 							}							
 						}
 					}	
-				}).catch(function (error) {
-					alert(error);
-				});    
+				})    
+		},
+		getGroupList(cId,sId){
+			this.$http.post('/web/class/a/listClassGroup.do',qs.stringify({				
+					subjectId:sId,
+					classId:cId,
+					token:this.params.token
+				})).then(res => {	
+					let result = res.data;
+					if(result.status != 0){
+						this.$Message.error(this.msg.resError);
+					}else{							
+						if(result.data instanceof Array && result.data.length>0){
+							this.groupList=result.data;								
+						}else{
+							this.groupList = [];
+						}							
+					}	
+				})    
 		},
 		changeGrade(item){
 			this.currentGrade = item.key;
 			this.currentGradeList = item.list;
 			this.currentClassId = '';
+			this.currentClassName = '';
+			this.selGroup='';
+			this.selGroupName = '';
+			this.groupList=[];
+			this.loading=false;
 		},
 		changeClass(item){
+			this.loading=true;
+			this.selGroup='';
+			this.selGroupName = '';
 			this.currentClassId = item.classId;
+			this.currentClassName = item.className;
+			this.getGroupList(item.classId,this.currentSubject)
 		},
+		clickGroup(item){
+			this.loading=false;
+			if(!this.currentClassId){
+				this.$Message.warning({
+                    content: '请选择推送班级！',
+                    duration: 2
+                });
+			}
+			this.selGroup = item.groupId;
+			this.selGroupName = item.groupName;
+			let itemSelf={
+				className:this.currentClassName,
+				classId:this.currentClassId,
+				groupId:this.selGroup,
+				groupName:this.selGroupName,
+			};
+			let classAndGroup=this.currentClassId+'_'+this.selGroup;
+			if(this.arr.indexOf(classAndGroup)=='-1'){
+				this.currentClassArr.push(this.currentClassId)
+				this.selGroupArr.push(this.selGroup)
+				this.tagArr.push(itemSelf);
+				this.arr.push(classAndGroup);
+			}
+		},
+        handleClose2 (event, item) {
+            const index = this.tagArr.indexOf(item);
+            this.arr.splice(index, 1);
+            this.tagArr.splice(index, 1);
+            this.selGroupArr.splice(index, 1);
+            this.currentClassArr.splice(index, 1);
+        },
 		confirmPushResource(){	
-			if(this.currentClassId == ''){
+			if(this.selGroupArr.length <0){
+				this.$Message.warning({
+                    content: '请选择推送的对象！',
+                    duration: 2
+                });
+            	this.loading=false;
 				return;
 			}else{
 				this.$http.post('/web/coursebook/a/pushResource2Class.do',qs.stringify({				
-					toClassId:this.currentClassId,					
+					toClassId:this.currentClassArr.join(','),					
+					groupIds:this.selGroupArr.join(','),					
 					token:this.params.token,
 					pushDetailJson:JSON.stringify(this.pushArr)
 				})).then(res => {	
-					if(res.status != 200){
-						this.$Message.error(this.msg.reqError);
+					let result = res.data;
+					if(result.status == 0){
+						this.getResourceList();								
+						this.$Message.success(this.message);	
+						this.currentGrade='';
+						this.currentClassId = '';	
+						this.currentGradeList = [];		
+						document.getElementById('all-check').checked = false;
+						this.selectArr = [];
+						this.loading=true;
+					}else if(result.status == 105){	
+						this.$Message.error("没有权限，不能推送！");
 					}else{
-						let result = res.data;
-						if(result.status != 0){
-							this.$Message.error(this.msg.resError);
-						}else{	
-							this.getResourceList();								
-							this.$Message.success(this.msg.pushInfo);	
-							this.currentGrade='';
-							this.currentClassId = '';	
-							this.currentGradeList = [];		
-							document.getElementById('all-check').checked = false;
-							this.selectArr = [];
-						}
+						this.$Message.error(this.message);
 					}	
-				}).catch(function (error) {
-					alert(error);
-				});       
+				})       
 			}
 		},
 		cancelPush(){
@@ -597,7 +693,15 @@ export default {
 			}else{
 				this.getClassList(); 
 				this.pushArr = [];	
-						
+				this.selGroup='';
+				this.selGroupName = '';
+				this.currentClassId = '';
+				this.currentClassName = '';
+				this.pushArr = [];
+				this.arr = [];
+				this.tagArr = [];
+				this.selGroupArr = [];
+				this.currentClassArr = [];			
 				for(var i=0;i<this.resourceList.length;i++){
 					for(var k=0;k<this.selectArr.length;k++){
 						if(this.resourceList[i].resourceLocalId == this.selectArr[k]){
@@ -605,13 +709,21 @@ export default {
 								periodId: this.resourceList[i].periodId,
 								subjectId: this.resourceList[i].subjectId,
 								resourceId: this.resourceList[i].resourceLocalId,
-								labelId: 4
+								labelId: this.resourceList[i].lableId
 							});
+							if(this.resourceList[i].subjectId!=this.pushArr[0].subjectId){
+								this.$Message.warning({
+				                    content: '请选择同一学科资源批量推送!',
+				                    duration: 2
+				                });
+				                return false;
+							}
 						}
 					}
 				}		
+				this.currentSubject = this.pushArr[0].subjectId;
 				this.model.pushModel = true;				
-				this.confirmPushResource();
+				// this.confirmPushResource();
 			}
 		}		
 	},
@@ -693,10 +805,12 @@ export default {
 	min-height: 100px;
 	font-size: 14px;
 	margin-bottom: 20px;
+	overflow: auto;
 }
 #push-box>p{
 	float: left;
-	margin-right: 20px;
+	margin-right: 20px;  
+	line-height: 30px;
 }
 #push-box>div{
 	float: left;
@@ -716,18 +830,15 @@ export default {
 #push-box .grade-title li{	
 	border-radius: 3px;
 	margin-right: 5px;	
-	border:1px solid #eee;	
 	background-color: #fff;	
 }
-#push-box .grade-title li.active{	
-	border-color:#50a7ff;
+#push-box .grade-title li.active{
 	color: #50a7ff;	
+	background-color: #f8f8f8;
 }
 #push-box .grade-content{
-	border:1px solid #eee;
-	padding: 20px 15px;
 	overflow: hidden;
-	margin-top: 5px;	
+	background-color: #f8f8f8;
 }
 #push-box .grade-content li.active{	
 	color: #50a7ff;	

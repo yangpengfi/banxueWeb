@@ -77,7 +77,10 @@ export default {
         })
       // this.$router.push('/Login');
     },
-    relationClick(item){  
+    relationClick(item){ 
+      if(item.id==this.nowId){
+          this.$router.go(0)
+      } 
       this.nowId=item.id; 
     } ,
     //获取pc用户地理位置

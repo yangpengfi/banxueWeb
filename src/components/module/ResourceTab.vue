@@ -45,9 +45,6 @@ export default {
               }
             } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
         },
         drawPieThree(){
             let pieThree = this.$echarts.init(document.getElementById('pieThree'));

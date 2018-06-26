@@ -34,7 +34,7 @@
 				</ul>	
 				<div class="upload-info">
 					<p class="upload-info-title">上传说明：</p>
-					<p>1、可上传文件格式为mp4,mkv</p>
+					<p>1、可上传文件格式为mp4</p>
 					<p>2、建议单个文件不要超过1G</p>
 					<p>3、选择课程目录，出现开始上传按钮，上传成功后视频名称会出现在目录后，每个目录只对应一个上传视频，如果上传的视频错误，请重新上传</p>
 							
@@ -45,22 +45,36 @@
 						<b>{{name}}</b>
 					</div>
 					<div class="upload-box">
-						<ul class="add-content left" v-if="firstList.length>0">
-							<li v-for="item of firstList">							
-								<span @click="changeCatalog(item)" :class="{active:item.id==catalogId}">{{item.name}}</span>
-								<b class="right">{{item.fileName}}</b>
-								<ul v-if="item.children.length>0" class="second-content">
-									<li v-for="item in item.children">
-										<span @click="changeCatalog(item)" :class="{active:item.id==catalogId}">{{item.name}}</span>
-										<b class="right">{{item.fileName}}</b>
+						<ul class="add-content" v-if="firstList.length>0">
+							<li v-for="item of firstList" @click="changeCatalog(item)">		
+								<span :class="{active:item.id==catalogId,left:true}">{{item.name}}</span>
+								<uploader :options="options" 
+								:file-status-text="statusText" 
+								@file-added="fileAdd"  ref="uploader" 
+								@file-success="fileSuccess" 
+								class="uploader-example left" 
+								v-if="item.children.length==0">
+									<uploader-btn :attrs="attrs" :class="{active:item.id==catalogId}">上传</uploader-btn>
+									<uploader-list></uploader-list>
+								</uploader>
+								<b class="right" :title="item.fileName">{{item.fileName}}</b>
+								<ul v-if="item.children.length>0" class="second-content clear">
+									<li v-for="itemSub in item.children" @click.stop="changeCatalog(itemSub)">
+										<span :class="{active:itemSub.id==catalogId,left:true}">{{itemSub.name}}</span>
+										<uploader :options="options" 
+										:file-status-text="statusText" 
+										@file-added="fileAdd"  ref="uploader" 
+										@file-success="fileSuccess" 
+										class="uploader-example left">
+											<uploader-btn :attrs="attrs" :class="{active:itemSub.id==catalogId}">上传</uploader-btn>
+											<uploader-list></uploader-list>
+										</uploader>
+										<b class="right" :title="itemSub.fileName">{{itemSub.fileName}}</b>
+										<div class="clear"></div>
 									</li>
 								</ul>
 							</li>
 						</ul>
-						<uploader :options="options" :file-status-text="statusText" ref="uploader" @file-success="fileSuccess" class="uploader-example left">
-							<uploader-btn :class="{active:catalogId !=''}" :attrs="attrs">开始上传</uploader-btn>
-							<uploader-list></uploader-list>
-						</uploader>	
 					</div>
 				</div>					
 				<p class="to-btn">
@@ -94,18 +108,20 @@ export default {
 			dataLoad:[],
 			fileName:'',
 			options: {
-                target: 'http://192.168.8.251/banxue/web/chunkUpload/a/uploadChunkFile',
+                target: this.$baseURL +'/web/chunkUpload/a/uploadChunkFile',
                 testChunks: false,
                 forceChunkSize:true,
                 simultaneousUploads:1,
                 allowDuplicateUploads:true,
                 query:{
                     identifier:'',
+                    catalogId:0,
                     token:this.$storage.getStorage("token")
                 }
             },
             attrs: {
-				accept: '.mp4,.mkv'
+				accept: '.mp4',
+				multiple:'false'
             },
             statusText: {  
                 success: '成功了',  
@@ -113,7 +129,7 @@ export default {
                 uploading: '上传中',  
                 paused: '暂停中',  
                 waiting: '等待中'  
-            }  
+            }, 
 		}
 	},
 	methods:{
@@ -133,6 +149,28 @@ export default {
 			});	
 		},
 		toNext(){
+			// console.log(this.firstList)
+			for(let j=0,lens=this.firstList.length ; j<lens; j++){
+				if(this.firstList[j].children.length>0){
+					for(let i=0,len=this.firstList[j].children.length ; i<len; i++) {
+						if(!this.firstList[j].children[i].fileName){
+							this.$Message.error({
+			                    content: '末节点课程视频不能为空！',
+			                    duration: 2
+			                });
+							return false;
+						}
+					}
+				}else{
+					if(!this.firstList[j].fileName){
+						this.$Message.error({
+		                    content: '末节点课程视频不能为空！',
+		                    duration: 2
+		                });
+						return false;
+					}
+				}
+			}
 			// this.$router.push('/MySpace/CreateClassFour');
 			this.$router.push({
 				path:'/MySpace/CreateClassFour',
@@ -146,103 +184,128 @@ export default {
 					introduction:this.$route.query.introduction,
 					gradeIds:this.$route.query.gradeIds									
 				}
-			});	
+			});
+			this.updateCource(3)	
 		},
 		getCourseTree(){
 			this.$http.post('/web/course/getCourseCatalogTree.do',qs.stringify({	
 				courseId:this.courseId
-			})).then(res => {	
-				if(res.status != 200){
-					this.$Message.error(this.msg.reqError);
-				}else{
-					let result = res.data;
-					if(result.status != 0){
-						this.$Message.error(this.msg.resError);
-					}else{									
-						if(result.data.children instanceof Array && result.data.children.length>0){
-							this.firstList = result.data.children;							
-						}else{
-							this.firstList = [];							
-						}
+			})).then(res => {
+				let result = res.data;
+				if(result.status != 0){
+					this.$Message.error(this.msg.resError);
+				}else{									
+					if(result.data.children instanceof Array && result.data.children.length>0){
+						this.firstList = result.data.children;							
+					}else{
+						this.firstList = [];							
 					}
-				}			
-				
-			}).catch(function (error) {
-				alert(error);
-			});
+				}
+			}) 
 		},
 		changeCatalog(item){
-			this.fileName = item.name;
-			this.catalogId = item.id;
-			this.getUniCode();
+			// console.log(item)
+			if(item.children.length>0&&item.layer==1){
+				this.fileName = '';
+				this.catalogId = '';
+			}else{
+				this.fileName = item.name;
+				this.catalogId = item.id;
+				this.getUniCode();
+				if(document.querySelector("input[multiple]")){
+					document.querySelector("input[multiple]").removeAttribute('multiple');
+				}
+			}
+			
 		},
 		getUniCode(){
             this.$http.post('/web/chunkUpload/a/getUniqueIdentifier.do',qs.stringify({				
                 fileName:this.fileName,
                 token:this.params.token
 			})).then(res => {	
-				if(res.status != 200){
-					this.$Message.error(this.msg.reqError);
-				}else{
-					let result = res.data;
-					if(result.status != 0){
-						this.$Message.error(this.msg.resError);
-					}else{	
-                        this.uniCode = result.data;	 
-                        this.options.query.identifier = result.data;	
-					}
+				let result = res.data;
+				if(result.status != 0){
+					this.$Message.error(this.msg.resError);
+				}else{	
+                    this.uniCode = result.data;	 
+                    this.options.query.identifier = result.data;
+            		this.options.query.catalogId = this.catalogId;		
 				}	
-			}).catch(function (error) {
-				alert(error);
-			});
+			}) 
         },
-		addVideo(identifier,fileName,fileSize){
+		addVideo(identifier,fileName,fileSize,cId){
             this.$http.post('/web/course/a/createCourseCatalogVideo.do',qs.stringify({				
                 identifier:identifier,
                 fileName:fileName,
                 fileSize:fileSize,
-                catalogId:this.catalogId,
+                catalogId:cId,
                 courseId:this.courseId,                
                 token:this.params.token
             })).then(res => {	
-                    if(res.status != 200){
-                        this.$Message.error(this.msg.reqError);
-                    }else{
-                        let result = res.data;
-                        if(result.status != 0){
-                            this.$Message.error(this.msg.resError);
-                        }else{	                            
-							this.$Message.success(this.msg.addInfo);
-							this.getCourseTree();      
-                        }
-                    }  
-            }).catch(function (error) {
-                        alert(error);
-            });
+                let result = res.data;
+                if(result.status != 0){
+                    this.$Message.error(this.msg.resError);
+                }else{	                           
+					this.$Message.success(this.msg.addInfo);
+					this.getCourseTree();      
+                } 
+            }) 
 		},
-		/*fileAdded(file, event){
-			if(file.fileType != 'video/mp4' || file.fileType != 'video/mp3'){
-				file.cancel();       
-				this.$Message.error(this.msg.fileType);
-			}
-		},*/
+		fileAdd(file){
+			let idx=file.name.lastIndexOf(".");
+            let fileType=file.name.substr(idx);
+            if(fileType!='.mp4'){
+                this.$Message.error({
+                    content: '请选择mp4类型的文件',
+                    duration: 2
+                });
+            	file.ignored=true;
+            }
+            this.options.query.catalogId = this.catalogId;
+            this.catalogId=0;
+		},
 		//上传成功的事件  
         fileSuccess (rootFile, file, message, chunk) {  
             
             message = JSON.parse(message);
-            
+            // console.log(message)
+            // console.log(chunk)
+            let cId=JSON.parse(chunk.file.chunks[0].xhr.response).data.catalogId;
             if(message.data.isFileUploadFinish == 1){
                 let identifier = message.data.identifier,
                     fileName = file.name,
                     fileSize = file.size;
 
-				this.addVideo(identifier,fileName,fileSize);
+				this.addVideo(identifier,fileName,fileSize,cId);
 
                 this.getUniCode();
 
                 file.cancel();                
+            }else{
+            	this.options.query.catalogId = cId;
+                file.retry()
             }
-        }       
+        },
+		updateCource(pro){	
+			this.$http.post('/web/course/a/updateCourse.do',qs.stringify({
+				courseId:this.$route.query.courseId,	
+				progress:pro,			
+				name:this.$route.query.name,
+				periodId:this.$route.query.periodId,
+				gradeIds:this.$route.query.gradeIds,
+				subjectId:this.$route.query.subjectId,
+				versionId:this.$route.query.versionId,
+				introduction:this.$route.query.introduction,
+				token:this.params.token
+			})).then(res => {	
+				let result = res.data;
+				if(result.status != 0){
+					this.$Message.error(result.message);
+				}else{	
+									
+				}	
+			}) 
+		}       
 	},
 	mounted(){
 		this.getCourseTree();
@@ -270,7 +333,6 @@ export default {
 	}
 	.add-title{
 		padding-left: 8px;
-		/* border-bottom: 1px solid #ddd; */
 	}
 	.add-title span{
 		font-size: 14px;
@@ -281,19 +343,30 @@ export default {
 		color: #333;
 	}
 	.add-content{
-		min-width: 300px;
-		margin: 10px 10px 40px 20px;
-		padding-right: 10px;
-		border-right:1px solid #ddd;
+		margin: 10px 10px 40px 100px;
 	}
 	.add-content li{		
-		margin-bottom: 10px;
+		line-height: 42px;
+    	clear: both;
+	}
+	.add-content li>span{
+		margin-right: 20px;
+	}
+	.add-content li b{    
+		display: inline-block;
+	    width: 80px;
+	    text-overflow: ellipsis;
+	    white-space: nowrap;
+	    overflow: hidden;
+		color: #666;
+	    font-weight: normal;
+	    text-decoration: underline;
 	}
 	.second-content{
 		margin-top: 10px;
 	}
 	.second-content>li>span{
-		margin-left: 10px;
+		margin-left: 20px;
 		margin-right: 10px;
 	}		
 	.add-content li span.active{
@@ -329,45 +402,24 @@ export default {
 		border: none;	
 		font-size: 16px;
 		color: #fff;
-	}
-	.add-box{
-		display: inline-block;
-		position: relative;
-	}
-	.add-box-content{
-		position: absolute;
-		top: 0;
-		left: 30px;
-		z-index: 999;
-		padding: 15px;
-		background-color: #fff;
-		border: 1px solid #eee;
-	}
-	.add-box-content button{
-		margin-top: 10px;
 	}		
 	.upload-box{
 		overflow: hidden;		
 	}
 	.uploader-example{
-		width: 350px;
+		/*width: 200px;*/
 	}
 	.uploader-example .uploader-btn{
-		margin: 10px 0;
+	    color: #50a7ff; 
+		border: none;
 		display: none;
 	}
 	.uploader-example .uploader-btn.active{
-		display: block;
-		color: #fff;    
-		background-color: #f90;
-		border-color: #f90;
-	}
-	.uploader-example .uploader-btn.active:hover{
-		background-color: #ffad33;
-		border-color: #ffad33;
+		display: inline-block;
 	}
 	.uploader-example .uploader-list {
-		max-height: 440px;
+		max-width: 350px;
+		max-height: 200px;
 		overflow: auto;
 		overflow-x: hidden;
 		overflow-y: auto;

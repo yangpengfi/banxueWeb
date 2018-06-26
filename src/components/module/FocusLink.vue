@@ -4,13 +4,20 @@
 				<ul>
 					<li v-for="item of focusList">
 						<img :src="item.logo" @click="goSpaceShow(item)"/>						
-						<p @click="goSpaceShow(item)">{{item.userName}}</p>	
+						<p @click="goSpaceShow(item)" :title="item.userName">{{item.userName}}</p>	
             <div v-show="!isHis"> 					
 						    <button class="out" @click="unFollow(item)">取消关注</button>
             </div>
 					</li>					
 				</ul>
 			</div>
+
+      <div class="pageBox">
+          <Page :total="totalCount" 
+          :current="currPage" 
+          :pageSize="pageSize" 
+          class="page-box" @on-change="pageChange"></Page> 
+      </div>
 	</div>
 </template>
 <script>
@@ -18,8 +25,12 @@ export default {
     name:'FocusLink',
     data(){
         return {
+            token:this.$storage.getStorage("token"),
             focusList:[],
             isHis:true,
+            totalCount:0,
+            currPage:1,
+            pageSize:12,
             userId:0
         }
     },
@@ -27,10 +38,12 @@ export default {
         goSpaceShow(item){
             window.open('#/ShowSpace/?userId='+item.userId);
         },
-        getFollowers(){//获取关注列表
+        getFollowers(page){//获取关注列表
             this.$http.post('/web/space/followers.do',this.$qs.stringify({
-              pageSize:9,
-              userId:this.userId
+              pageSize:12,
+              pageIndex:page||1,
+              userId:this.userId,
+              token:this.token
             }))
             .then((res)=>{
             if(res.status != 200){
@@ -40,20 +53,17 @@ export default {
               if(result.status == 0){
                 if(result.data.list instanceof Array && result.data.list.length>0){
                   this.focusList = result.data.list;
+                  this.totalCount = result.data.totalCount;
+                  this.currPage = result.data.currPage;
+                  this.pageSize = result.data.pageSize;
                 }else{
                   this.focusList = [];
                 }
-              }else if(result.status == 9){
-                this.login();
-                return;
               }else{
                 this.$Message.error(result.message);            
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
         unFollow(item){//取消关注
             this.$http.post('/web/space/a/unFollow.do',this.$qs.stringify({
@@ -72,10 +82,10 @@ export default {
                 this.$Message.error(result.message);            
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
+        },
+        pageChange(page){
+            this.getFollowers(page);
         }
     },
     created(){

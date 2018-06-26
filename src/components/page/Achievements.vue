@@ -1,13 +1,11 @@
 <template>
 <div class="article-container">
-		<!-- <Left :leftList="achList"></Left> -->
-		<!-- <router-view></router-view> -->
 	<div class="leftside left">
 		<ul>
 			<li @click="changeTitle(0)" :class="{active:nowId==0}">
 				<span></span>
 				<a href="javascript:void(0);">全部分类</a>
-				<b @click="modalClick" v-show="!isHis">
+				<b @click.stop="modalClick" v-show="!isHis">
 					<Icon type="ios-medical-outline" color="#999" size="20px" title="设置分类"></Icon>
 				</b>
 			</li>
@@ -30,23 +28,24 @@
 			<label for="allSelect">全选</label>
 			<span @click="clickSetOpen()">设置权限</span>
 			<span @click="clickUploadType()">修改分类</span>
-			<Poptip
+			<!-- <Poptip v-show="selArticalId.length>0"
 		        confirm
 		        title="是否要删除选中的文章?"
 		        @on-ok="sureDel"
 		        @on-cancel="cancelDel">
 				<span class="modifySpan">删除</span>
-			</Poptip>
+			</Poptip> -->
 		</div>			
 		<ul class="content-list">
 			<li v-for="item of articleList">					
 				<p class="left contLink">
 					<input type="checkbox" @change="singleSelect()" v-model="item.check" :value="item.articleId" v-if="ifBatch"/>
+          <b v-if="item.openStatus==2"><Icon type="locked" color="#ff9900"></Icon></b>
 					<span v-html="item.title" @click="goArticleId(item)"></span>
 				</p>
 				<div class="right">
-					<span class="mr20" :title="item.typeName">{{item.typeName}}</span>
-					<span>{{formatTime(item.createTime)}}</span>
+					<span class="mr20 detes" :title="item.typeName">{{item.typeName}}</span>
+					<span class="detes">{{formatTime(item.createTime)}}</span>
 					<!-- <span class="nums">{{item.num}}/{{item.total}}</span>	 -->
 				</div>
 				<div class="edit" v-show="!isHis">
@@ -68,7 +67,13 @@
 					</div>
 				</div>										
 			</li>				
-		</ul>			
+		</ul>		
+    <div class="myPage">
+      <Page :total="totalCount" 
+      :current="currPage" 
+      @on-change="pageChange" 
+      ></Page>
+    </div>	
 	</div>
 	<Modal
         v-model="modal1"
@@ -76,11 +81,11 @@
         @on-ok="ok"
         @on-cancel="cancel">
         <div class="typeBox">
-        	<p v-for="item in achList">
+        	<p v-for="item in  myList" v-if="item.typeName!='未分类'">
         		<span class="iptText" 
         		v-if="!(item.typeId==currTypeId)" 
         		@click="edit(item)">{{item.typeName}}</span>
-	        	<input type="text" v-model="typeName" v-if="(item.typeId==currTypeId)" maxlength="5" title="长度不超过5"> 
+	        	<input type="text" v-model="typeName" v-if="(item.typeId==currTypeId)" maxlength="5" title="长度不超过5" id="typeIpt"> 
 	        	<span v-if="!(item.typeId==currTypeId)" @click="edit(item)">编辑</span>
 	        	<span v-if="!(item.typeId==currTypeId)" @click="del(item)">删除</span>
 	        	<span v-if="(item.typeId==currTypeId)" @click="cancels(item)">取消</span>
@@ -89,7 +94,7 @@
         	<p class="add" @click="addType">+ 添加分类</p>
         </div>
         <div slot="footer" style="text-align:center">
-            <button class="saveBtn" @click="ok">保存</button>
+            <button class="saveBtn" @click="ok">关闭</button>
         </div>
     </Modal>
 	<Modal
@@ -109,7 +114,7 @@
     </Modal>
 	<Modal
         v-model="modal3"
-        title="设置权限"
+        title="修改分类"
         @on-ok="ok3"
         @on-cancel="cancel3" width="300px">
         <div class="selBox">
@@ -126,49 +131,53 @@
 <script>
 import global_ from '@/components/Global';
 export default {
-  	name:'Achievements',
-    data () {
-        return {
-        	token:this.$storage.getStorage("token"),
-			achList:[],
-			selArticalId:[],
-			nowId:0,
-			articleList:[
-				{title:'《素书》相传为秦末黄石公作。民间视为奇书、天书。《素书》以道家思想为宗旨。',"createTime": 1525500298000,"articleId": 2,total:'20',num:'8'},
-			],
-			openStatus:1,
-			articleId:1,
-			selTypeId:0,
-			typeName:'',
-			single:false,			
-			ifBatch:false,
-			currTypeId:0,
-			formatTime:global_.formatTime,
-			modal1: false,			
-			modal2: false,			
-			modal3: false,
-			userId:'',
-            isHis:true			
-        }
+	name:'Achievements',
+  data () {
+    return {
+      	token:this.$storage.getStorage("token"),
+        achList:[],
+  			 myList:[],
+  			selArticalId:[],
+  			nowId:0,
+  			articleList:[
+  				{title:'《素书》相传为秦末黄石公作。民间视为奇书、天书。《素书》以道家思想为宗旨。',"createTime": 1525500298000,"articleId": 2,total:'20',num:'8'},
+  			],
+  			openStatus:1,
+  			articleId:1,
+  			selTypeId:0,
+  			typeName:'',
+  			single:false,			
+  			ifBatch:false,
+  			currTypeId:0,
+  			formatTime:global_.formatTime,
+  			modal1: false,			
+  			modal2: false,			
+  			modal3: false,
+        totalCount:0,
+        currPage:1,
+  			userId:'',
+        isHis:true			
+    }
 	},
 	methods:{
-		ok () {
-			if(!this.$storage.getSession('atcItem')){
-				this.sure(this.$storage.getSession('atcItem'));
-			}
-            this.modal1 = false;
-        },
-		ok2 () {
-			this.setOpen(this.openStatus); 
-            this.modal2 = false;
-        },
-		ok3 () {
-			this.uploadType (this.selTypeId);
+    		ok () {
+                this.modal1 = false;
+                this.currTypeId=0;
+                this.typeName='';
+                this.getAchList();
+            },
+    		ok2 () {
+    			this.setOpen(this.openStatus); 
+                this.modal2 = false;
+            },
+    		ok3 () {
+    			this.uploadType (this.selTypeId);
             this.modal3 = false;
         },
         cancel() {
         	this.currTypeId=0;
         	this.typeName='';
+          this.getAchList();
         },
         cancel2() {
         	this.currTypeId=0;
@@ -191,9 +200,6 @@ export default {
               typeId:item.typeId
             }))
             .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
               let result = res.data;
               if(result.status == 0){
               	this.currTypeId=0;
@@ -202,15 +208,15 @@ export default {
               }else{ 
                 this.$Message.error('操作失败，请重试');      
               }
-            } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
         cancels(item) {
+          if(item.typeId=='-1'){
+            this. myList.pop(item);
+          }
         	this.currTypeId=0;
         	this.typeName='';
+          this.getAchList();
         },
         del(item) {
             this.$http.post("/web/space/article/a/deleteArticleType.do",this.$qs.stringify({
@@ -218,32 +224,28 @@ export default {
               typeId:item.typeId
             }))
             .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
               let result = res.data;
               if(result.status == 0){
               	this.getAchList();
               }else{ 
                 this.$Message.error('操作失败，请重试');      
               }
-            } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
         addType() {
         	let item={
             	"articleCount": 0,
-				"type": "0",
-				"typeId": '-1',
-				"typeName": "新增分类"
-			};
-            this.achList.push(item)
-			this.currTypeId='-1';
+      				"type": "0",
+      				"typeId": '-1',
+      				"typeName": "新增分类"
+      			};
+            if(this.currTypeId!='-1'){
+              this. myList.push(item); 
+            }
+			      this.currTypeId='-1';
             this.typeName="新增分类";
-            this.$storage.setSession('atcItem',item);
+            if(document.getElementById('typeIpt'))
+            document.getElementById('typeIpt').focus()
         },
         modalClick(){
         	this.modal1=true;
@@ -258,63 +260,79 @@ export default {
         cancelDel(){
 
         },
-		showBatch(){//批量操作按钮
-			let vm=this;	
-			if(!this.ifBatch){
-				this.ifBatch = true;
-				this.single = false;
-				vm.selArticalId=[];
-				vm.articleList.forEach(item => {
-		            item.check = vm.single
-		        })		
-			}else{
-				this.ifBatch = false;
-			}
-		},
-		allSelect(){//全选
-			let vm = this;
-			vm.selArticalId=[];
-	        vm.articleList.forEach(item => {
-	            item.check = vm.single
-	            if(vm.single){
-	            	vm.selArticalId.push(item.articleId)
-	            }
-	        })
-		},
-	    singleSelect() {//单选
-	        let vm = this;
-	        vm.selArticalId=[];
-	        let selectData = vm.articleList.filter(item => {
-	            return item.check == true
-	        })
-	        vm.articleList.forEach(item => {
-	        	if(item.check == true){
-	        		vm.selArticalId.push(item.articleId);
-	        	}
-	        })
-	        selectData.length == vm.articleList.length ? vm.single = true : vm.single = false;
-	    },
-		toWrite(){
-			this.$router.push('/MySpace/WriteArticle');
-		},
-		changeTitle(item){  
-			if(item==0){
-				this.nowId=0;
-				this.getArticleList(this.nowId);
-				return;
-			}
-			this.nowId=item.typeId;
-			this.getArticleList(this.nowId); 			
-		},
-		clickSetOpen(item){
-			this.modal2 = true;
-			if(item){
-				this.openStatus=item.openStatus;
-				this.articleId=item.articleId;
-				this.selArticalId=[];
-				this.selArticalId.push(item.articleId);
-			}
-		},
+    		showBatch(){//批量操作按钮
+    			let vm=this;	
+    			if(!this.ifBatch){
+    				this.ifBatch = true;
+    				this.single = false;
+    				vm.selArticalId=[];
+    				vm.articleList.forEach(item => {
+    		            item.check = vm.single
+    		        })		
+    			}else{
+    				this.ifBatch = false;
+    			}
+    		},
+    		allSelect(){//全选
+    			let vm = this;
+    			vm.selArticalId=[];
+    	        vm.articleList.forEach(item => {
+    	            item.check = vm.single
+    	            if(vm.single){
+    	            	vm.selArticalId.push(item.articleId)
+    	            }
+    	        })
+    		},
+  	    singleSelect() {//单选
+  	        let vm = this;
+  	        vm.selArticalId=[];
+  	        let selectData = vm.articleList.filter(item => {
+  	            return item.check == true
+  	        })
+  	        vm.articleList.forEach(item => {
+  	        	if(item.check == true){
+  	        		vm.selArticalId.push(item.articleId);
+  	        	}
+  	        })
+  	        selectData.length == vm.articleList.length ? vm.single = true : vm.single = false;
+  	    },
+    		toWrite(){
+    			this.$router.push('/MySpace/WriteArticle');
+    		},
+    		changeTitle(item){   
+    			if(item==0){
+            if(item==this.nowId){
+              this.$router.go(0)
+            }  
+    				this.nowId=0;
+            this.$storage.setStorage('leftNowId',this.nowId)
+    				this.getArticleList(this.nowId,this.currPage);
+    				return;
+    			} 
+          if(item.typeId==this.nowId){
+            this.$router.go(0)
+          }  
+    			this.nowId=item.typeId;
+          this.$storage.setStorage('leftNowId',this.nowId)
+          this.currPage=1;
+    			this.getArticleList(this.nowId,this.currPage); 			
+    		},
+    		clickSetOpen(item){
+    			if(item){
+    				this.openStatus=item.openStatus;
+    				this.articleId=item.articleId;
+    				this.selArticalId=[];
+    				this.selArticalId.push(item.articleId);
+    			}
+          if(this.selArticalId.length>0){
+            this.modal2 = true;
+          }else{
+            this.$Message.warning({
+                content: '至少选择一条数据！',
+                duration: 2
+            });
+          }
+    		},
         setOpen (openStatus) {
         	this.$http.post("/web/space/article/a/updateOpenStatus.do",this.$qs.stringify({
               token:this.token,
@@ -327,26 +345,32 @@ export default {
             }else{
               let result = res.data;
               if(result.status == 0){
-              	this.getArticleList(this.nowId);
+              	this.getArticleList(this.nowId,this.currPage);
               	this.$Message.success(result.message);  
+                this.single = false;
+                this.selArticalId=[];
               }else{ 
                 this.$Message.error(result.message);      
               }      
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
-		clickUploadType(item){
-			this.modal3 = true;
-			if(item){
-				this.selTypeId=item.typeId;
-				this.articleId=item.articleId;
-				this.selArticalId=[];
-				this.selArticalId.push(item.articleId);
-			}
-		},
+    		clickUploadType(item){
+    			if(item){
+    				this.selTypeId=item.typeId;
+    				this.articleId=item.articleId;
+    				this.selArticalId=[];
+    				this.selArticalId.push(item.articleId);
+    			}
+          if(this.selArticalId.length>0){
+            this.modal3 = true;
+          }else{
+            this.$Message.warning({
+                content: '至少选择一条数据！',
+                duration: 2
+            });
+          }
+    		},
         uploadType (typeId) {
         	this.$http.post("/web/space/article/a/updateTypeId.do",this.$qs.stringify({
               token:this.token,
@@ -359,22 +383,22 @@ export default {
             }else{
               let result = res.data;
               if(result.status == 0){
-              	this.getArticleList(this.nowId);
-              	this.$Message.success(result.message);  
+              	this.getArticleList(this.nowId,this.currPage);
+              	this.$Message.success(result.message); 
+                this.single = false; 
+                this.selArticalId=[];
+                this.getAchList();
               }else{ 
                 this.$Message.error(result.message);      
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
         delAtcal (articleId) {
         	if(articleId){
-				this.selArticalId=[];
-				this.selArticalId.push(articleId);
-			}
+    				this.selArticalId=[];
+    				this.selArticalId.push(articleId);
+    			}
         	this.$http.post("/web/space/article/a/deleteArticle.do",this.$qs.stringify({
               token:this.token,
               articleIds:JSON.stringify(this.selArticalId)
@@ -385,16 +409,15 @@ export default {
             }else{
               let result = res.data;
               if(result.status == 0){
-              	this.getArticleList(this.nowId);
-              	this.$Message.success(result.message);  
+              	this.getArticleList(this.nowId,this.currPage);
+              	this.$Message.success(result.message);
+                this.single = false;  
+                this.selArticalId=[];
               }else{ 
                 this.$Message.error(result.message);      
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
         toTop (articleId) {
         	this.$http.post("/web/space/article/a/toTOP.do",this.$qs.stringify({
@@ -407,31 +430,29 @@ export default {
             }else{
               let result = res.data;
               if(result.status == 0){
-              	this.getArticleList(this.nowId);
+              	this.getArticleList(this.nowId,this.currPage);
               	this.$Message.success(result.message);  
               }else{ 
                 this.$Message.error(result.message);      
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
-		getAchList(){
-			this.$http.post('/web/space/article/listArticleType.do',this.$qs.stringify({
-		      token:this.token,
+    		getAchList(){
+    			this.$http.post('/web/space/article/listArticleType.do',this.$qs.stringify({
+    		      token:this.token,
               userId:this.userId
             }))
             .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
               let result = res.data;
               if(result.status == 0){
-              	this.getArticleList(this.nowId);
+              	this.getArticleList(this.nowId,this.currPage);
+                this. myList = [];
               	if(result.data instanceof Array && result.data.length>0){
-              	  this.achList = result.data;
+                  this.achList = result.data;
+                  for(let i=0,len=result.data.length;i<len;i++){
+                      this.myList.push(result.data[i])
+                  }
                 }else{
                   this.achList = [];
                 };
@@ -440,76 +461,86 @@ export default {
               	return;
               }else{ 
                 this.$Message.error('请求资源失败，请重试');      
-              }
-            } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
-		},
-		getArticleList(tId){
-			this.$http.post('web/space/article/listArticle.do',this.$qs.stringify({
-			  typeId:tId||0,
-			  pageSize:10,
-			  token:this.token,
-              userId:this.userId
-            }))
-            .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
+              } 
+            }) 
+    		},
+    		getArticleList(tId,pIdx){
+    			this.$http.post('web/space/article/listArticle.do',this.$qs.stringify({
+            typeId:tId||0,
+    			  pageIndex:pIdx||1,
+    			  pageSize:10,
+    			  token:this.token,
+            userId:this.userId
+          }))
+          .then((res)=>{
+          if(res.status != 200){
+            this.$Message.error('请求失败请重试');
+          }else{
+            let result = res.data;
+            if(result.status == 0){
+              this.totalCount = result.data.totalCount;
+              this.currPage = result.data.currPage;
+            	if(result.data.list instanceof Array && result.data.list.length>0){
+            	  this.articleList = result.data.list;
+              }else{
+                this.articleList = [];
+              };
+            }else if(result.status == 9){
+            	global_.login();
+            	return;
+            }else{ 
+              this.$Message.error('请求资源失败，请重试');      
+            }
+          } 
+          })
+          .catch((err)=>{
+              alert(err);
+          })
+    		},
+        pageChange(page){
+            this.getArticleList(0,page)
+        },
+    		goArticleId(item){
+          let whoSpace=window.location.hash.split('/')[1];
+    			this.$router.push({
+            // path:'/MySpace/ArticalInfo',
+    				path:'/'+whoSpace+'/ArticalInfo',
+    				query:{articleId:item.articleId}
+    			});
+    		}
+    	},
+    	created(){
+            let whoSpace=window.location.hash.split('/')[1];
+            if(whoSpace=='ShowSpace'){
+                this.isHis=true;
             }else{
-              let result = res.data;
-              if(result.status == 0){
-              	if(result.data.list instanceof Array && result.data.list.length>0){
-              	  this.articleList = result.data.list;
-                }else{
-                  this.articleList = [];
-                };
-              }else if(result.status == 9){
-              	global_.login();
-              	return;
-              }else{ 
-                this.$Message.error('请求资源失败，请重试');      
-              }
-            } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
-		},
-		goArticleId(item){
-			this.$router.push({
-				path:'/MySpace/ArticalInfo',
-				query:{articleId:item.articleId}
-			});
-		}
-	},
-	created(){
-        let whoSpace=window.location.hash.split('/')[1];
-        if(whoSpace=='ShowSpace'){
-            this.isHis=true;
-        }else{
-            this.isHis=false;
+                this.isHis=false;
+            }
+    		this.userId=this.$router.history.current.query.userId;
+    		if(!this.userId){
+    			this.userId=this.$storage.getStorage("userInfo").id;
+    		}
+        if(this.$storage.getStorage('leftNowId')){
+          this.nowId=this.$storage.getStorage('leftNowId')
         }
-		this.userId=this.$router.history.current.query.userId;
-		if(!this.userId){
-			this.userId=this.$storage.getStorage("userInfo").id;
-		}
-		this.getAchList();
-	}	
+    		this.getAchList();
+    	}	
 }
 </script>
 
 <style scoped>	
 	.mr20{
-		margin-right: 20px;
+    margin-right: 20px;
+  }
+  .detes{
+		margin-right: 10px;
 		display: inline-block;
 		vertical-align: middle;
 		width: 70px;
-		text-align: center;
+		text-align: left;
 		overflow: hidden;
 		text-overflow:ellipsis;
-	    white-space: nowrap;
+    white-space: nowrap;
 	}
 	.article-container{
 		overflow: hidden;
@@ -542,9 +573,9 @@ export default {
 		color: #666;
 		font-size: 16px;
 		overflow: hidden;
-    	text-overflow:ellipsis;
-    	white-space: nowrap;    
-    	vertical-align: middle;
+  	text-overflow:ellipsis;
+  	white-space: nowrap;    
+  	vertical-align: middle;
 	}
 	.leftside ul li>span{
 		position: absolute;
@@ -634,5 +665,13 @@ export default {
 		margin:5px 10px;    
 		vertical-align: middle;
 	}
+  #article-content .content-list li>.right{
+    position: absolute;
+    right: 0px;
+  }
+  .myPage{
+    text-align: center;
+    margin-top: 50px;
+  }
 </style>
 

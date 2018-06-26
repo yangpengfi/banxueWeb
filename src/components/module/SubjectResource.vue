@@ -261,9 +261,7 @@ export default {
                 }           
               }
             }  
-          }).catch(function (error) {
-            alert(error);
-          });
+          }) 
         },
         showSel:function () {
           this.boxshow = true;
@@ -282,6 +280,7 @@ export default {
             }
         },
         tabLoad1(item){
+          console.log(item)
           this.loadId1 = item.id;  
           this.loadId2 = '';
           this.loadId3 = '';
@@ -290,7 +289,7 @@ export default {
           this.filter.bookNodeId3 = 0; 
           this.getResourceList(this.filter)
         },
-        tabLoad2(item){
+        tabLoad2(item){console.log(item)
           this.loadId2 = item.id; 
           this.loadId1 = '';
           this.loadId3 = ''; 
@@ -332,10 +331,7 @@ export default {
                     }
                 }     
 
-            })
-            .catch(function (error) {
-                alert(error);
-            });
+            }) 
         },
         getSubjectList(pId,sId){
             this.$http.post('/web/coursebook/listPeriod2Subject.do',qs.stringify({        
@@ -365,10 +361,7 @@ export default {
                     }
                 }     
 
-            })
-            .catch(function (error) {
-                alert(error);
-            });
+            }) 
         },  
         getVersionList(pId,sId,vId){
             this.$http.post('/web/coursebook/listZxxkVersion.do',qs.stringify({       
@@ -400,10 +393,7 @@ export default {
                     }
                   }
                 }     
-            })
-            .catch(function (error) {
-                alert(error);
-            });
+            }) 
         },
         getTextBookList(pId,sId,vId,tId){
             this.$http.post('/web/coursebook/listZxxkTextbook.do',qs.stringify({        
@@ -442,10 +432,7 @@ export default {
                         }
                     }
                 }  
-            })
-            .catch(function (error) {
-                alert(error);
-            });
+            }) 
         }, 
         pageChange(page){
             this.filter.pageIndex=page;

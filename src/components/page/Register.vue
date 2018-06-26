@@ -4,7 +4,7 @@
             <div id="header" class="w-1200">    
                 <div class="left">
                     <div class="logo">
-                        <img src="../../assets/imgs/index/u124.png" alt="这是logo图片">
+                        <img :src="logoUrl" alt="这是logo图片"  @click="goIndex">
                     </div>        
                     <div class="title">
                         <div>伴学网教育云平台</div>
@@ -33,6 +33,7 @@ export default {
     data(){
         return {
             localTitle:1,
+            logoUrl:'',
             titleList:[
                 {id:1,title:'我是老师',path:'/Register/'},
                 {id:2,title:'我是学生',path:'/Register/StudentRegisterOne'}
@@ -40,13 +41,30 @@ export default {
         }
     },
     methods:{
+        getLogo(){
+            this.$http.post('web/space/logo.do')
+            .then((res)=>{
+            if(res.data.status==0){
+              this.logoUrl=res.data.data.logoPath
+            }else{
+              this.$Message.error(res.data.message);
+            }
+            })
+        },
         changeTitle(item){
             this.localTitle = item.id;
             this.$router.push({
                 path:item.path,
 				query:{}
             });
-        }
+        },
+        goIndex(){
+            this.$router.push({path:'/Login'});
+        },
+
+    },
+    created(){
+      this.getLogo();
     }
 }
 </script>
@@ -59,11 +77,9 @@ export default {
   height:120px;
   margin: auto;  
   overflow: hidden;
-  padding-top: 34px; 
 }
 #header>div.left{
   overflow: hidden;  
-height: 53px;
 }
 #header>.left>div{
   float: left;
@@ -72,11 +88,12 @@ height: 53px;
   margin-right: 10px;
 }
 .logo img{
-  height: 53px;
+  height: 120px;
 }
 .title{
   text-align: center;
   padding-right: 25px;
+  margin-top: 34px;
 }
 .title div{
   font-family: FZZXHJW--GB1-0;
@@ -93,7 +110,7 @@ height: 53px;
     height: 40px;
     padding-left: 20px;
     margin-left: 55px;
-    margin-top: 10px;
+    margin-top: 44px;
     font-weight: normal;
     border-left:1px solid #e9e9e9;
     font-size: 20px;

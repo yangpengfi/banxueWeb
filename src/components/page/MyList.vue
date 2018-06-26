@@ -14,10 +14,10 @@ export default {
     data () {
         return {
 			linkList:[
-				{title:'我关注的人',path:'/MySpace/MyList/',id:'focusLink'},
-				{title:'我的粉丝',path:'/MySpace/MyList/FunLink',id:'funLink'},
-				{title:'我的班级',path:'/MySpace/MyList/ClassLink',id:'classLink'},
-				{title:'我的同事',path:'/MySpace/MyList/MateLink',id:'mateLink'}
+				{title:'我关注的人',path:'/MySpace/MyList/',id:'FocusLink'},
+				{title:'我的粉丝',path:'/MySpace/MyList/FunLink',id:'FunLink'},
+				{title:'我的班级',path:'/MySpace/MyList/ClassLink',id:'ClassLink'},
+				{title:'我的同事',path:'/MySpace/MyList/MateLink',id:'MateLink'}
 			]
         }
     },
@@ -25,9 +25,9 @@ export default {
 		let userType=this.$storage.getStorage('userInfo').type;
 		if(userType==2){
 			this.linkList=[
-				{title:'我关注的人',path:'/MySpace/MyList/',id:'focusLink'},
-				{title:'我的粉丝',path:'/MySpace/MyList/FunLink',id:'funLink'},
-				{title:'我的班级',path:'/MySpace/MyList/ClassLink',id:'classLink'},
+				{title:'我关注的人',path:'/MySpace/MyList/',id:'FocusLink'},
+				{title:'我的粉丝',path:'/MySpace/MyList/FunLink',id:'FunLink'},
+				{title:'我的班级',path:'/MySpace/MyList/ClassLink',id:'ClassLink'},
 			]
 		}
 	}    

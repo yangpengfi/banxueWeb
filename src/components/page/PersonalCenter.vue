@@ -15,10 +15,10 @@ export default {
         return {
             personInfoList:[
                 {title:'个人资料',path:'/MySpace/PersonalCenter/',id:'personInfo'},   
-                {title:'修改密码',path:'/MySpace/PersonalCenter/ChangePassword',id:'changePassword'},   
-                {title:'任教信息',path:'/MySpace/PersonalCenter/TeacherMessage',id:'teacherMessage'},   
-                {title:'申请成为认证老师',path:'/MySpace/PersonalCenter/Teacher',id:'teacher'},   
-                {title:'访问权限',path:'/MySpace/PersonalCenter/Authority',id:'authority'}
+                {title:'修改密码',path:'/MySpace/PersonalCenter/ChangePassword',id:'ChangePassword'},   
+                {title:'任教信息',path:'/MySpace/PersonalCenter/TeacherMessage',id:'TeacherMessage'},   
+                {title:'申请成为认证老师',path:'/MySpace/PersonalCenter/Teacher',id:'Teacher'},   
+                {title:'访问权限',path:'/MySpace/PersonalCenter/Authority',id:'Authority'}
             ]
         }
     },
@@ -26,10 +26,10 @@ export default {
         let userType=this.$storage.getStorage('userInfo').type;
         if(userType==2){
             this.personInfoList=[
-                {title:'个人资料',path:'/MySpace/PersonalCenter/PersonInfoStudent',id:'personInfo'},   
-                {title:'班级信息',path:'/MySpace/PersonalCenter/ClassInfo',id:'classInfo'},   
-                {title:'修改密码',path:'/MySpace/PersonalCenter/ChangePassword',id:'changePassword'},   
-                {title:'访问权限',path:'/MySpace/PersonalCenter/Authority',id:'authority'}
+                {title:'个人资料',path:'/MySpace/PersonalCenter/PersonInfoStudent',id:'PersonInfoStudent'},   
+                {title:'班级信息',path:'/MySpace/PersonalCenter/ClassInfo',id:'ClassInfo'},   
+                {title:'修改密码',path:'/MySpace/PersonalCenter/ChangePassword',id:'ChangePassword'},   
+                {title:'访问权限',path:'/MySpace/PersonalCenter/Authority',id:'Authority'}
             ]
         }
     }    

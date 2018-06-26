@@ -76,9 +76,6 @@
             	this.$Message.info(res.data.message);
             }
           })
-          .catch((err)=>{
-            alert(err);
-          })
 	    },
 	  	check(sel){
 	  		this.act=sel;

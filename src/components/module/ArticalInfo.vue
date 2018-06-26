@@ -7,12 +7,13 @@
                     <b v-show="!articleInfo.hasLike" @click="like">赞</b>
                     <b class="f9" v-show="articleInfo.hasLike" @click="unlike">已赞</b>
                 （{{articleInfo.likeCount}}）</span>
-				<span><a href="#comments">评论</a>（{{articleInfo.commentCount}}）</span>
+				<span><a href="#comments">评论</a>（{{commentTotalCount}}）</span>
 				<span>
                     <b @click="reprint" v-show="!articleInfo.hasReprint">转载</b>
-                    <b class="f9" v-show="articleInfo.hasReprint" @click="unlike">已转载</b>
+                    <b class="f9" v-show="articleInfo.hasReprint" @click="reprint">已转载</b>
                 （{{articleInfo.reprintCount}}）</span>
-				<span v-if="articleInfo.fromUserId" class="formUser">{{new Date(articleInfo.createTime).Format("yyyy-M-d hh:mm:ss")}} 转载自 {{articleInfo.fromUserName}}</span>
+				<span class="formUser">{{new Date(articleInfo.createTime).Format("yyyy-M-d hh:mm:ss")}} 
+                <b v-if="articleInfo.fromUserId" >转载自 {{articleInfo.fromUserName}}</b></span>
 			</div>
 			<p v-html="articleInfo.content" class="articleCont"></p>
 		</div>
@@ -30,14 +31,14 @@
                                 <span>{{new Date(item.createTime).Format("yyyy-M-d hh:mm:ss")}}</span>
                                 <span @click="reply(item)">回复</span>
                             </div>
-                            <p class="comment-content">{{item.content}}</p>
+                            <p class="comment-content" :title="item.content">{{item.content}}</p>
                             <ul v-if="item.children.length>0">
                                 <li v-for="subItem in item.children">
                                     <p class="left"><img :src="subItem.logo"  alt="头像"></p>
                                     <div class="left">
                                         <div class="comment-titlel">
                                             <span>{{subItem.userName}}</span>
-                                            <p class="comment-content w50">{{subItem.content}}</p>
+                                            <p class="comment-content w50" :title="subItem.content">{{subItem.content}}</p>
                                             <span>{{new Date(subItem.createTime).Format("yyyy-M-d hh:mm:ss")}}</span>
                                         </div>
                                     </div>
@@ -46,8 +47,8 @@
                             <div v-show="item.check" class="reply">
                                 <input 
                                     type="text" 
-                                    maxlength="200" 
-                                    title="长度不超过200" 
+                                    maxlength="120" 
+                                    title="长度不超过120" 
                                     v-model="replyCommet" placeholder="我也说一句">
                                     <button @click="commit(item.id)">发表</button>
                             </div>
@@ -58,12 +59,12 @@
 	                <Page :total="commentTotalCount" 
 			        :current="commentCurrPage" 
 			        :pageSize="pageSize" 
-			        show-elevator show-total 
 			        class="page-box" @on-change="pageChange"></Page> 
 		        </div>
             </div>
             <div class="comment" id="comments">
-                <textarea  rows="8" v-model="comment" placeholder="发表你的精彩评论啦"></textarea>
+                <textarea  rows="8" v-model="comment" placeholder="发表你的精彩评论啦" maxlength="120"
+                title="长度不超过120"></textarea>
                 <button @click="createComment(0)" class="myButton">发表评论</button>
             </div>
         </div>
@@ -95,7 +96,8 @@ export default {
         },
 		getArticalInfo(){
 			this.$http.post('/web/space/article/info.do',this.$qs.stringify({
-              articleId:this.articleId
+              articleId:this.articleId,
+              token:this.token
             }))
             .then((res)=>{
             if(res.status != 200){
@@ -111,10 +113,7 @@ export default {
                 this.$Message.error(result.message);      
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
 		}, 
         reply(item){
             item.check=!item.check;
@@ -157,10 +156,7 @@ export default {
                 this.$Message.error(result.message);         
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
         getSpaceComment(page){//获取评论列表
             this.$http.post('web/space/article/listComments.do',this.$qs.stringify({
@@ -182,22 +178,16 @@ export default {
                 }else{
                   this.commentList = [];
                 } 
-              }else if(result.status == 9){
-                this.login();
-                return;
               }else{ 
                 this.$Message.error(result.message);         
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
         like(){//点赞
             this.$http.post('/web/space/article/a/like.do',this.$qs.stringify({
               articleId:this.articleId,
-              token:this.token,
+              token:this.token
             }))
             .then((res)=>{
             if(res.status != 200){
@@ -215,15 +205,12 @@ export default {
                 this.$Message.error(result.message);      
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
         unlike(){//取消点赞
             this.$http.post('/web/space/article/a/unlike.do',this.$qs.stringify({
               articleId:this.articleId,
-              token:this.token,
+              token:this.token
             }))
             .then((res)=>{
             if(res.status != 200){
@@ -241,15 +228,12 @@ export default {
                 this.$Message.error(result.message);      
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
         reprint(){//转载
             this.$http.post('/web/space/article/a/reprint.do',this.$qs.stringify({
               articleId:this.articleId,
-              token:this.token,
+              token:this.token
             }))
             .then((res)=>{
             if(res.status != 200){
@@ -267,10 +251,7 @@ export default {
                 this.$Message.error(result.message);      
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
         pageChange(page){
         	this.getSpaceComment(page);
@@ -299,7 +280,7 @@ export default {
 	padding-bottom: 15px;
 	border-bottom: 1px solid #e9e9e9;
 }
-.articleBox .articleLikes{
+.articleBox .articleLikes,.articleBox .articleLikes span a{
 	font-size: 14px;
 	line-height: 40px;
 	color: #47a2ff;
@@ -370,7 +351,7 @@ export default {
     }
     .comment-list>ul{
         padding-top: 30px;
-        min-height: 400px;
+        /*min-height: 400px;*/
     }
     .comment-list>ul li{
         overflow: hidden;
@@ -417,7 +398,6 @@ export default {
         line-height: 28px;
         font-size: 14px;
         color: #7b8085;
-        /*text-indent: 2em;*/
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;

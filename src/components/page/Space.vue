@@ -19,7 +19,7 @@
         <div>
             <div class="section-box">
                 <span class="section-title">优秀教师空间</span>
-                <span class="right more">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
+                <span class="right more" @click="goSpaceMore(1)">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
             </div>
             <SpaceList :spaceList="teacherList"></SpaceList> 
         </div>
@@ -27,7 +27,7 @@
         <div class="studentBox">
             <div class="section-box">
                 <span class="section-title">优秀学生空间</span>
-                <span class="right more">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
+                <span class="right more" @click="goSpaceMore(2)">更多&nbsp;<Icon size="16px" color="#ccc" type="ios-arrow-thin-right"></Icon></span>
             </div>
             <SpaceList :spaceList="studentList"></SpaceList> 
         </div>
@@ -67,6 +67,12 @@ export default {
             }
             this.$router.push('/MySpace/');
         },
+        goSpaceMore(val){
+            this.$router.push({
+              path:'/SpaceMore',
+              query:{spaceType:val}
+            });
+        },
         getSpaceCount(){
             this.$http.post('/web/space/spaceCount.do')
             .then((res)=>{
@@ -81,9 +87,7 @@ export default {
               }
             } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+             
         },
         getSpaceTeacher(){//获取优秀老师空间
             this.$http.post('web/space/listExcellentTeacherSpace.do',this.$qs.stringify({
@@ -105,9 +109,7 @@ export default {
               }
             } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+             
         },
         getSpaceStudent(){//获取优秀学生空间
             this.$http.post('web/space/listExcellentStudentSpace.do',this.$qs.stringify({
@@ -129,13 +131,11 @@ export default {
               }
             } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+             
         },
         getSpaceDynamic(type){//获取最新动态
             this.$http.post('web/space/listAllSpaceDynamic.do',this.$qs.stringify({
-              pageSize:10,
+              pageSize:11,
             }))
             .then((res)=>{
             if(res.status != 200){
@@ -153,9 +153,7 @@ export default {
               }
             } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
+             
         },
     },
     created(){

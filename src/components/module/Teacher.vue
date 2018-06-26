@@ -3,7 +3,11 @@
 		<p class="title">
 			<a href="javascript:void(0);">申请成为认证老师</a> 
 		</p>
-		<p class="cont">教师资格证是教育行业从业教师的许可证。在我国，师范类大学毕业生须在学期期末考试中通过学校开设的教育学和教育心理学课程考试，并且要在全省统一组织的普通话考试中成绩达到二级乙等（中文专业为二级甲等）以上，方可在毕业时领取教师资格证。非师范类和其他社会人员需要在社会上参加认证考试等一系列测试后才能申请教师资格证。</p>
+		<p class="cont">
+		何为认证老师？认证老师是经过平台认证的老师用户。 <br>
+		老师可上传相关资质证明、教师简介后提交系统后台认证。<br>
+		认证老师上传的资源可以获得特别推荐，认证老师可以创建课程视频。<br>
+		</p>
 		<div class="teacherInfo">
 			<div>
 				<span>教师教龄：</span> 
@@ -12,12 +16,19 @@
 			</div>
 			<div>
 				<span>级别证书：</span> 
-				<div class="uploadList" v-for="item in uploadList">
-		            <img :src="item.url">
-			    </div>
-			    <input type="file" @change="uploading($event)" accept="image/*" id="fileIpt">
-				<label for="fileIpt" style="padding: 15px 0" v-if="teacherInfo.authStatus==0 || teacherInfo.authStatus==2">
-					<Icon type="ios-plus-empty" size="52" style="color: #dddee1"></Icon>
+			    <input type="file" @change="uploading1($event)" accept="image/*" id="fileIpt1">
+				<label for="fileIpt1" v-if="teacherInfo.authStatus==0|| teacherInfo.authStatus==2">
+					<img :src="fileUrl1">
+				</label>
+				<label v-else>
+					<img :src="fileUrl1">
+				</label>
+			    <input type="file" @change="uploading2($event)" accept="image/*" id="fileIpt2">
+				<label for="fileIpt2" v-if="teacherInfo.authStatus==0|| teacherInfo.authStatus==2">
+					<img :src="fileUrl2">
+				</label>
+				<label v-else>
+					<img :src="fileUrl2">
 				</label>
 			</div>
 			<div>
@@ -40,8 +51,10 @@ export default {
         return {
             token:this.$storage.getStorage("token") ,
         	teacherInfo:{},
-        	defaultList: [],
-            uploadList: []
+        	file1: {},
+        	fileUrl1: require('../../assets/imgs/space/addImg.png'),
+        	file2: {},
+        	fileUrl2:  require('../../assets/imgs/space/addImg.png'),
         }
 	},
 	methods:{
@@ -50,71 +63,50 @@ export default {
               token:this.token
             }))
             .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
               let result = res.data;
               if(result.status == 0){
               	  this.teacherInfo = result.data;
+              	  
+              	  
               	  if(!result.data.certificatePath1 && !result.data.certificatePath2){
               	  	this.uploadList=[];
               	  }else if(result.data.certificatePath1 && !result.data.certificatePath2){
-              	  	this.uploadList=[
-              	  		{
-		                    'name': '教师级别证书',
-		                    'url': result.data.certificatePath1
-		                }
-              	  	];	
+              	  	this.fileUrl1=result.data.certificatePath1;
               	  }else{
-              	  	this.uploadList=[
-              	  		{
-		                    'name': '教师级别证书',
-		                    'url': result.data.certificatePath1
-		                },
-		                {
-		                    'name': '教师级别证书',
-		                    'url': result.data.certificatePath2
-		                }
-              	  	];
+              	  	this.fileUrl1=result.data.certificatePath1;
+              	  	this.fileUrl2=result.data.certificatePath2;
               	  }
               }else{ 
                 this.$Message.error(result.message);      
               }
-            } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
 		}, 
-        uploading(event){
+        uploading1(event){
         	let that=this;
-	        var obj = event.target.files[0];
-	        if(this.defaultList.length>1){
-	        	this.defaultList.shift();
-	        	this.defaultList.push(obj)
-	        }else{
-        		this.defaultList.push(obj)
-	        }
+	        this.file1 = event.target.files[0];
 	        var fr = new FileReader();
 	        fr.onload = function() {
-	        	if(that.uploadList.length>1){
-	        		that.uploadList.shift();
-	        		that.uploadList.push({
-						'name': '教师级别证书',
-						'url':this.result
-					})
-	        	}else{
-	        		that.uploadList.push({
-						'name': '教师级别证书',
-						'url':this.result
-					})
-				}	
+	        	that.fileUrl1=this.result
 	        };
-	        fr.readAsDataURL(obj);
+	        fr.readAsDataURL(this.file1);
+
+        },
+        uploading2(event){
+        	let that=this;
+	        this.file2 = event.target.files[0];
+	        var fr = new FileReader();
+	        fr.onload = function() {
+	        	that.fileUrl2=this.result	
+	        };
+	        fr.readAsDataURL(this.file2);
 
         },
         submit(event){
         	event.preventDefault();//取消默认行为
+        	console.log(this.file1.name)
+        	console.log(this.file2.name)
+        	console.log(this.fileUrl1.indexOf('http'))
+        	console.log(this.fileUrl2.indexOf('http'))
   			let formdata = new FormData();
 
         	if(!this.teacherInfo.teachAge){
@@ -123,17 +115,12 @@ export default {
                     duration: 2
                 });
                 return;
-        	}else if(this.defaultList.length==0){
+        	}else if(!this.file1.name&&!this.file2.name&&this.fileUrl1.indexOf('http')=='-1'&&this.fileUrl2.indexOf('http')=='-1'){
         		this.$Message.warning({
-                    content: '请至少选择一张图片！',
+                    content: '请选择图片！',
                     duration: 2
                 });
                 return;
-        	}else if(this.defaultList.length==1){
-        		formdata.append('imgs', this.defaultList[0]);
-        	}else if(this.defaultList.length==2){
-        		formdata.append('imgs', this.defaultList[0]);
-				formdata.append('imgs', this.defaultList[1]);
         	}else if(!this.teacherInfo.introduce){
         		this.$Message.warning({
                     content: '请输入教师简介！',
@@ -141,6 +128,12 @@ export default {
                 });
                 return;
         	}
+        		if(this.file1.name){
+        		   formdata.append('fileOne', this.file1);
+        	    }
+	        	if(this.file2.name){
+					formdata.append('fileTwo', this.file2);
+	        	}
 				formdata.append('token', this.token);
 				formdata.append('teachAge', this.teacherInfo.teachAge);
 				formdata.append('introduce', this.teacherInfo.introduce);
@@ -151,9 +144,6 @@ export default {
 					}
 				})
             .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
               let result = res.data;
               if(result.status == 0){
           	  	this.$Message.success(result.message);
@@ -161,11 +151,7 @@ export default {
               }else{ 
                 this.$Message.error(result.message);      
               }
-            } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         }
 	},
 	created(){
@@ -202,7 +188,7 @@ export default {
 		line-height: 28px;
 		color: #666;
 		font-size: 14px;
-		text-indent: 30px;
+		/*text-indent: 30px;*/
 	}
 	.teacherInfo{
 		font-size: 14px;
@@ -239,11 +225,7 @@ export default {
         box-shadow: 0 1px 1px rgba(0,0,0,.2);
         margin-right: 10px;
 	}
-	.uploadList img{
-		width: 100%;
-        height: 100%;
-	}
-	#fileIpt{
+	#fileIpt1,#fileIpt2{
 		display: none;
 	}
 	label{
@@ -254,6 +236,10 @@ export default {
         line-height: 92px;
         border: 1px solid #e9e9e9;
         border-radius: 4px;
+	}
+	label img{
+		width: 100%;
+        height: 100%;
 	}
 	.teacherInfo>div textarea{
 		width: 360px;

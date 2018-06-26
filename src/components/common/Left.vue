@@ -23,8 +23,20 @@ export default {
         }
     },
 	methods:{
-		changeTitle(item){  
+		changeTitle(item){   
+	      if(item.id==this.nowId){
+	          this.$router.go(0)
+	      } 
 			this.nowId=item.id; 			
+		}
+	},
+	created(){
+		// console.log(location.hash.split('?'))
+		let paths=location.hash.split('?')[0]
+		if(!paths.split('/')[3]){
+			this.nowId=this.leftList[0].id;
+		}else{
+			this.nowId=paths.split('/')[3];
 		}
 	}    
 }

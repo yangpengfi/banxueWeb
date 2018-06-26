@@ -100,6 +100,15 @@ a:hover,a:active {
 .w-430{
     width:430px;
 }
+.ml20{
+    margin-left: 20px;
+}
+.mr20{
+    margin-right: 20px;
+}
+.mt20{
+    margin-top: 20px;
+}
 /*标题公共样式*/
 .section-box{
     height: 60px;
@@ -251,6 +260,7 @@ a:hover,a:active {
     float: left; 
     width: 58px;
     height: 58px;
+    cursor: pointer;
 }
 #right-resource .doc-content{		
     margin-left: 100px;
@@ -278,6 +288,9 @@ a:hover,a:active {
     font-size: 16px;		
     color: #333;
     margin-bottom: 10px;
+}
+#right-resource .doc-title span{
+    cursor: pointer;
 }
 #right-resource .doc-title button{		
     width: 64px;
@@ -443,10 +456,17 @@ a:hover,a:active {
     height: 120px;
     border-radius: 50%;	
     vertical-align: middle;	
+    cursor: pointer;
 }
 #link-common .rightCont ul li p{
     margin: 20px 0;	
-    text-align: center;
+    text-align: center;    
+    min-height: 21px;
+    width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
 }		
 #link-common .rightCont ul li .out{
     width: 120px;
@@ -456,12 +476,16 @@ a:hover,a:active {
     border-radius: 5px;  
     cursor: pointer;      
 }
-
+.pageBox{
+        text-align: center;
+        font-size: 14px;
+        padding: 20px 0;
+    }
 /* 学习成果公共样式 */
 #article-content{
     float: left;
     width: 940px;
-    padding: 30px 60px 140px;
+    padding: 30px 60px 70px;
     margin-left: 20px;
     background-color: #fff;
     border: 1px solid #e9e9e9;

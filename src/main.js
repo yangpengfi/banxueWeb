@@ -11,6 +11,8 @@ Vue.use(uploader);
 import iView from 'iview'
 import 'iview/dist/styles/iview.css';
 
+Vue.use(iView)
+
 import './assets/css/base.css' /*引入公共样式*/
 
 import '../static/ueditor/ueditor.config.js'
@@ -18,21 +20,12 @@ import '../static/ueditor/ueditor.all.js'
 import '../static/ueditor/lang/zh-cn/zh-cn.js'
 import '../static/ueditor/ueditor.parse.min.js'
 import api from '../static/js/config.js'
-console.log(api.previewURL)
 // 引入echarts
 import echarts from 'echarts'
 Vue.prototype.$echarts = echarts 
 
-// const previewURL='http://ow365.cn/?i=15754&furl=';//吉视传媒
-// const previewURL='http://ow365.cn/?i=15765&furl=';//福建广电
-// const previewURL='http://ow365.cn/?i=15549&furl=';//公司
-Vue.prototype.$previewURL = api.previewURL;
+// Vue.prototype.$previewURL = api.previewURL;
 
-// const baseURL='http://175.25.177.100/banxue/';//吉视传媒
-// const baseURL='http://220.250.18.60:8761/banxue/';//福建广电
-// const baseURL='http://192.168.8.251/banxue/';
-// const baseURL='http://localhost:8060/banxue/';
-// const baseURL='http://mybanxue.com';
 // const baseURL=process.env.BASE_API;
 Vue.prototype.$baseURL = api.baseURL;
 
@@ -51,8 +44,30 @@ axios.interceptors.request.use(config => {
 }, error => {
     return Promise.reject(error)
 })
+var count=0;
 //响应拦截器即异常处理
 axios.interceptors.response.use(response => {
+    // console.log(response.data.status)
+    // console.log(router.currentRoute.fullPath)
+    if(response.status){
+      if(response.data.status== 9||response.data.status== 1){
+          count++;
+          router.replace({
+           name:"Login",
+           query: {redirect: router.currentRoute.fullPath}
+          })
+          if(count==1){
+            iView.Message.error(response.data.message)
+          }
+          return;
+      }else if(response.data.status == 1500 ||response.data.status == 1501 ||response.data.status == 1502 || response.data.status == 1503 || response.data.status == 1504 ||response.data.status == 1505 ){ 
+          router.push({
+              path:'/SpaceAuthority',
+              query:{status:response.data.status}
+          }); 
+          return false;
+        }
+      }
     return response
 }, err => {
     if (err && err.response) {
@@ -116,7 +131,6 @@ Vue.prototype.$storage = storage;
 
 Vue.config.productionTip = false
 
-Vue.use(iView)
 
 router.beforeEach((to, from, next) => {
   iView.LoadingBar.start()
@@ -124,7 +138,9 @@ router.beforeEach((to, from, next) => {
 })
 
 router.afterEach((to, from, next) => {
-  iView.LoadingBar.finish()
+  iView.LoadingBar.finish();
+  document.body.scrollTop = 0;
+  document.documentElement.scrollTop = 0;
 })
 
 /* eslint-disable no-new */
@@ -132,5 +148,11 @@ new Vue({
   el: '#app',
   router,
   components: { App },
-  template: '<App/>'
+  template: '<App/>',
+  created(){
+    this.$Message.config({
+      top: 150,
+      duration: 2
+    });
+  }
 })

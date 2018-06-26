@@ -85,10 +85,7 @@ export default {
 	            }else{
 	            	this.$Message.error(res.data.message);
 	            }
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
 		},
 		cancel() {
         	this.getClassList();
@@ -127,10 +124,7 @@ export default {
                 this.$Message.error(result.message);      
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
 		}, 
         cancelDel(){
 
@@ -155,10 +149,7 @@ export default {
                 this.$Message.error(result.message);      
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
 	},
 	created(){

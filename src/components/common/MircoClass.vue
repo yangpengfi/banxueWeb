@@ -8,7 +8,7 @@
                   <span @click="toDetailResource(item)">{{item.videoName}}</span>
               </div>
               <div class="right">
-                  <span>{{item.browseNum}}</span>
+                  <!-- <span>{{item.browseNum}}</span> -->
                   <!-- <Icon type="ios-cloud-download-outline" size=24></Icon> -->
               </div>
           </li>

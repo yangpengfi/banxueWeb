@@ -138,9 +138,6 @@ export default {
               }
             } 
             })
-            .catch((err)=>{
-                alert(err);
-            })
         },        
     },
     created(){

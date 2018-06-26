@@ -13,8 +13,8 @@
                     <audio :src="resourcePreviewUrl" controls="controls" controlslist="nodownload" v-show="isAudio"></audio>
                     <img :src="resourcePreviewUrl" v-show="isImg">
                     <div class="noMember" v-if="!isMember">
-                        <b>如需阅读或下载完整版，请登录APP</b>
-                        <span>开通会员</span>
+                        <b>如需阅读或下载完整版，请登录APP开通会员</b>
+                        <!-- <span>开通会员</span> -->
                     </div>
                 </div>
                 <div class="from" v-if="!isMicrocourse">
@@ -25,22 +25,25 @@
                     <Rate v-model="resourceDetail.score" allow-half disabled class="rate"></Rate>
                 </div>
                 <div class="operate-article">
-                    <a href="javascript:void(0);" @click="collectOrDel" :class="{collect:isCollect}">收藏</a>
-                    <a :href="resourceUrl" v-if="!isVideo">下载</a>
+                    <a href="javascript:void(0);" @click="collectOrDel" :class="{collect:isCollect}" v-if="isCollect">已收藏</a>
+                    <a href="javascript:void(0);" @click="collectOrDel" :class="{collect:isCollect}" v-else>收藏</a>
+                    <a :href="resourceUrl" v-if="!isVideo" v-show="isMember" @click="addDownloadNum" download="">下载</a>
+                    <span v-show="!isMember">下载</span>
                 </div>
             </div>
-            <div class="comment-box" v-show="!this.isMicrocourse">
+            <div class="comment-box" v-show="!this.isMicrocourse && isMember">
                 <div class="comment">
-                    <textarea  rows="8" v-model="comment" placeholder="发表你的精彩评论啦"></textarea>
+                    <textarea  rows="8" v-model="comment" placeholder="发表你的精彩评论啦" maxlength="120"></textarea>
+                    <p>已输入{{comment.length}}/120字</p>
                 </div>
                 <div class="res-quality">
-                    <span>资源质量：</span> <Rate v-model="recommendStar"></Rate><br>
+                    <span>资源质量：</span> <Rate allow-half v-model="recommendStar"></Rate><br>
                     <button @click="createResourceComment" class="myButton">发表评论</button>
                 </div>
                 
                 <div class="comment-list">
                     <div>
-                        <p>评论<span> （{{commentNum}}条）</span></p>
+                        <p>评论<span> （{{commentTotalCount}}条）</span></p>
                     </div>
                     <ul>
                         <li v-for="item of commentList">
@@ -52,11 +55,17 @@
                                 </div>
                                 <p class="comment-content">{{item.comment}}</p>
                                 <p>
-                                    <Rate v-model="item.score"></Rate>
+                                    <Rate v-model="item.score" disabled allow-half></Rate>
                                 </p>
                             </div>
                         </li>
                     </ul>
+                </div>
+                <div class="pageBox">
+                    <Page :total="commentTotalCount" 
+                    :current="commentCurrPage" 
+                    :pageSize="pageSize" 
+                    class="page-box" @on-change="pageChange"></Page> 
                 </div>
             </div>
           </div>
@@ -68,7 +77,7 @@
                             <img :src="fileType(item.fileSuffix,0)" alt="资源图标" @click="toDetailResource(item)">
                             <div>
                                 <p @click="toDetailResource(item)" class="resTitle" :title="item.recourceLocalName">{{item.recourceLocalName}}</p>
-                                <Rate v-model="item.score"></Rate>
+                                <Rate v-model="item.score" disabled allow-half ></Rate>
                             </div>
                         </li>
                     </ul>
@@ -88,12 +97,14 @@ export default {
             resourceDetail:{},
             resourceUrl:'',
             resourcePreviewUrl:'',
-            articleStar:5,
+            articleStar:0,
             recommendStar:0,
             recommendSearch:[],
             commentList:[],
-            commentNum:5,
             comment:'',
+            commentTotalCount:0,
+            commentCurrPage:1,
+            pageSize:10,
             isImg:0,
             isVideo:0,
             isAudio:0,
@@ -133,14 +144,15 @@ export default {
         },
         toDetailResource(item){
             this.isMicrocourse=false;
-            this.resourceLocalId=this.$router.history.current.query.resourceLocalId;
-            this.getResourceDetail(this.resourceLocalId);
             this.$router.push({
                 path:'/DetailResource',
                 query:{
                     resourceLocalId:item.resourceLocalId                    
                 }
-            });     
+            }); 
+            this.resourceLocalId=this.$router.history.current.query.resourceLocalId;
+            this.getResourceDetail(this.resourceLocalId);
+            // window.location.reload();    
         },
         getResourceDetail(rId){
         this.$http.post('/web/coursebook/getResourceLocalDetail.do',this.$qs.stringify({
@@ -152,18 +164,22 @@ export default {
                 this.getListResourceComment();
                 this.resourceDetail=res.data.data;
                 this.isCollect=this.resourceDetail.isCollect;
+                this.isMember=1;
                 if(this.isMember){
-                  this.getResourceLocalUrl(rId);
-                  this.getResourceLocalPreviewUrl(rId);
-                  this.viewInit(res.data.data);  
+                  this.getResourceLocalUrl(rId,this.resourceDetail.recourceLocalName,this.resourceDetail.fileSuffix);//下载
+                  this.getResourceLocalPreviewUrl(rId);//360预览
+                  this.viewInit(res.data.data); //预览文件类型判断 
                 }
+            }else if(res.data.status==105){
+                this.getListResourceComment();
+                this.resourceDetail=res.data.data;
+                this.isCollect=this.resourceDetail.isCollect;
+                this.isMember=0;
+              // this.$Message.error(res.data.message);
             }else{
-              this.$Message.info(res.data.message);
+                this.$Message.error(res.data.message);
             }
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
         },
         getMicrocourseDetail(rId){
         this.$http.post('/app/microcourse/a/getResourceDetail.do',this.$qs.stringify({
@@ -181,12 +197,9 @@ export default {
                 this.resourceDetail=res.data.data;
                 this.isCollect=res.data.data.isCollect;
             }else{
-              this.$Message.info(res.data.message);
+              this.$Message.error(res.data.message);
             }
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
         },
         collectOrDel(){
             if(this.isCollect){
@@ -195,23 +208,33 @@ export default {
                 this.collectResource();
             }
         },
-        collectResource(){
-            let url=this.isMicrocourse?'/web/microcourse/a/collectResource.do':'/web/coursebook/a/collectResource.do';
-            console.log(url)
+        addDownloadNum(){
+            let url='/web/coursebook/a/increaseUserDownloadNum.do';
             this.$http.post(url,this.$qs.stringify({
                 token:this.token,
                 resourceLocalId:this.resourceLocalId
             }))
             .then((res)=>{
             if(res.data.status==0){
-               this.$Message.info(res.data.message);
+               // this.$Message.success("收藏成功！");
+            }else{
+              this.$Message.error(res.data.message);
+            }
+            }) 
+        },
+        collectResource(){
+            let url=this.isMicrocourse?'/web/microcourse/a/collectResource.do':'/web/coursebook/a/collectResource.do';
+            this.$http.post(url,this.$qs.stringify({
+                token:this.token,
+                resourceLocalId:this.resourceLocalId
+            }))
+            .then((res)=>{
+            if(res.data.status==0){
+               this.$Message.success("收藏成功！");
                this.isCollect=true;
             }else{
-              this.$Message.info(res.data.message);
+              this.$Message.error(res.data.message);
             }
-            })
-            .catch((err)=>{
-            alert(err);
             }) 
         },
         delCollectResource(){
@@ -222,14 +245,11 @@ export default {
             }))
             .then((res)=>{
             if(res.data.status==0){
-               this.$Message.info(res.data.message);
+               this.$Message.success("已取消收藏！");
                this.isCollect=false;
             }else{
-              this.$Message.info(res.data.message);
+              this.$Message.error(res.data.message);
             }
-            })
-            .catch((err)=>{
-            alert(err);
             }) 
         },
         getHostSearchResource(){
@@ -240,27 +260,21 @@ export default {
             if(res.data.status==0){
                this.recommendSearch=res.data.data.list;
             }else{
-              this.$Message.info(res.data.message);
+              this.$Message.error(res.data.message);
             }
-            })
-            .catch((err)=>{
-            alert(err);
             }) 
         },
-        getResourceLocalUrl(){
+        getResourceLocalUrl(rId,fileName,fileType){
             this.$http.post('/web/coursebook/a/getResourceLocalUrl.do',this.$qs.stringify({
                 token:this.token,
-                resourceLocalId:this.resourceLocalId
+                resourceLocalId:rId
             }))
             .then((res)=>{
             if(res.data.status==0){
-               this.resourceUrl=res.data.data;
+               this.resourceUrl=this.$baseURL+'/web/download/a/downloadFile.do?fileName='+fileName+'.'+fileType+'&filePath='+res.data.data+'&token='+this.token;
             }else{
-              this.$Message.info(res.data.message);
+              this.$Message.error(res.data.message);
             }
-            })
-            .catch((err)=>{
-            alert(err);
             }) 
         },
         getResourceLocalPreviewUrl(){
@@ -272,11 +286,8 @@ export default {
             if(res.data.status==0){
                this.resourcePreviewUrl=res.data.data;
             }else{
-              this.$Message.info(res.data.message);
+              this.$Message.error(res.data.message);
             }
-            })
-            .catch((err)=>{
-            alert(err);
             }) 
         },
         getBceDocumentPreView(){//百度预览
@@ -286,53 +297,48 @@ export default {
             }))
             .then((res)=>{
             if(res.data.status==0){
-                /*let option = {
-                    docId: res.data.data.documentId,
-                    token: res.data.data.token,
-                    host: res.data.data.host,
-                    serverHost: 'http://doc.bj.baidubce.com',
-                    width: 698, // 文档容器宽度
-                    pn: 1,  // 定位到第几页，可选
-                    fontSize:'big',
-                    toolbarConf: {
-                        page: true, // 上下翻页箭头图标
-                        pagenum: true, // 几分之几页
-                        full: false, // 是否显示全屏图标,点击后全屏
-                        copy: false, // 是否可以复制文档内容
-                        position: 'center', // 设置 toolbar中翻页和放大图标的位置(值有left/center)
-                    }, // 文档顶部工具条配置对象,必选
-                    enviroment: 'online'
-                };*/
-                // new Document('reader', option);
-               document.getElementById('reader').src=this.$previewURL+res.data.data.viewUrl;
+               document.getElementById('reader').src='http://ow365.cn/?i='+res.data.data.office360Id+'&furl='+res.data.data.viewUrl;
             }else{
-              this.$Message.info(res.data.message);
+              this.$Message.error(res.data.message);
             }
-            })
-            .catch((err)=>{
-            alert(err);
-            })
+            }) 
         },
-        getListResourceComment(){//评论列表
+        getListResourceComment(page){//评论列表
             let url=this.isMicrocourse?'/web/microcourse/listResourceComment.do':'/web/coursebook/listResourceComment.do';
             // console.log(url)
             this.$http.post(url,this.$qs.stringify({
                 token:this.token,
+                pageIndex:page||1,
                 resourceLocalId:this.resourceLocalId
             }))
             .then((res)=>{
-            if(res.data.status==0){
-               this.commentList=res.data.data.list;
-               this.commentNum=res.data.data.totalCount;
-            }else{
-              this.$Message.info(res.data.message);
-            }
-            })
-            .catch((err)=>{
-            alert(err);
-            })
+                if(res.status != 200){
+                  this.$Message.error('请求失败请重试');
+                }else{
+                    let result = res.data;
+                    if(result.status == 0){ 
+                          this.commentTotalCount = result.data.totalCount;
+                          this.commentCurrPage = result.data.currPage;
+                          this.pageSize = result.data.pageSize;
+                        if(result.data.list instanceof Array && result.data.list.length>0){
+                          this.commentList = result.data.list;
+                        }else{
+                          this.commentList = [];
+                        } 
+                    }else{ 
+                        this.$Message.error(result.message);         
+                    }
+                }
+            }) 
         },
         createResourceComment(){//创建评论
+            if(!this.comment){             
+                this.$Message.error('请输入评论');
+                return;
+            }else if(!this.recommendStar){
+                this.$Message.error('请对资源质量评分');
+                return;
+            }
             let url=this.isMicrocourse?'/web/microcourse/a/createResourceComment.do':'/web/coursebook/a/createResourceComment.do';
             this.$http.post(url,this.$qs.stringify({
                 token:this.token,
@@ -342,22 +348,20 @@ export default {
             }))
             .then((res)=>{
             if(res.data.status==0){
+                this.comment=''
                this.getListResourceComment();
+            }else if(res.data.status==5){
+                this.$Message.error(res.data.data);
             }else{
-              this.$Message.info(res.data.message);
+              this.$Message.error(res.data.message);
             }
-            })
-            .catch((err)=>{
-            alert(err);
-            })
+            }) 
+        },
+        pageChange(page){
+            this.getListResourceComment(page);
         }
     },
     created(){
-        // let oHead = document.getElementsByTagName('HEAD').item(0); 
-        // let oScript= document.createElement("script"); 
-        // oScript.type = "text/javascript"; 
-        // oScript.src="http://static.bcedocument.com/reader/v2/doc_reader_v2.js"; 
-        // oHead.appendChild( oScript);
         this.getHostSearchResource();
         if(this.$router.history.current.query.microcourse){
             this.isMicrocourse=true;
@@ -368,7 +372,11 @@ export default {
             this.resourceLocalId=this.$router.history.current.query.resourceLocalId;
             this.getResourceDetail(this.resourceLocalId);
         }
-        this.isMember=this.$storage.getStorage('vipStatus');
+        if(this.$router.history.current.query.isSchool==1 || this.$router.history.current.query.push==1|| this.$router.history.current.query.upload==1){
+            this.isMember=1;
+        }else{
+            this.isMember=this.$storage.getStorage('vipStatus');
+        }
     }
 }
 </script>
@@ -501,7 +509,7 @@ export default {
         text-align: center;
         margin-top: 30px;
     }
-    .operate-article a{
+    .operate-article a,.operate-article span{
         display: inline-block;
         width: 100px;
         height: 32px;
@@ -510,6 +518,10 @@ export default {
         border-radius: 5px;
         border: 1px solid #ff7171;
         color: #ff7171;
+    }
+    .operate-article span{
+        border: 1px solid #ccc;
+        color: #999;
     }
     .collect{
         color:#fff!important;
@@ -601,6 +613,11 @@ export default {
     .comment-content{
         line-height: 28px;
         font-size: 14px;
+    }
+    .pageBox{
+        text-align: center;
+        font-size: 14px;
+        padding: 20px 0;
     }
 </style>
 

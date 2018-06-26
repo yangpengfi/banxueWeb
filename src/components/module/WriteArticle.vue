@@ -41,6 +41,7 @@ export default {
   components: {UE},
   data(){
   	return{
+  		token:this.$storage.getStorage("token"),
   		title:"",
   		typeId:0,
   		openStatus:1,
@@ -55,12 +56,10 @@ export default {
   methods:{
   	getAchList(){
 			this.$http.post('/web/space/article/listArticleType.do',this.$qs.stringify({
-              userId:this.$storage.getStorage("userInfo").id
+              userId:this.$storage.getStorage("userInfo").id,
+              token:this.token
             }))
             .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
               let result = res.data;
               if(result.status == 0){
               	this.achList = result.data; 
@@ -68,11 +67,7 @@ export default {
               }else{ 
                 this.$Message.error(result.message);      
               }
-            } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
 		},
 		creatAtcal(){
 			if(!this.title){
@@ -93,12 +88,9 @@ export default {
               content:this.$refs.ue.getUEContent(),
               title:this.title,
               openStatus:this.openStatus,
-              token:this.$storage.getStorage("token"),
+              token:this.$storage.getStorage("token")
             }))
             .then((res)=>{
-            if(res.status != 200){
-              this.$Message.error('请求失败请重试');
-            }else{
               let result = res.data;
               if(result.status == 0){
               	this.goAchievemnet();
@@ -106,11 +98,7 @@ export default {
               }else{ 
                 this.$Message.error(result.message);      
               }
-            } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
 		},
 		goAchievemnet(){
 			this.$router.push('/MySpace/Achievements');

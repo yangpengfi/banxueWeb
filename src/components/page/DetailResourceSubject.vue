@@ -124,10 +124,7 @@ export default {
             }else{
               this.$Message.info(res.data.message);
             }
-          })
-          .catch((err)=>{
-            alert(err);
-          })
+          }) 
         },
         collectOrDel(){
             if(this.isCollect){
@@ -149,9 +146,6 @@ export default {
             }else{
               this.$Message.info(res.data.message);
             }
-            })
-            .catch((err)=>{
-            alert(err);
             }) 
         },
         delCollectResource(){
@@ -167,9 +161,6 @@ export default {
             }else{
               this.$Message.info(res.data.message);
             }
-            })
-            .catch((err)=>{
-            alert(err);
             }) 
         },
         getHostSearchResource(){
@@ -182,9 +173,6 @@ export default {
             }else{
               this.$Message.info(res.data.message);
             }
-            })
-            .catch((err)=>{
-            alert(err);
             }) 
         },
         getResourceLocalUrl(){
@@ -201,9 +189,6 @@ export default {
             }else{
               this.$Message.info(res.data.message);
             }
-            })
-            .catch((err)=>{
-            alert(err);
             }) 
         },
     },

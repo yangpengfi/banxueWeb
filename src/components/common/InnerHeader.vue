@@ -32,21 +32,24 @@ export default {
 		return {
 			userNme:this.$storage.getStorage("userInfo").trueName,
 			relations:[
-					{text:'空间首页',path:'/MySpace/',id:'spaceIndex'},   
-					{text:'我的资源',path:'/MySpace/MyResource',id:'myResource'},   
-					{text:'课程',path:'/MySpace/MinClasses',id:'minClasses'},   
-					{text:'学习成果',path:'/MySpace/Achievements',id:'achievements'},   
-					{text:'我的应用',path:'/MySpace/MyApplication',id:'myApplication'},
-					{text:'我的通讯录',path:'/MySpace/MyList',id:'myList'},   
-					{text:'展示空间',path:'/ShowSpace',id:'showSpace'}
+					{text:'空间首页',path:'/MySpace/',id:'SpaceIndex'},   
+					{text:'我的资源',path:'/MySpace/MyResource',id:'MyResource'},   
+					{text:'课程',path:'/MySpace/MinClasses',id:'MinClasses'},   
+					{text:'学习成果',path:'/MySpace/Achievements',id:'Achievements'},   
+					{text:'我的应用',path:'/MySpace/MyApplication',id:'MyApplication'},
+					{text:'我的通讯录',path:'/MySpace/MyList',id:'MyList'},   
+					{text:'展示空间',path:'/ShowSpace',id:'ShowSpace'}
 			],
 			selelectId:'spaceIndex'
 		}
 	},
 	methods:{
-		relationClick(item){  
+		relationClick(item){   
+			if(item.id==this.selelectId){
+			  this.$router.go(0)
+			} 
 			this.selelectId=item.id; 
-			if(item.id=='showSpace'){
+			if(item.id=='ShowSpace'){
 				window.open('#/ShowSpace/?userId='+this.$storage.getStorage("userInfo").id);
 				return;
 			}
@@ -89,14 +92,19 @@ export default {
 		let userType=this.$storage.getStorage('userInfo').type;
 		if(userType==2){
 			this.relations=[
-				{text:'空间首页',path:'/MySpace/',id:'spaceIndex'},   
-				{text:'我的资源',path:'/MySpace/MyResource/PushResource',id:'myResource'},   
-				{text:'课程',path:'/MySpace/MinClasses/BuiedClass',id:'minClasses'},   
-				{text:'学习成果',path:'/MySpace/Achievements',id:'achievements'},   
-				{text:'我的应用',path:'/MySpace/MyApplication',id:'myApplication'},
-				{text:'我的通讯录',path:'/MySpace/MyList',id:'myList'},   
-				{text:'展示空间',path:'/ShowSpace',id:'showSpace'}
+				{text:'空间首页',path:'/MySpace/',id:'SpaceIndex'},   
+				{text:'我的资源',path:'/MySpace/MyResource/PushResource',id:'PushResource'},   
+				{text:'课程',path:'/MySpace/MinClasses/BuiedClass',id:'BuiedClass'},   
+				{text:'学习成果',path:'/MySpace/Achievements',id:'Achievements'},   
+				{text:'我的应用',path:'/MySpace/MyApplication',id:'MyApplication'},
+				{text:'我的通讯录',path:'/MySpace/MyList',id:'MyList'},   
+				{text:'展示空间',path:'/ShowSpace',id:'ShowSpace'}
 			]
+		}
+		if(!location.hash.split('/')[2]){
+			this.selelectId='SpaceIndex';
+		}else{
+			this.selelectId=location.hash.split('/')[2];
 		}
 	}  
 }

@@ -90,7 +90,7 @@
             </p>
             <p class="level">
                 <span class="itemTitle">个性签名：</span>
-                <textarea placeholder="个性签名" v-model="myInfo.motto" maxlength="80" title="长度不超过80位"></textarea> 
+                <textarea placeholder="个性签名" v-model="myInfo.mottoEdit" maxlength="80" title="长度不超过80位"></textarea> 
             </p>
             <p>
                 <span class="itemTitle">民族：</span>
@@ -106,7 +106,7 @@
             </p>
             <p>
                 <span class="itemTitle">地址：</span> 
-                <input type="text" placeholder="请输入地址" v-model="myInfo.address" maxlength="80" title="长度不超过80位">
+                <input type="text" placeholder="请输入地址" v-model="myInfo.addressEdit" maxlength="80" title="长度不超过80位">
             </p>
         </form>
         <div slot="footer" style="text-align:center">
@@ -152,6 +152,8 @@ export default {
               let result = res.data;
               if(result.status == 0){
               	  this.myInfo = result.data;
+              	  this.myInfo.mottoEdit = result.data.motto;
+              	  this.myInfo.addressEdit = result.data.address;
               	  this.defaultList[0].name=result.data.userName;
               	  this.defaultList[0].url=result.data.logo;
 				  this.getGradeList();
@@ -159,10 +161,7 @@ export default {
                 this.$Message.error(result.message);      
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
 		},
 		getGradeList(){
 			this.$http.post('web/class/a/grades.do',this.$qs.stringify({
@@ -183,10 +182,7 @@ export default {
                 this.$Message.error(result.message);      
               }
             } 
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
 		}, 
         ok(){
             if(!this.myInfo.gradeId){
@@ -197,6 +193,8 @@ export default {
                 return;
             }
             this.myInfo.token=this.token;
+            this.myInfo.motto = this.myInfo.mottoEdit;
+            this.myInfo.address = this.myInfo.addressEdit;
             this.$http.post('/web/user/a/updateStudentInfo.do',this.$qs.stringify(this.myInfo))
             .then((res)=>{
 	            if(res.data.status==0){
@@ -209,10 +207,7 @@ export default {
 	            }else{
 	            	this.$Message.error(res.data.message);
 	            }
-            })
-            .catch((err)=>{
-                alert(err);
-            })
+            }) 
         },
         handleSuccess (res, file) {
         	if(res.status==0){

@@ -17,9 +17,9 @@ export default {
         return {
 			resourceList:[
 				{title:'他的上传',path:'/ShowSpace/MyResource/',id:'upload'},
-				{title:'他的收藏',path:'/ShowSpace/MyResource/CollectResource',id:'collect'},				
-				{title:'他的下载',path:'/ShowSpace/MyResource/DownloadResource',id:'download'},
-				{title:'推送记录',path:'/ShowSpace/MyResource/PushResource',id:'push'}
+				{title:'他的收藏',path:'/ShowSpace/MyResource/CollectResource',id:'CollectResource'},	
+				{title:'他的下载',path:'/ShowSpace/MyResource/DownloadResource',id:'DownloadResource'},
+				{title:'推送记录',path:'/ShowSpace/MyResource/PushResource',id:'PushResource'}
 			],
 			userId:0
         }
@@ -28,9 +28,9 @@ export default {
 		let userType=this.$storage.getStorage('spaceInfo').userType;
 		if(userType==2){
 			this.resourceList=[
-				{title:'老师推送',path:'/ShowSpace/MyResource/PushResource',id:'push'},
-				{title:'他的收藏',path:'/ShowSpace/MyResource/CollectResource',id:'collect'},				
-				{title:'他的下载',path:'/ShowSpace/MyResource/DownloadResource',id:'download'},
+				{title:'老师推送',path:'/ShowSpace/MyResource/PushResource',id:'PushResource'},
+				{title:'他的收藏',path:'/ShowSpace/MyResource/CollectResource',id:'CollectResource'},	
+				{title:'他的下载',path:'/ShowSpace/MyResource/DownloadResource',id:'DownloadResource'},
 			]
 		}
         this.userId=this.$router.history.current.query.userId;
