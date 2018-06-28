@@ -65,6 +65,7 @@
                 skey:new Date().getTime(),
                 token:this.$storage.getStorage("token"),
                 schoolName:this.datas.name,
+                shortName:this.datas.shortName,
                 provinceCode:this.datas.provinceId,
                 cityCode:this.datas.cityId,
                 areaCode:this.datas.areaId,
@@ -83,7 +84,10 @@
                     this.toIndex();
                 }, 3000);
             }else{
-
+               this.$Message.error({
+                    content: res.data.message,
+                    duration: 2
+                }); 
             }
             })
         }

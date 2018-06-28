@@ -112,7 +112,7 @@
 					<button type="button" v-show="spaceInfo.userType==2">错题本</button>
 					<button type="button" v-show="spaceInfo.userType==2">学习分析</button>
 					<button type="button" @click="toWrite">写文章</button>
-					<button type="button" v-show="spaceInfo.userType==1">班级学情</button>
+					<!-- <button type="button" v-show="spaceInfo.userType==1">班级学情</button> -->
 				</div>
 				<div class="myView">
 					<p class="viewTitle more-focus">

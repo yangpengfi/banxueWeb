@@ -11,8 +11,8 @@
                         </div>
                         <div v-if="open" id="content">
                             <ul>
-                                <li v-for="(item,index) in classList" @click="getsubject(item.id,item.name)" :class="{active:item.id==periodId}">
-                                    {{item.name}}								
+                                <li v-for="(item,index) in classList" @click="getsubject(item.periodId,item.periodName)" :class="{active:item.periodId==periodId}">
+                                    {{item.periodName}}								
                                 </li>
                             </ul>
                             <ul v-if="subjectList.length>0">
@@ -224,11 +224,7 @@ export default {
 			subject:'',
 			book:'',
 			texBook:'',
-			classList:[
-				{id:1,name:'高中'},
-				{id:2,name:'初中'},
-				{id:3,name:'小学'},
-			],			
+			classList:[],			
 			selData:'',           
             nodeTree:[],
             loadId1:'',
@@ -370,81 +366,88 @@ export default {
 				versionId:this.bookId,
 				textbookId:this.textBookId,
 				withDisabledNode:1
-			})).then(res => {	
-				if(res.status != 200){
-					this.$Message.error('请求失败请重试');
-				}else{
-					let result = res.data;
-					if(result.status != 0){
-						this.$Message.error('请求资源失败，请重试');
-					}else{	
-						if(result.data.children instanceof Array && result.data.children.length>0){
-                            this.nodeTree = result.data.children;
-						}else{
-							this.nodeTree = [];
-						}						
-					}
-				}			
-				
+			})).then(res => {
+				let result = res.data;
+				if(result.status != 0){
+					this.$Message.error('请求资源失败，请重试');
+				}else{	
+					if(result.data.children instanceof Array && result.data.children.length>0){
+                        this.nodeTree = result.data.children;
+					}else{
+						this.nodeTree = [];
+					}						
+				}
 			}) 
+        },
+        getPeriodList(){
+            this.$http.post(' web/user/periods.do',qs.stringify({              
+                token:this.params.token
+            })).then(res => {   
+                let result = res.data;
+                if(result.status != 0){
+                    this.$Message.error(result.message);
+                }else{  
+                    if(result.data instanceof Array && result.data.length>0){
+                        this.classList = result.data;
+                        if(result.data.length < 1){
+                            this.open=false;
+                        }
+                    }else{
+                        this.classList = [];
+                        this.nodeTree = []
+                        this.open=false;
+                    }                       
+                }
+            }) 
         },
         getSubjectList(periodId){
 			this.$http.post('/web/coursebook/listPeriod2Subject.do',qs.stringify({				
-				periodId:periodId,
-				name:'',
+				token:this.params.token,
+                periodId:periodId,
+                queryType:1,
 				status:1,
 				pageIndex:1,
 				pageSize:100
 			})).then(res => {	
-				if(res.status != 200){
-					this.$Message.error('请求失败请重试');
-				}else{
-					let result = res.data;
-					if(result.status != 0){
-						this.$Message.error('请求资源失败，请重试');
-					}else{	
-						if(result.data.list instanceof Array && result.data.list.length>0){
-							this.subjectList = result.data.list;
-							if(result.data.list.length == 1){
-								this.open=false;
-							}
-						}else{
-                            this.subjectList = [];
-                            this.nodeTree = []
-                            this.open=false;
-						}						
-					}
-				}			
-				
+				let result = res.data;
+				if(result.status != 0){
+					this.$Message.error('请求资源失败，请重试');
+				}else{	
+					if(result.data.list instanceof Array && result.data.list.length>0){
+						this.subjectList = result.data.list;
+						if(result.data.list.length < 1){
+							this.open=false;
+						}
+					}else{
+                        this.subjectList = [];
+                        this.nodeTree = []
+                        this.open=false;
+					}						
+				}
 			}) 
 		},	
 		getBookList(subjectId){
 			this.$http.post('/web/coursebook/listBookVersion.do',qs.stringify({				
-				periodId:this.periodId,
+				token:this.params.token,
+                periodId:this.periodId,
 				subjectId:subjectId,
-				name:'',
+                queryType:1,
 				status:1,
 				pageIndex:1,
 				pageSize:100
 			})).then(res => {	
-				if(res.status != 200){
-					this.$Message.error('请求失败请重试');
-				}else{
-					let result = res.data;
-					if(result.status != 0){
-						this.$Message.error('请求资源失败，请重试');
-					}else{	
-						if(result.data.list instanceof Array && result.data.list.length>0){
-							this.bookList = result.data.list;							
-						}else{
-                            this.bookList = [];
-                            this.nodeTree = []
-                            this.open=false;
-						}
-						
+				let result = res.data;
+				if(result.status != 0){
+					this.$Message.error('请求资源失败，请重试');
+				}else{	
+					if(result.data.list instanceof Array && result.data.list.length>0){
+						this.bookList = result.data.list;							
+					}else{
+                        this.bookList = [];
+                        this.nodeTree = []
+                        this.open=false;
 					}
-				}			
-				
+				}	
 			}) 
 		},
 		getTextBookList(versionId){
@@ -457,23 +460,18 @@ export default {
 				pageIndex:1,
 				pageSize:100
 			})).then(res => {	
-				if(res.status != 200){
-					this.$Message.error('请求失败请重试');
-				}else{
-					let result = res.data;
-					if(result.status != 0){
-						this.$Message.error('请求资源失败，请重试');
-					}else{							
-						if(result.data.list instanceof Array && result.data.list.length>0){
-							this.textBookList = result.data.list;							
-						}else{
-                            this.textBookList = [];
-                            this.nodeTree = []
-                            this.open=false;
-						}
+				let result = res.data;
+				if(result.status != 0){
+					this.$Message.error('请求资源失败，请重试');
+				}else{							
+					if(result.data.list instanceof Array && result.data.list.length>0){
+						this.textBookList = result.data.list;							
+					}else{
+                        this.textBookList = [];
+                        this.nodeTree = []
+                        this.open=false;
 					}
-				}			
-				
+				}	
 			}) 
         },
         getsubject(id,name){      
@@ -511,7 +509,8 @@ export default {
 		},
 		openSel(){
 			if(!this.open){
-				this.open = true;				
+				this.open = true;
+                this.getPeriodList();				
 			}else{
 				this.open = false;
 			}      

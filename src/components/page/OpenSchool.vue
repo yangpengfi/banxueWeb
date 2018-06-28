@@ -25,13 +25,24 @@
           <Option value="1">高中</Option>
       </Select>
     </p>
-		<p>
-			<span><i style="color:red;">*</i> 学校名称：</span>
-			<Input v-model="name" 
+    <p>
+      <span><i style="color:red;">*</i> 学校名称：</span>
+      <Input v-model="name" 
       placeholder="请输入学校名称" 
       style="width: 480px" 
       :maxlength="50" 
       title="长度不超过50"></Input>
+    </p>
+		<p>
+			<span><i style="color:red;">*</i> 学校简称：</span>
+			<input v-model="shortName" 
+      placeholder="请输入学校简称" 
+      style="width: 480px"
+      class="ivu-input" 
+      maxlength="5" 
+      title="长度不超过5" 
+      onkeyup="value=value.replace(/[^\u4E00-\u9FA5]/g,'')" 
+      onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^\u4E00-\u9FA5]/g,''))"/>
     </p>
 		<p>
 			<a href="javascript:void(0);" @click="goCommitPeople" class="myBtn">下一步</a>
@@ -52,6 +63,7 @@
         cityId: '',
         areaId: '',
         periodId: '',
+        shortName: '',
         name: ''
 	    }
 	},
@@ -91,7 +103,6 @@
                 }           
               }
           })
-           
         },
     	getlistCity(pId){
           this.$http.post('/app/location/listCity',this.$qs.stringify({
@@ -109,7 +120,6 @@
                 }           
               }
           })
-           
         },
     	getlistArea(cId){
           this.$http.post('/app/location/listArea',this.$qs.stringify({
@@ -127,7 +137,6 @@
                 }           
               }
           })
-           
         },
       goCommitPeople(){
             if(!this.provinceId){
@@ -154,12 +163,19 @@
                     duration: 2
                 });
                 return;
+            }else if(!this.shortName){
+                this.$Message.warning({
+                    content: '请输入学校简称！',
+                    duration: 2
+                });
+                return;
             }
             let commitData={
               provinceId:this.provinceId,  
               cityId:this.cityId,  
               areaId:this.areaId,  
               periodId:this.periodId,  
+              shortName:this.shortName,  
               name:this.name
             }
             // console.log(commitData)
