@@ -6,8 +6,8 @@
 // const baseURL='http://175.25.177.100/banxue/';//吉视传媒
 // const baseURL='http://220.250.18.60:8761/banxue/';//福建广电
 // const baseURL='http://localhost:8060/banxue/';
-// const baseURL='http://mybanxue.com';
-const baseURL='http://192.168.8.251/banxue/';
+const baseURL='http://mybanxue.com';
+// const baseURL='http://192.168.8.251/banxue/';
 export default{
 	// previewURL,
 	baseURL
